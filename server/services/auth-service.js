@@ -1,6 +1,6 @@
 // Service: 회원가입·로그인·계정 찾기 규칙
 // 입력을 검사하고, 여러 Repository를 조합한다. 규칙 실패는 Failure로 돌려준다.
-import { Result, Failure } from '../../public/js/core/result.js';
+import { Result, Failure, Success } from '../../public/js/core/result.js';
 import { AppError } from '../../public/js/core/app-error.js';
 import {
     isValidUsername, isValidPassword, normalizeNickname, normalizeRecoveryCode, formatRecoveryCode,
@@ -43,6 +43,15 @@ export class AuthService {
         return this.#teacherUsernames.has(user.username);
     }
 
+    /** 랭킹에 같은 이름이 둘 보이지 않게: 다른 사람이 쓰는 닉네임이면 NICKNAME_TAKEN */
+    async #checkNicknameFreeAsync(nickname, myId) {
+        const taken = await this.#users.isNicknameTakenAsync(nickname, myId);
+        if (taken instanceof Failure) {
+            return taken;
+        }
+        return taken.data ? Result.failure(AppError.NICKNAME_TAKEN) : Result.success(true);
+    }
+
     async #openSessionAsync(userId) {
         const token = this.#secrets.newSessionToken();
         const saved = await this.#sessions.saveAsync(await sha256Hex(token), userId, this.#clock() + SESSION_TTL_MS);
@@ -60,6 +69,18 @@ export class AuthService {
         const nick = normalizeNickname(nickname, name);
         if (nick === null) {
             return Result.failure(AppError.INVALID_NICKNAME);
+        }
+        // 아이디가 겹치면 그 말이 더 정확하니 닉네임보다 먼저 알려 준다
+        const existing = await this.#users.findByUsernameAsync(name);
+        if (existing instanceof Success) {
+            return Result.failure(AppError.USERNAME_TAKEN);
+        }
+        if (existing.error !== AppError.NOT_FOUND) {
+            return existing;
+        }
+        const free = await this.#checkNicknameFreeAsync(nick, 0);
+        if (free instanceof Failure) {
+            return free;
         }
 
         const recoveryCode = this.#secrets.newRecoveryCode();
@@ -179,6 +200,10 @@ export class AuthService {
         const nick = normalizeNickname(nickname, user.username);
         if (nick === null) {
             return Result.failure(AppError.INVALID_NICKNAME);
+        }
+        const free = await this.#checkNicknameFreeAsync(nick, user.id);
+        if (free instanceof Failure) {
+            return free;
         }
         const updated = await this.#users.updateNicknameAsync(user.id, nick);
         return updated instanceof Failure ? updated : Result.success(publicUser({ ...user, nickname: nick }, this.isTeacher(user)));

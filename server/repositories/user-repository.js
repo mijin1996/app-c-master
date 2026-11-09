@@ -76,6 +76,15 @@ export class UserRepository {
         return this.#runAsync(() => this.#dataSource.updateRecoveryHashAsync(id, recoveryHash));
     }
 
+    /** 다른 회원이 이 닉네임을 쓰고 있으면 true (exceptId: 나 자신, 없으면 0) */
+    async isNicknameTakenAsync(nickname, exceptId = 0) {
+        try {
+            return Result.success(Boolean(await this.#dataSource.findNicknameOwnerAsync(nickname, exceptId)));
+        } catch (e) {
+            return Result.failure(AppError.SERVER);
+        }
+    }
+
     async updateNicknameAsync(id, nickname) {
         return this.#runAsync(() => this.#dataSource.updateNicknameAsync(id, nickname));
     }

@@ -6,7 +6,7 @@ import { progressFromDto } from '../../public/js/mappers/progress-mapper.js';
 import { summarize } from '../../public/js/domain/progress-rules.js';
 
 export const MAX_PROGRESS_BYTES = 512 * 1024;
-export const RANKING_LIMIT = 100;
+export const RANKING_LIMIT = 20; // 랭킹은 위에서 20명까지만 보여 준다
 
 export class ProgressService {
     #progress;

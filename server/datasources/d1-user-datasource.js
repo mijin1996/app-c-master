@@ -51,6 +51,12 @@ export class D1UserDataSource {
         await this.#db.prepare('UPDATE users SET recovery_hash = ? WHERE id = ?').bind(recoveryHash, id).run();
     }
 
+    /** 이 닉네임을 쓰는 다른 회원 (영어는 대소문자 무시). exceptId 는 나 자신이라 빼고 찾는다 */
+    async findNicknameOwnerAsync(nickname, exceptId) {
+        return await this.#db.prepare('SELECT id FROM users WHERE lower(nickname) = lower(?) AND id != ? LIMIT 1')
+            .bind(nickname, exceptId).first();
+    }
+
     async updateNicknameAsync(id, nickname) {
         await this.#db.prepare('UPDATE users SET nickname = ? WHERE id = ?').bind(nickname, id).run();
     }

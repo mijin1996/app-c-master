@@ -4,6 +4,7 @@ import { Result, Failure } from '../core/result.js';
 import { AppError } from '../core/app-error.js';
 import { OOP_LESSONS } from '../domain/oop-curriculum.js';
 import { oopGainedXp, OOP_QUIZ_SIZE } from '../domain/oop-rules.js';
+import { practiceKey, PRACTICE_XP } from '../domain/oop-practice-rules.js';
 import { progressFromDto } from '../mappers/progress-mapper.js';
 import { LanguageId, languageOf, codeKey } from '../domain/languages.js';
 import {
@@ -193,6 +194,36 @@ export class ProgressService {
         const events = this.#eventsSince(before, null);
         this.#changed();
         return Result.success({ gainedXp, best: p.oopQuiz[key], events });
+    }
+
+    /**
+     * 객체지향 코드 실습 결과 기록. 맞혔을 때 처음 한 번만 경험치를 준다 (채점은 checkPractice 가 한다)
+     * @param {number} lessonNo
+     * @param {number} index 레슨 안 실습 순서 (0부터)
+     * @param {boolean} correct
+     * @returns {Result} 성공: { gainedXp, solved, events } / 실패: INVALID_PROGRESS
+     */
+    recordOopPractice(lessonNo, index, correct) {
+        const lesson = this.#oopLessons.find((l) => l.no === Number(lessonNo));
+        if (!lesson || !Number.isInteger(index) || index < 0 || index >= (lesson.practice ?? 0)) {
+            return Result.failure(AppError.INVALID_PROGRESS);
+        }
+        const p = this.#progress;
+        const key = practiceKey(lesson.no, index);
+        const before = this.#snapshot(null);
+        let gainedXp = 0;
+        if (correct === true && p.oopPractice[key] !== 1) {
+            p.oopPractice[key] = 1;
+            gainedXp = PRACTICE_XP;
+        }
+        this.#touchStreak();
+        const events = this.#eventsSince(before, null);
+        this.#changed();
+        return Result.success({ gainedXp, solved: p.oopPractice[key] === 1, events });
+    }
+
+    isPracticeSolved(lessonNo, index) {
+        return this.#progress.oopPractice[practiceKey(lessonNo, index)] === 1;
     }
 
     /** 문제 화면이 1초 열려 있을 때마다 부른다 */

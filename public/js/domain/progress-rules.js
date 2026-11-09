@@ -3,6 +3,7 @@
 import { ALGORITHM_TRACKS } from './curriculum.js';
 import { OOP_LESSONS } from './oop-curriculum.js';
 import { computeOopXp, OOP_PASS_SCORE } from './oop-rules.js';
+import { computePracticeXp, solvedPracticeCount } from './oop-practice-rules.js';
 
 // 난이도 1~3은 단원 문제(★), 4~7은 알고리즘 단계(브론즈·실버·골드·플래티넘)
 export const XP_BY_LEVEL = Object.freeze({ 1: 10, 2: 20, 3: 30, 4: 40, 5: 60, 6: 80, 7: 100 });   // 난이도별 경험치
@@ -76,7 +77,7 @@ export function computeXp(progress, curriculum, oopLessons = OOP_LESSONS) {
             xp += QUIZ_PERFECT_XP;
         }
     }
-    return xp + computeOopXp(progress.oopQuiz, oopLessons);
+    return xp + computeOopXp(progress.oopQuiz, oopLessons) + computePracticeXp(progress.oopPractice, oopLessons);
 }
 
 export function solvedCountIn(progress, chapter) {
@@ -148,6 +149,7 @@ export function summarize(progress, curriculum, oopLessons = OOP_LESSONS) {
         algorithmSolvedCount: Object.keys(progress.solved).filter((id) => isAlgorithmLevel(levels.get(String(id)) ?? 0)).length,
         clearedCount: states.filter((s) => s === 'cleared').length,
         oopPassedCount,
+        oopPracticeSolved: solvedPracticeCount(progress.oopPractice, oopLessons),
         chapterStates: states,
         quizAvg,
         lastStudyDay: progress.streak.last,

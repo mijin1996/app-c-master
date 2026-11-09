@@ -4,6 +4,7 @@ import { createEmptyProgress, DEFAULT_SETTINGS } from '../domain/progress-model.
 import { QUIZ_SIZE, HISTORY_LIMIT, FORM_NAMES } from '../domain/progress-rules.js';
 import { isLanguageId } from '../domain/languages.js';
 import { isOopLessonNo, OOP_QUIZ_SIZE } from '../domain/oop-rules.js';
+import { isPracticeKey } from '../domain/oop-practice-rules.js';
 
 const PROBLEM_ID = /^\d{4}$/;
 const CODE_KEY = /^\d{4}(?::(?:python|cpp|java))?$/; // C는 번호만, 다른 언어는 "번호:언어"
@@ -97,6 +98,20 @@ function oopQuizMap(raw) {
     return out;
 }
 
+/** "레슨-순서" → 1(풀었음) 모양만 남긴다. 예전 true 도 1로 받아 준다 */
+function oopPracticeMap(raw) {
+    const out = {};
+    if (!isObject(raw)) {
+        return out;
+    }
+    for (const [key, value] of Object.entries(raw)) {
+        if (isPracticeKey(key) && (value === 1 || value === true)) {
+            out[key] = 1;
+        }
+    }
+    return out;
+}
+
 function historyList(raw) {
     if (!Array.isArray(raw)) {
         return [];
@@ -141,6 +156,7 @@ export function progressFromDto(dto) {
         hintsOpen: countMap(raw.hintsOpen),
         quiz: quizMap(raw.quiz),
         oopQuiz: oopQuizMap(raw.oopQuiz),
+        oopPractice: oopPracticeMap(raw.oopPractice),
         history: historyList(raw.history),
         streak: streakOf(raw.streak),
         formSeen: clamp(toCount(raw.formSeen) ?? 0, 0, FORM_NAMES.length - 1),

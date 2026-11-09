@@ -4,6 +4,7 @@ import { Result, Success } from '../core/result.js';
 import { AppError } from '../core/app-error.js';
 import { progressFromDto, progressToDto } from '../mappers/progress-mapper.js';
 import { contentFromDto } from '../mappers/content-mapper.js';
+import { oopLessonsFromDto } from '../mappers/oop-content-mapper.js';
 
 const ERROR_BY_STATUS = Object.freeze({ 401: AppError.UNAUTHORIZED, 403: AppError.FORBIDDEN, 404: AppError.NOT_FOUND, 413: AppError.PAYLOAD_TOO_LARGE, 503: AppError.FEATURE_DISABLED });
 
@@ -165,6 +166,7 @@ export class CodeRunRepository {
 export class ContentRepository {
     #source;
     #cache = null;
+    #oopCache = null;
 
     constructor(source) {
         this.#source = source;
@@ -178,6 +180,18 @@ export class ContentRepository {
         const loaded = await call(() => this.#source.loadAsync(), contentFromDto);
         if (loaded instanceof Success) {
             this.#cache = loaded.data;
+        }
+        return loaded;
+    }
+
+    /** 객체지향 레슨 목록. 처음 객체지향 화면을 열 때 한 번만 받는다 */
+    async loadOopAsync() {
+        if (this.#oopCache) {
+            return Result.success(this.#oopCache);
+        }
+        const loaded = await call(() => this.#source.loadOopAsync(), oopLessonsFromDto);
+        if (loaded instanceof Success && loaded.data.length > 0) {
+            this.#oopCache = loaded.data;
         }
         return loaded;
     }

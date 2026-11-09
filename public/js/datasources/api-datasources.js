@@ -133,4 +133,9 @@ export class StaticContentDataSource {
     loadAsync() {
         return this.#http.requestAsync('GET', '/data/content.json');
     }
+
+    /** 객체지향 레슨 · 퀴즈 (tools/build-oop.mjs 가 만든 파일) */
+    loadOopAsync() {
+        return this.#http.requestAsync('GET', '/data/oop.json');
+    }
 }

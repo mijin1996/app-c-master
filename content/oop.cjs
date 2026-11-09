@@ -3,7 +3,9 @@
 // 고친 뒤에는 `node tools/build-oop.mjs` → `npm test`.
 // 모양: { no, title, tag, story: [문단], points: [핵심], example?: { title, code }, quiz: [{ q, code?, options, answer(0부터), explain }] x5 }
 
-module.exports = [
+const PRACTICE = require('./oop-practice.cjs');
+
+const LESSONS = [
     {
         no: 1,
         title: '클래스와 인스턴스',
@@ -710,3 +712,6 @@ module.exports = [
         ],
     },
 ];
+
+// 레슨마다 코드 실습(빈칸 1 + 결과 맞히기 1)을 붙인다
+module.exports = LESSONS.map((lesson) => ({ ...lesson, practice: PRACTICE[lesson.no] ?? [] }));

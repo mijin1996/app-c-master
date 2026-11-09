@@ -19,6 +19,23 @@ function questionFromDto(raw) {
     };
 }
 
+/** 코드 실습: 빈칸(blank)은 칸마다 정답 후보, 결과 맞히기(output)는 정답 후보 목록 */
+function practiceFromDto(raw) {
+    if (!isObject(raw) || typeof raw.code !== 'string') {
+        return null;
+    }
+    const base = { prompt: String(raw.prompt ?? ''), code: raw.code, hint: String(raw.hint ?? ''), explain: String(raw.explain ?? '') };
+    if (raw.kind === 'blank') {
+        const blanks = (Array.isArray(raw.blanks) ? raw.blanks : []).map((b) => ({ answers: texts(b?.answers), hint: String(b?.hint ?? '') }));
+        return blanks.length > 0 && blanks.every((b) => b.answers.length > 0) ? { kind: 'blank', ...base, blanks } : null;
+    }
+    if (raw.kind === 'output') {
+        const answers = texts(raw.answers);
+        return answers.length > 0 ? { kind: 'output', ...base, answers } : null;
+    }
+    return null;
+}
+
 function lessonFromDto(raw) {
     if (!isObject(raw) || !Number.isInteger(raw.no) || raw.no < 1 || typeof raw.title !== 'string') {
         return null;
@@ -33,6 +50,7 @@ function lessonFromDto(raw) {
             ? { title: String(raw.example.title ?? ''), code: raw.example.code }
             : null,
         quiz: (Array.isArray(raw.quiz) ? raw.quiz : []).map(questionFromDto).filter(Boolean),
+        practice: (Array.isArray(raw.practice) ? raw.practice : []).map(practiceFromDto).filter(Boolean),
     };
 }
 

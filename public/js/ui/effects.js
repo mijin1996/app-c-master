@@ -1,6 +1,10 @@
-// 화면 효과 모음. Vue Bits의 Click Spark · Rotating Text · Fuse Button을 보고 느낌만 참고해
+// 화면 효과 모음. Vue Bits의 Click Spark · Rotating Text · Sling Button · Fuse Button을 보고 느낌만 참고해
 // 바닐라 자바스크립트로 새로 만들었다 (원본 코드를 옮기지 않음). 움직임 줄이기 설정을 켠 사람에게는 조용히 보여 준다.
+import { launchOf, burstParticles, springKeyframes } from './sling-math.js';
+
 const SVG_NS = 'http://www.w3.org/2000/svg';
+// 새총 효과를 받는 버튼들 (화면 클릭 불꽃은 이 위에서는 쉬어요)
+const BUTTON_SELECTOR = '.btn, .iconbtn, .like-btn, .tabs button, .credits-link, .opt, .lesson-card';
 
 const reduceMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
@@ -62,7 +66,7 @@ export function installClickSpark(root = document) {
     };
 
     root.addEventListener('pointerdown', (event) => {
-        if (event.button !== 0 || reduceMotion()) {
+        if (event.button !== 0 || reduceMotion() || event.target.closest?.(BUTTON_SELECTOR)) {
             return;
         }
         const color = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#f0643a';
@@ -74,10 +78,107 @@ export function installClickSpark(root = document) {
     }, { passive: true });
 }
 
-// ---------- 2. 버튼 도화선 (Fuse) ----------
-const FUSE_MS = 650;
-const BUTTON_SELECTOR = '.btn, .iconbtn, .like-btn, .tabs button, .credits-link';
+// ---------- 2. 새총 버튼 (Sling) ----------
+const SLING_RETURN_MS = 460;
+const SLING_RECOIL = 0.2;
+const SLING_PARTICLES = 14;
+const SLING_SPREAD = Math.PI / 3; // 60°
+const SLING_FLIGHT = 70;          // 버튼용이라 원본(120px)보다 짧게
+const SLING_KEY_POWER = 0.5;      // 키보드(Enter · Space)로 눌렀을 때 세기
 
+let slingLayer = null;
+function layer() {
+    if (!slingLayer || !slingLayer.isConnected) {
+        slingLayer = document.createElement('div');
+        slingLayer.className = 'sling-layer';
+        slingLayer.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(slingLayer);
+    }
+    return slingLayer;
+}
+
+/** 버튼 가장자리에서 발사 방향으로 입자를 흩뿌린다 */
+function burst(button, angle, power) {
+    const rect = button.getBoundingClientRect();
+    if (rect.width === 0) {
+        return;
+    }
+    const color = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#f0643a';
+    // 가운데에서 발사 방향으로 버튼 반지름만큼 나간 곳 (버튼 테두리 근처)
+    const reach = Math.min(rect.width, rect.height) / 2;
+    const ox = rect.left + rect.width / 2 + Math.cos(angle) * reach;
+    const oy = rect.top + rect.height / 2 + Math.sin(angle) * reach;
+    const box = layer();
+    for (const p of burstParticles(SLING_PARTICLES, { angle, spread: SLING_SPREAD, flight: SLING_FLIGHT, power })) {
+        const dot = document.createElement('i');
+        dot.className = 'sling-dot';
+        dot.style.cssText = 'left:' + ox + 'px;top:' + oy + 'px;width:' + p.size + 'px;height:' + p.size + 'px;background:' + color;
+        box.appendChild(dot);
+        const motion = dot.animate([
+            { transform: 'translate(-50%, -50%) translate(0, 0) scale(1)', opacity: 1 },
+            { transform: 'translate(-50%, -50%) translate(' + p.dx + 'px, ' + p.dy + 'px) scale(.3)', opacity: 0 },
+        ], { duration: p.duration, delay: p.delay, easing: 'cubic-bezier(.15, .7, .3, 1)', fill: 'both' });
+        motion.onfinish = () => dot.remove();
+    }
+}
+
+/** 놓으면 스프링처럼 튕겼다가 제자리로 */
+function springBack(button, pullX, pullY, recoil) {
+    button.style.translate = '';
+    button.classList.remove('sling-pull', 'sling-armed');
+    const frames = springKeyframes(pullX, pullY, recoil).map((f) => ({ translate: f.x + 'px ' + f.y + 'px', offset: f.offset }));
+    button.animate(frames, { duration: SLING_RETURN_MS, easing: 'ease-out' });
+}
+
+/**
+ * 모든 버튼에 새총 효과: 누른 채로 끌면 버튼이 끈 쪽으로 살짝 끌려가고(고무줄),
+ * 놓으면 반대쪽으로 튕기며 입자가 날아간다. 그냥 누르면 위쪽으로 작게 쏜다. 클릭 동작은 그대로다.
+ */
+export function installSlingButtons(root = document) {
+    let active = null;
+
+    root.addEventListener('pointerdown', (event) => {
+        const button = event.target.closest?.(BUTTON_SELECTOR);
+        if (!button || button.disabled || event.button !== 0 || reduceMotion()) {
+            return;
+        }
+        active = { button, id: event.pointerId, x0: event.clientX, y0: event.clientY, launch: launchOf(0, 0) };
+        button.classList.add('sling-pull');
+    }, { passive: true });
+
+    addEventListener('pointermove', (event) => {
+        if (!active || event.pointerId !== active.id) {
+            return;
+        }
+        active.launch = launchOf(event.clientX - active.x0, event.clientY - active.y0);
+        active.button.style.translate = active.launch.pullX + 'px ' + active.launch.pullY + 'px';
+        active.button.classList.toggle('sling-armed', active.launch.armed);
+    }, { passive: true });
+
+    const release = (fire) => (event) => {
+        if (!active || event.pointerId !== active.id) {
+            return;
+        }
+        const { button, launch } = active;
+        active = null;
+        springBack(button, launch.pullX, launch.pullY, SLING_RECOIL);
+        if (fire) {
+            burst(button, launch.angle, launch.power);
+        }
+    };
+    addEventListener('pointerup', release(true), { passive: true });
+    addEventListener('pointercancel', release(false), { passive: true }); // 스크롤 등으로 취소되면 조용히 돌아오기
+
+    // 키보드로 누른 클릭(detail 0)도 위로 작게 쏜다
+    root.addEventListener('click', (event) => {
+        const button = event.target.closest?.(BUTTON_SELECTOR);
+        if (event.detail === 0 && button && !reduceMotion()) {
+            burst(button, -Math.PI / 2, SLING_KEY_POWER);
+        }
+    });
+}
+
+// ---------- 3. 되돌리기 버튼의 도화선 (Fuse) ----------
 /** 둥근 테두리를 따라 불붙은 선이 한 바퀴 타들어 가는 모양을 버튼 위에 그린다 */
 function burnFuse(button, durationMs, className = 'fuse-rim') {
     button.querySelector(':scope > .' + className)?.remove();
@@ -102,19 +203,6 @@ function burnFuse(button, durationMs, className = 'fuse-rim') {
     svg.style.setProperty('--fuse-ms', durationMs + 'ms');
     button.appendChild(svg);
     return svg;
-}
-
-export function installFuseButtons(root = document) {
-    root.addEventListener('pointerdown', (event) => {
-        const button = event.target.closest?.(BUTTON_SELECTOR);
-        if (!button || button.disabled || reduceMotion()) {
-            return;
-        }
-        const svg = burnFuse(button, FUSE_MS);
-        if (svg) {
-            setTimeout(() => svg.remove(), FUSE_MS + 50);
-        }
-    }, { passive: true });
 }
 
 /**
@@ -166,7 +254,7 @@ export function makeFuseUndoButton(button, { undoMs = 4000, armedLabel = '되돌
     });
 }
 
-// ---------- 3. 레벨 업 회전 글자 (Rotating Text) ----------
+// ---------- 4. 레벨 업 회전 글자 (Rotating Text) ----------
 const ROTATE_STEP_MS = 900;
 const LETTER_STAGGER_MS = 35;
 

@@ -21,7 +21,7 @@ import { Sky } from './ui/sky.js';
 import { SoundPlayer } from './ui/sound.js';
 import { dayKey, yesterdayKey, esc } from './ui/dom.js';
 import { Router } from './router.js';
-import { installClickSpark, installFuseButtons } from './ui/effects.js';
+import { installClickSpark, installSlingButtons } from './ui/effects.js';
 import { renderLogin } from './views/auth-views.js';
 import { renderMap, renderChapter } from './views/map-views.js';
 import { renderProblem } from './views/problem-view.js';
@@ -116,7 +116,7 @@ document.addEventListener('pointerdown', () => {
 // ---------- 시작 ----------
 async function startAsync() {
     installClickSpark();
-    installFuseButtons();
+    installSlingButtons();
     Sky.init(document.getElementById('sky'), currentSettings);
     const content = await contentRepository.loadAsync();
     if (content instanceof Failure) {

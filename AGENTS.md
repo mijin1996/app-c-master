@@ -54,6 +54,7 @@ View(화면) → Service(규칙 판단) → Repository(데이터 골라 주기 +
 - 서버·DB·시간·랜덤은 가짜로 바꾼다: `tests/fakes/sqlite-d1.js`(실제 SQL을 메모리 SQLite로), 가짜 Repository, 가짜 fetch, 고정 시계.
 - 정상 값 + 경계값(0, 제한 딱 맞게, 제한+1) + 실패 상황(null, 빈 값, 고장 난 DB)을 넣는다.
 - 문제·퀴즈를 바꾸면 `node tools/build-content.mjs` 로 gcc 대조 후 `npm test`.
+- 객체지향 레슨(`content/oop.cjs`)을 바꾸면 `node tools/build-oop.mjs` (gcc 필요 없음) 후 `npm test`.
 
 ## 6. 보안 규칙
 

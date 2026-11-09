@@ -26,7 +26,15 @@ Cody SHALL be an original character with 5 forms and normal, happy and thinking 
 - **WHEN** a submission is wrong
 - **THEN** Cody shows the thinking face with an encouraging line
 ### Requirement: Feedback effects
-Every click SHALL show a short spark; every button press SHALL burn a fuse along its rim; a level-up SHALL cover the screen briefly with rotating text; the code editor panel SHALL glow green while focused and return to normal when focus leaves. All effects SHALL respect reduced motion.
+Every click outside buttons SHALL show a short spark; every button press SHALL show the slingshot effect below; the delete undo button SHALL burn a fuse along its rim while it can be undone; a level-up SHALL cover the screen briefly with rotating text; the code editor panel SHALL glow green while focused and return to normal when focus leaves. All effects SHALL respect reduced motion.
+
+### Requirement: Sling button press effect
+Every button press SHALL show a slingshot effect: dragging pulls the button a little toward the pointer (limited distance), releasing snaps it the other way with a spring return and a fan of particles in the launch direction. A plain tap SHALL launch a small burst upward. A loaded (armed) release SHALL still press the button even when the pointer ends outside it. Users with reduced motion SHALL see no movement.
+
+#### Scenario: Pulling and releasing a button
+- **GIVEN** a learner presses the 퀴즈 풀기 button and drags 80px down
+- **WHEN** they release outside the button
+- **THEN** the button springs up, particles fly upward, and the quiz starts
 
 ## MODIFIED Requirements (2026-11-09)
 

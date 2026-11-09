@@ -42,11 +42,11 @@ export function renderAlgorithm(app, focus) {
     }).join('<span class="rung-arrow" aria-hidden="true">›</span>');
     renderShell(app, 'algo',
         '<div class="view-title"><h1>알고리즘</h1><span class="on-sky muted">단원을 끝냈다면 단계별 알고리즘 문제에 도전해요</span></div>' +
-        '<div class="panel pad lang-note"><b>풀이 언어: C (C11)</b> · code.ai 는 C언어 학습 사이트라 알고리즘 문제도 C로 풀고, 브라우저 안의 C 실행기로 채점해요. ' +
-        'USACO 대회는 C · C++ · Java · Python 을 받지만, 여기서는 배운 C로 같은 생각을 연습해요.</div>' +
+        '<div class="panel pad lang-note"><b>풀이 언어: C · Python</b> (문제 화면 오른쪽 위에서 골라요) · 둘 다 학생 브라우저 안에서 바로 채점해요. ' +
+        'Python은 처음 고를 때 실행기(약 10MB)를 한 번 받아요. C++ · Java는 채점 서버가 필요해서 유료 언어로 준비 중이에요.</div>' +
         '<nav class="ladder panel" aria-label="알고리즘 단계">' + ladder + '</nav>' +
         '<div class="tier-list">' + tracks.map((track) => trackSection(app, track, track.track === focus)).join('') + '</div>' +
-        '<p class="muted small on-sky" style="margin-top:12px">단계 나누기는 USACO를 참고했고, 문제는 모두 code.ai 가 새로 만든 연습 문제예요. 자세한 출처는 아래 "출처 · 라이선스"에 있어요.</p>');
+        '<p class="muted small on-sky" style="margin-top:12px">단계 나누기와 단계별 주제는 USACO를 참고했고, 문제는 모두 code.ai 가 새로 만든 연습 문제예요. 자세한 출처는 아래 "출처 · 라이선스"에 있어요.</p>');
     if (focus) {
         document.getElementById('tier-' + focus)?.scrollIntoView({ block: 'start' });
     }

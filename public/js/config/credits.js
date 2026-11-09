@@ -18,10 +18,19 @@ export const CREDITS = Object.freeze([
         ],
     },
     {
+        group: '채점 도구',
+        items: [
+            { name: 'Pyodide', by: 'Pyodide 프로젝트', license: 'Mozilla Public License 2.0', url: 'https://pyodide.org/',
+                note: 'Python 문제를 학생 브라우저 안에서 실행 (jsDelivr에서 불러옴, 코드를 고치지 않고 그대로 사용)' },
+            { name: 'Judge0 (연결 준비만)', by: 'Judge0', license: 'GPL-3.0 · 설치 시 별도 서버', url: 'https://judge0.com/',
+                note: 'C++ · Java 유료 채점용으로 연결 자리만 만들어 둠. 지금은 꺼져 있어요' },
+        ],
+    },
+    {
         group: '알고리즘 문제',
         items: [
             { name: 'USA Computing Olympiad (USACO)', by: 'USACO', license: '단계 구분 방식 참고 · 문제는 옮기지 않음', url: 'https://usaco.org/index.php',
-                note: '브론즈 · 실버 · 골드 · 플래티넘 단계 나누기를 참고했어요. code.ai 알고리즘 16문제의 지문 · 테스트 · 모범답안은 새로 만든 것이고, USACO 원래 문제는 각 단계의 링크에서 풀 수 있어요' },
+                note: '브론즈 · 실버 · 골드 · 플래티넘 단계 나누기와, 단계마다 다루는 알고리즘 주제(완전 탐색, 누적 합, DP, 세그먼트 트리 등)를 참고했어요. code.ai 알고리즘 32문제의 지문 · 테스트 · 모범답안(C · Python)은 특정 대회 문제를 옮기지 않고 새로 만든 것이고, USACO 원래 문제는 각 단계의 링크에서 풀 수 있어요' },
             { name: 'USACO Guide', by: 'Competitive Programming Initiative', license: '링크만 연결', url: 'https://usaco.guide/', note: '단계별로 더 공부할 곳 안내' },
         ],
     },

@@ -2,8 +2,10 @@
 // 안전한 Progress 모델로 바꾼다. 이상한 값은 버리거나 범위에 맞춘다.
 import { createEmptyProgress, DEFAULT_SETTINGS } from '../domain/progress-model.js';
 import { QUIZ_SIZE, HISTORY_LIMIT, FORM_NAMES } from '../domain/progress-rules.js';
+import { isLanguageId } from '../domain/languages.js';
 
 const PROBLEM_ID = /^\d{4}$/;
+const CODE_KEY = /^\d{4}(?::(?:python|cpp|java))?$/; // C는 번호만, 다른 언어는 "번호:언어"
 const CHAPTER_NO = /^(?:[1-9]|1[0-8])$/;
 const MAX_CODE_LENGTH = 20000;
 const MAX_COUNT = 100000;
@@ -58,7 +60,7 @@ function codeMap(raw) {
         return out;
     }
     for (const [key, value] of Object.entries(raw)) {
-        if (PROBLEM_ID.test(key) && typeof value === 'string') {
+        if (CODE_KEY.test(key) && typeof value === 'string') {
             out[key] = value.slice(0, MAX_CODE_LENGTH);
         }
     }
@@ -101,6 +103,7 @@ function settingsOf(raw) {
         sky: SKY_MODES.has(s.sky) ? s.sky : DEFAULT_SETTINGS.sky,
         rankOptIn: typeof s.rankOptIn === 'boolean' ? s.rankOptIn : DEFAULT_SETTINGS.rankOptIn,
         codyName: codyName || DEFAULT_SETTINGS.codyName,
+        algoLang: isLanguageId(s.algoLang) ? s.algoLang : DEFAULT_SETTINGS.algoLang,
     };
 }
 

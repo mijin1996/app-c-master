@@ -18,13 +18,22 @@ const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; cha
 // ---------- D1 흉내 (파일로 저장) ----------
 function openDatabase(file) {
     fs.mkdirSync(path.dirname(file), { recursive: true });
-    const isNew = !fs.existsSync(file);
     const db = new DatabaseSync(file);
     db.exec('PRAGMA foreign_keys = ON;');
-    if (isNew) {
-        for (const name of fs.readdirSync(path.join(root, 'migrations')).sort()) {
-            db.exec(fs.readFileSync(path.join(root, 'migrations', name), 'utf8'));
+    // 이미 적용한 마이그레이션은 기억해 두고, 새로 생긴 파일만 적용한다 (wrangler 와 같은 방식)
+    db.exec('CREATE TABLE IF NOT EXISTS d1_migrations (name TEXT PRIMARY KEY, applied_at INTEGER NOT NULL)');
+    const hasUsers = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'users'").get();
+    const applied = new Set(db.prepare('SELECT name FROM d1_migrations').all().map((r) => r.name));
+    if (hasUsers && applied.size === 0) {
+        applied.add('0001_init.sql'); // 예전 개발용 DB: 첫 마이그레이션은 이미 들어 있다
+        db.prepare('INSERT INTO d1_migrations (name, applied_at) VALUES (?, ?)').run('0001_init.sql', Date.now());
+    }
+    for (const name of fs.readdirSync(path.join(root, 'migrations')).sort()) {
+        if (!name.endsWith('.sql') || applied.has(name)) {
+            continue;
         }
+        db.exec(fs.readFileSync(path.join(root, 'migrations', name), 'utf8'));
+        db.prepare('INSERT INTO d1_migrations (name, applied_at) VALUES (?, ?)').run(name, Date.now());
     }
     const bound = (stmt, params) => ({
         first: async () => stmt.get(...params) ?? null,

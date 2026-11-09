@@ -26,7 +26,7 @@ function gridCase(seed, h, w, wallRate) {
     return rows;
 }
 
-module.exports = [
+const tracks = [
 {
     track: 'bronze', name: '브론즈', level: 4,
     intro: '반복문과 배열만으로 풀 수 있어요. 모든 경우를 다 해 보는 완전 탐색과, 문제에 적힌 대로 따라 하는 시뮬레이션을 연습해요.',
@@ -183,3 +183,12 @@ module.exports = [
     ],
 },
 ];
+
+// 추가 문제(algorithm-extra.cjs)를 단계별로 이어 붙인다
+const extra = require('./algorithm-extra.cjs');
+for (const track of tracks) {
+    track.topics = [...track.topics, ...extra[track.track].topics];
+    track.problems = [...track.problems, ...extra[track.track].problems];
+}
+
+module.exports = tracks;

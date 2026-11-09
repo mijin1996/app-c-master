@@ -9,6 +9,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
     sky: 'auto',        // auto | day | night
     rankOptIn: true,    // 친구 랭킹 참여
     codyName: '코디',   // 캐릭터 이름
+    algoLang: 'c',      // 알고리즘 문제를 풀 때 고른 언어
 });
 
 /**

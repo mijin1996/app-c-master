@@ -21,6 +21,9 @@ export const AppError = Object.freeze({
     PAYLOAD_TOO_LARGE: 'PAYLOAD_TOO_LARGE',
     FEATURE_DISABLED: 'FEATURE_DISABLED',
     INVALID_HINT_REQUEST: 'INVALID_HINT_REQUEST',
+    INVALID_RUN_REQUEST: 'INVALID_RUN_REQUEST',
+    INVALID_POST: 'INVALID_POST',
+    TOO_MANY_POSTS: 'TOO_MANY_POSTS',
 });
 
 // 화면에 보여 줄 쉬운 한국어 문장
@@ -42,6 +45,9 @@ export const AppErrorMessage = Object.freeze({
     PAYLOAD_TOO_LARGE: '저장할 내용이 너무 커요.',
     FEATURE_DISABLED: '아직 준비 중인 기능이에요.',
     INVALID_HINT_REQUEST: '힌트를 요청할 정보가 부족해요.',
+    INVALID_RUN_REQUEST: '실행할 코드나 언어가 올바르지 않아요.',
+    INVALID_POST: '글 내용이 올바르지 않아요.',
+    TOO_MANY_POSTS: '너무 많이 올렸어요. 잠시 뒤에 다시 올려 주세요.',
 });
 
 export function messageOf(error) {

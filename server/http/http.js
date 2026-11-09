@@ -12,6 +12,7 @@ const STATUS_BY_ERROR = Object.freeze({
     [AppError.NOT_FOUND]: 404,
     [AppError.USERNAME_TAKEN]: 409,
     [AppError.PAYLOAD_TOO_LARGE]: 413,
+    [AppError.TOO_MANY_POSTS]: 429,
     [AppError.FEATURE_DISABLED]: 503,
     [AppError.SERVER]: 500,
     [AppError.NETWORK]: 502,

@@ -84,6 +84,44 @@ export class HintApiDataSource {
     }
 }
 
+/** 커뮤니티 API */
+export class CommunityApiDataSource {
+    #http;
+
+    constructor(http) {
+        this.#http = http;
+    }
+
+    listAsync(sort, page) {
+        return this.#http.requestAsync('GET', '/api/community/problems?sort=' + encodeURIComponent(sort) + '&page=' + Number(page));
+    }
+
+    getAsync(id) {
+        return this.#http.requestAsync('GET', '/api/community/problem?id=' + Number(id));
+    }
+
+    createAsync(draft) {
+        return this.#http.requestAsync('POST', '/api/community/problems', draft);
+    }
+
+    postAsync(action, body) {
+        return this.#http.requestAsync('POST', '/api/community/' + action, body);
+    }
+}
+
+/** 유료 언어(C++ · Java) 서버 실행 */
+export class CodeRunApiDataSource {
+    #http;
+
+    constructor(http) {
+        this.#http = http;
+    }
+
+    runAsync(dto) {
+        return this.#http.requestAsync('POST', '/api/run', dto);
+    }
+}
+
 /** 문제·퀴즈 콘텐츠 (정적 파일) */
 export class StaticContentDataSource {
     #http;

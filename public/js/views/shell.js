@@ -8,6 +8,7 @@ const NAV = Object.freeze([
     ['map', '학습 지도'],
     ['problems', '문제'],
     ['algo', '알고리즘'],
+    ['community', '커뮤니티'],
     ['ranking', '랭킹'],
     ['records', '내 기록'],
 ]);

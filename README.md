@@ -11,7 +11,9 @@ C언어를 처음 배우는 사람이 **18단원 문제 풀이 + 단원 퀴즈**
 - 회원가입 · 로그인 · 복구 코드로 아이디 찾기/비밀번호 재설정
 - 친구 랭킹, 선생님용 학생 진도 화면
 - 해의 위치로 바뀌는 시간대 배경, 피아노 효과음·배경음악
-- 알고리즘 단계: USACO처럼 브론즈 · 실버 · 골드 · 플래티넘 16문제 (모두 오리지널)
+- 알고리즘 단계: USACO처럼 브론즈 · 실버 · 골드 · 플래티넘 32문제. 단계별 주제만 참고하고 문제는 모두 새로 씀
+- 풀이 언어: 알고리즘 문제는 C · Python(브라우저 Pyodide)으로 풀기. C++ · Java는 유료 서버 채점 자리만 준비 (꺼져 있음)
+- 커뮤니티: 회원이 직접 문제 내기, 문제마다 토론 댓글 · 좋아요 · 채택 · 신고(3번이면 자동 숨김) · 선생님 숨기기
 - 제목 글꼴: [하다 타입 레벨업](https://hada-type.com/levelup) (SIL OFL 1.1, `public/fonts/LevelUp/` 에 직접 올림)
 - AI 힌트: 코드와 서버 자리는 준비됨, 지금은 꺼져 있음 ([켜는 방법](#ai-힌트-켜기))
 
@@ -64,6 +66,12 @@ docs/                    아키텍처, 배포 안내, 설계·계획 문서
 1. `content/chapters-*.cjs` 를 고친다
 2. `node tools/build-content.mjs` (gcc 필요) — 모범답안을 gcc로 실행해 기대 출력을 만들고, 인터프리터 결과와 다르면 실패
 3. `npm test`
+
+## 유료 언어(C++ · Java) 켜기
+
+1. Judge0 CE를 VPS에 설치한다 (https://judge0.com/, 월 약 $6~12)
+2. Cloudflare 변수: `PAID_LANGUAGES_ENABLED=true`, `JUDGE0_URL=https://내-채점-서버`, `JUDGE0_TOKEN`(Secret)
+3. 결제를 붙일 때는 `server/services/code-run-service.js` 에서 회원의 유료 여부를 확인한다
 
 ## AI 힌트 켜기
 

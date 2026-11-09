@@ -19,10 +19,11 @@ export function highlight(code) {
     }
     return out + esc(code.slice(last)) + '\n';
 }
-export function mountEditor(host, initial, onChange, onSubmit) {
-    host.innerHTML = '<div class="editor"><div class="gutter" aria-hidden="true"></div><div class="edarea"><pre aria-hidden="true"><code></code></pre><textarea id="code-input" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="C 코드 입력 (C11)"></textarea></div></div>';
+export function mountEditor(host, initial, onChange, onSubmit, languageLabel = 'C (C11)') {
+    host.innerHTML = '<div class="editor"><div class="gutter" aria-hidden="true"></div><div class="edarea"><pre aria-hidden="true"><code></code></pre><textarea id="code-input" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="코드 입력"></textarea></div></div>';
     const ta = $('textarea', host), pre = $('pre', host), code = $('code', host), gut = $('.gutter', host);
     ta.value = initial;
+    ta.setAttribute('aria-label', languageLabel + ' 코드 입력');
     const sync = () => {
         code.innerHTML = highlight(ta.value);
         const n = ta.value.split('\n').length; let g = ''; for (let i = 1; i <= n; i++) g += i + '\n'; gut.textContent = g;

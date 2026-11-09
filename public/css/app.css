@@ -374,3 +374,39 @@ a.btn.primary { color: var(--accent-ink); }
 .cr-note { font-size: 13px; }
 .tier-links { font-size: 13.5px; margin-bottom: 10px; color: var(--muted); }
 .lang-note { margin-bottom: 16px; font-size: 14px; }
+
+/* 언어 고르기 */
+.lang-pick { display: inline-flex; align-items: center; gap: 6px; }
+.lang-pick select { font: inherit; font-size: 13px; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel-2); color: var(--fg); }
+
+/* 커뮤니티 */
+.comm-intro { margin-bottom: 14px; font-size: 14px; }
+.comm-tabs { display: inline-flex; margin-bottom: 12px; }
+.comm-tabs button.on { background: var(--panel); }
+.comm-table tr.is-hidden td { opacity: .6; }
+.pager { display: flex; gap: 10px; align-items: center; justify-content: center; margin: 14px 0; }
+.comm-form { display: grid; gap: 12px; max-width: 860px; }
+.test-row { border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin-bottom: 10px; background: var(--panel-2); }
+.test-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.test-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.test-grid textarea { min-height: 80px; font-family: var(--f-code); }
+.btn.small { padding: 4px 10px; font-size: 12.5px; }
+.pre-wrap { white-space: pre-wrap; margin: 0 0 8px; }
+.codeblock.small { font-size: 12.5px; margin: 6px 0; }
+.like-btn { cursor: pointer; font: inherit; font-size: 12.5px; }
+.like-btn.on { color: var(--bad); border-color: var(--bad); }
+.like-btn:disabled { cursor: default; opacity: .7; }
+.mod-row { margin-top: 6px; }
+.discuss { margin-top: 16px; display: grid; gap: 12px; }
+.discuss h2 { font-size: 22px; }
+.comment { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--panel-2); margin-bottom: 10px; }
+.comment.accepted { border-color: var(--good); box-shadow: inset 4px 0 0 var(--good); }
+.comment.is-hidden { opacity: .6; }
+.c-head { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 4px; }
+.c-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.comment-form { display: grid; gap: 8px; }
+@media (max-width: 640px) {
+  .test-grid { grid-template-columns: 1fr; }
+}
+.lang-pick { white-space: nowrap; }
+.comment-form button { justify-self: end; }

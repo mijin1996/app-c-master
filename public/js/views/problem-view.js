@@ -7,7 +7,8 @@ import { messageOf } from '../core/app-error.js';
 import { renderShell } from './shell.js';
 import { celebrateAsync } from './celebrate.js';
 import { starStr } from './map-views.js';
-import { DEFAULT_CODE, SOLUTION_MIN_REAL_TRIES } from '../services/progress-service.js';
+import { SOLUTION_MIN_REAL_TRIES } from '../services/progress-service.js';
+import { LANGUAGES, LanguageId, languageOf, isLanguageAvailable } from '../domain/languages.js';
 import { Verdict, normalizeOutput, testCaseOf } from '../services/judge-service.js';
 import { SOLVE_LIMIT_SEC, XP_BY_LEVEL, LATE_XP_RATE, xpForSolve, isAlgorithmLevel, TIER_NAMES } from '../domain/progress-rules.js';
 
@@ -45,6 +46,10 @@ export function renderProblem(app, problemId) {
     const firstCase = testCaseOf(problem.tests[0]);
     const fileName = Object.keys(firstCase.files)[0];
     const solved = app.progress.progress.solved[problemId];
+    // 알고리즘 문제만 언어를 고를 수 있다. 단원 문제는 C 학습이 목적이라 C로 고정
+    const features = app.auth.serverFeatures;
+    const savedLang = app.progress.progress.settings.algoLang;
+    const language = problem.track && app.judge.supports(savedLang) && isLanguageAvailable(savedLang, features) ? savedLang : LanguageId.C;
 
     renderShell(app, problem.track ? 'algo' : 'problems',
         crumbsOf(app, problem) +
@@ -60,7 +65,7 @@ export function renderProblem(app, problemId) {
         '<div class="sec">' + sampleBlocks(problem) + '</div>' +
         '<div class="sec"><h3>힌트</h3><div class="hints" id="hints"></div></div>' +
         '</article><aside class="side">' +
-        '<section class="panel editor-panel"><div class="ed-bar"><span class="lang" title="C11 표준 문법 기준으로 채점해요">언어: C (C11)</span>' +
+        '<section class="panel editor-panel"><div class="ed-bar">' + languagePicker(problem, language, features) +
         '<button class="btn ghost" id="btn-reset" title="처음 코드로 되돌리기">초기화</button>' +
         '<button class="btn" id="btn-run">예제 실행</button>' +
         '<button class="btn primary" id="btn-submit" title="Ctrl+Enter">제출</button></div>' +
@@ -71,8 +76,14 @@ export function renderProblem(app, problemId) {
         '<button class="btn" id="btn-custom" style="margin-top:8px">이 입력으로 실행</button></details>' +
         '<div id="result" aria-live="polite"></div></section></aside></div>');
 
-    const editor = mountEditor($('#ed'), app.progress.codeOf(problemId), (code) => app.progress.saveCode(problemId, code), () => $('#btn-submit').click());
-    const ctx = { app, problem, editor, fileName };
+    const ctx = { app, problem, editor: null, fileName, language };
+    mountCodeEditor(ctx);
+    if (language !== LanguageId.C) {
+        prepareLanguageAsync(ctx);
+    }
+    if ($('#lang-select')) {
+        $('#lang-select').onchange = (e) => switchLanguage(ctx, e.target.value);
+    }
 
     renderTimeline(ctx);
     renderHints(ctx);
@@ -80,7 +91,7 @@ export function renderProblem(app, problemId) {
         button.onclick = () => copyText(button.dataset.copy);
     });
     $('#btn-reset').onclick = () => {
-        editor.set(DEFAULT_CODE);
+        ctx.editor.set(languageOf(ctx.language).template);
         toast('처음 코드로 되돌렸어요.');
     };
     $('#btn-run').onclick = () => runSampleAsync(ctx);
@@ -130,7 +141,8 @@ function renderTimeline({ app, problem }) {
             : '시간 안에 맞히면 <b>+' + full + ' XP</b>, 넘기면 +' + lateXp + ' XP (' + Math.round(LATE_XP_RATE * 100) + '%)') + '</div>';
 }
 
-function renderHints({ app, problem }) {
+function renderHints(ctx) {
+    const { app, problem } = ctx;
     const box = $('#hints');
     if (!box) {
         return;
@@ -141,7 +153,10 @@ function renderHints({ app, problem }) {
         html += '<div class="hint"><b>힌트 ' + (i + 1) + '</b> ' + esc(problem.hints[i]) + '</div>';
     }
     if (opened > problem.hints.length) {
-        html += '<div><div class="muted label">모범 답안 (먼저 스스로 고쳐 본 다음 비교해 보세요)</div><pre class="codeblock">' + highlight(problem.solution) + '</pre></div>';
+        const lang = ctx.language ?? LanguageId.C;
+        const answer = problem.solutions?.[lang] ?? problem.solution;
+        const shown = problem.solutions?.[lang] ? languageOf(lang).label : languageOf(LanguageId.C).label;
+        html += '<div><div class="muted label">모범 답안 · ' + esc(shown) + ' (먼저 스스로 고쳐 본 다음 비교해 보세요)</div><pre class="codeblock">' + highlight(answer) + '</pre></div>';
     } else if (opened < problem.hints.length) {
         html += '<button class="btn" id="btn-hint">힌트 ' + (opened + 1) + ' 보기</button>';
     } else {
@@ -164,7 +179,7 @@ function renderHints({ app, problem }) {
     if (button) {
         button.onclick = () => {
             app.progress.openNextHint(problem.id);
-            renderHints({ app, problem });
+            renderHints(ctx);
         };
     }
 }
@@ -205,7 +220,7 @@ function showRun({ problem }, run, expected) {
 async function runSampleAsync(ctx) {
     showResult('<div class="result info"><div class="head">예제 실행 중…</div></div>');
     const testCase = testCaseOf(ctx.problem.tests[0]);
-    const run = await ctx.app.judge.runAsync(ctx.editor.get(), testCase.input, testCase.files);
+    const run = await ctx.app.judge.runAsync(ctx.editor.get(), testCase.input, testCase.files, ctx.language);
     showRun(ctx, run, ctx.problem.expected[0]);
 }
 
@@ -215,8 +230,63 @@ async function runCustomAsync(ctx) {
         files[ctx.fileName] = $('#custom-file').value;
     }
     showResult('<div class="result info"><div class="head">실행 중…</div></div>');
-    const run = await ctx.app.judge.runAsync(ctx.editor.get(), $('#custom-in').value, files);
+    const run = await ctx.app.judge.runAsync(ctx.editor.get(), $('#custom-in').value, files, ctx.language);
     showRun(ctx, run, null);
+}
+
+function languagePicker(problem, language, features) {
+    if (!problem.track) {
+        return '<span class="lang" title="단원 문제는 C 학습용이라 C11로 채점해요">언어: C (C11)</span>';
+    }
+    const options = LANGUAGES.map((lang) => {
+        const available = isLanguageAvailable(lang.id, features);
+        const note = lang.paid ? (available ? ' · 유료' : ' · 유료 준비 중') : '';
+        return '<option value="' + lang.id + '"' + (lang.id === language ? ' selected' : '') + (available ? '' : ' disabled') + '>' + esc(lang.label + note) + '</option>';
+    }).join('');
+    return '<label class="lang lang-pick">언어 <select id="lang-select" aria-label="풀이 언어">' + options + '</select></label>';
+}
+
+function mountCodeEditor(ctx) {
+    const { app, problem } = ctx;
+    const language = ctx.language;
+    ctx.editor = mountEditor($('#ed'), app.progress.codeOf(problem.id, language),
+        (code) => app.progress.saveCode(problem.id, code, language), () => $('#btn-submit').click(), languageOf(language).label);
+}
+
+function switchLanguage(ctx, language) {
+    ctx.language = language;
+    ctx.app.progress.updateSettings({ algoLang: language });
+    mountCodeEditor(ctx);
+    renderHints(ctx);
+    showResult('');
+    if (language !== LanguageId.C) {
+        prepareLanguageAsync(ctx);
+    }
+}
+
+/** Python은 처음에 실행기를 받아 와야 해서, 고르는 순간 미리 준비하고 상태를 보여 준다 */
+async function prepareLanguageAsync(ctx) {
+    const language = ctx.language;
+    if (language !== LanguageId.PYTHON) {
+        return;
+    }
+    const buttons = ['#btn-run', '#btn-submit', '#btn-custom'].map((sel) => $(sel)).filter(Boolean);
+    buttons.forEach((b) => {
+        b.disabled = true;
+    });
+    showResult('<div class="result info"><div class="head">Python 실행기를 준비하고 있어요…</div><div class="muted" style="font-size:13px">처음 한 번만 약 10MB를 받아요. 다음부터는 바로 실행돼요.</div></div>');
+    try {
+        await ctx.app.judge.prepareAsync(language);
+        if (ctx.language === language) {
+            showResult('<div class="result info"><div class="head">Python 준비 완료</div><div class="muted" style="font-size:13px">input() 이나 sys.stdin 으로 입력을 읽고, print() 로 출력하세요.</div></div>');
+        }
+    } catch (e) {
+        showResult('<div class="result wa"><div class="head">Python 실행기를 받아 오지 못했어요</div><div>인터넷 연결을 확인하고 언어를 다시 골라 주세요.</div></div>');
+    } finally {
+        buttons.forEach((b) => {
+            b.disabled = false;
+        });
+    }
 }
 
 function crumbsOf(app, problem) {
@@ -254,14 +324,14 @@ function nextButtons(app, problem) {
 }
 
 async function submitAsync(ctx) {
-    const { app, problem, editor } = ctx;
+    const { app, problem, editor, language } = ctx;
     const code = editor.get();
     const button = $('#btn-submit');
     button.disabled = true;
     showResult('<div class="result info"><div class="head">채점 중…</div></div>');
     let judged;
     try {
-        judged = await app.judge.judgeAsync(problem, code);
+        judged = await app.judge.judgeAsync(problem, code, language);
     } catch (e) {
         showResult('<div class="result wa"><div class="head">채점 중 문제가 생겼어요</div><div>잠시 뒤 다시 제출해 주세요.</div></div>');
         return;
@@ -269,7 +339,7 @@ async function submitAsync(ctx) {
         button.disabled = false;
     }
 
-    const recorded = app.progress.recordSubmission(problem.id, judged.verdict, code);
+    const recorded = app.progress.recordSubmission(problem.id, judged.verdict, code, language);
     if (judged.verdict === Verdict.AC) {
         app.sound.play('correct');
         const spent = app.progress.spentOf(problem.id);

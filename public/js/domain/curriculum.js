@@ -439,6 +439,22 @@ export const ALGORITHM_TRACKS = Object.freeze([
             {
                 "id": 5104,
                 "level": 4
+            },
+            {
+                "id": 5105,
+                "level": 4
+            },
+            {
+                "id": 5106,
+                "level": 4
+            },
+            {
+                "id": 5107,
+                "level": 4
+            },
+            {
+                "id": 5108,
+                "level": 4
             }
         ]
     },
@@ -461,6 +477,22 @@ export const ALGORITHM_TRACKS = Object.freeze([
             },
             {
                 "id": 5204,
+                "level": 5
+            },
+            {
+                "id": 5205,
+                "level": 5
+            },
+            {
+                "id": 5206,
+                "level": 5
+            },
+            {
+                "id": 5207,
+                "level": 5
+            },
+            {
+                "id": 5208,
                 "level": 5
             }
         ]
@@ -485,6 +517,22 @@ export const ALGORITHM_TRACKS = Object.freeze([
             {
                 "id": 5304,
                 "level": 6
+            },
+            {
+                "id": 5305,
+                "level": 6
+            },
+            {
+                "id": 5306,
+                "level": 6
+            },
+            {
+                "id": 5307,
+                "level": 6
+            },
+            {
+                "id": 5308,
+                "level": 6
             }
         ]
     },
@@ -507,6 +555,22 @@ export const ALGORITHM_TRACKS = Object.freeze([
             },
             {
                 "id": 5404,
+                "level": 7
+            },
+            {
+                "id": 5405,
+                "level": 7
+            },
+            {
+                "id": 5406,
+                "level": 7
+            },
+            {
+                "id": 5407,
+                "level": 7
+            },
+            {
+                "id": 5408,
                 "level": 7
             }
         ]

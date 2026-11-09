@@ -6,7 +6,7 @@ import { isValidUsername, isValidPassword, normalizeNickname, normalizeRecoveryC
 export class AuthService {
     #repository;
     #user = null;
-    #features = { aiHint: false };
+    #features = { aiHint: false, paidLanguages: false };
     #listeners = new Set();
 
     constructor(repository) {
@@ -39,7 +39,7 @@ export class AuthService {
         if (me instanceof Failure) {
             return me;
         }
-        this.#features = me.data.features;
+        this.#features = { aiHint: me.data.features?.aiHint === true, paidLanguages: me.data.features?.paidLanguages === true };
         this.#setUser(me.data.user);
         return Result.success(me.data.user);
     }

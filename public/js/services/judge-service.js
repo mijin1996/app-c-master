@@ -30,18 +30,42 @@ export function testCaseOf(test) {
 }
 
 export class JudgeService {
-    #runner;
+    #runners;
 
-    /** @param {{runAsync: (src: string, input: string, files: object) => Promise<object>}} runner */
-    constructor(runner) {
-        this.#runner = runner;
+    /**
+     * @param {object} runners 언어별 실행기 { c, python, cpp, java } — 실행기 하나만 주면 C 실행기로 쓴다.
+     *   실행기는 runAsync(src, input, files) => Promise<{ok, output, kind?, message?, line?}> 모양이면 된다 (OCP: 언어 추가 시 여기만 늘림)
+     */
+    constructor(runners) {
+        this.#runners = typeof runners?.runAsync === 'function' ? { c: runners } : { ...runners };
+    }
+
+    #runnerOf(language) {
+        const runner = this.#runners[language];
+        if (!runner) {
+            throw new Error('지원하지 않는 언어: ' + language);
+        }
+        return runner;
+    }
+
+    supports(language) {
+        return Boolean(this.#runners[language]);
+    }
+
+    /** Python처럼 처음 준비가 필요한 실행기를 미리 깨운다 */
+    async prepareAsync(language) {
+        const runner = this.#runners[language];
+        if (runner && typeof runner.prepareAsync === 'function') {
+            await runner.prepareAsync();
+        }
     }
 
     /** 제출: 모든 테스트를 통과해야 AC */
-    async judgeAsync(problem, code) {
+    async judgeAsync(problem, code, language = 'c') {
+        const runner = this.#runnerOf(language);
         for (let i = 0; i < problem.tests.length; i++) {
             const testCase = testCaseOf(problem.tests[i]);
-            const run = await this.#runner.runAsync(code, testCase.input, testCase.files);
+            const run = await runner.runAsync(code, testCase.input, testCase.files);
             if (!run.ok) {
                 const verdict = VERDICT_BY_KIND[run.kind] ?? Verdict.RE;
                 return { verdict, label: VerdictLabel[verdict], message: run.message, line: run.line ?? 0, testIndex: i, testCase, got: run.output ?? '' };
@@ -64,7 +88,7 @@ export class JudgeService {
     }
 
     /** 예제 실행 / 직접 입력 실행 (기록하지 않음) */
-    runAsync(code, input, files) {
-        return this.#runner.runAsync(code, input, files);
+    runAsync(code, input, files, language = 'c') {
+        return this.#runnerOf(language).runAsync(code, input, files);
     }
 }

@@ -35,7 +35,7 @@ test('가입 → 쿠키 발급 → 내 정보 → 진도 저장/불러오기 →
 
     // 내 정보 (AI 힌트는 꺼져 있다고 알려 줌)
     const me = await (await api.me(context(c, 'GET', undefined, cookie))).json();
-    assert.deepEqual(me, { user: { username: 'kim', nickname: '김', isTeacher: false }, features: { aiHint: false } });
+    assert.deepEqual(me, { user: { username: 'kim', nickname: '김', isTeacher: false }, features: { aiHint: false, paidLanguages: false } });
 
     // 진도 저장 후 다시 불러오기
     const put = await api.putProgress(context(c, 'PUT', { solved: { 1001: { at: 1, tries: 1, time: 3, late: false } } }, cookie));

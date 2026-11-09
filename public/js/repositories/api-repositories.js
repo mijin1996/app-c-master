@@ -54,7 +54,7 @@ export class AuthRepository {
     }
 
     meAsync() {
-        return call(() => this.#source.meAsync(), (b) => ({ user: userFromDto(b.user), features: { aiHint: b.features?.aiHint === true } }));
+        return call(() => this.#source.meAsync(), (b) => ({ user: userFromDto(b.user), features: { aiHint: b.features?.aiHint === true, paidLanguages: b.features?.paidLanguages === true } }));
     }
 
     findUsernamesAsync(code) {
@@ -115,6 +115,50 @@ export class HintRepository {
 
     requestAsync(dto) {
         return call(() => this.#source.requestAsync(dto), (b) => String(b.hint ?? ''));
+    }
+}
+
+/** 커뮤니티: 응답 → Result */
+export class CommunityRepository {
+    #source;
+
+    constructor(source) {
+        this.#source = source;
+    }
+
+    listAsync(sort, page) {
+        return call(() => this.#source.listAsync(sort, page), (b) => (Array.isArray(b.problems) ? b.problems : []));
+    }
+
+    getAsync(id) {
+        return call(() => this.#source.getAsync(id));
+    }
+
+    createAsync(draft) {
+        return call(() => this.#source.createAsync(draft), (b) => Number(b.id));
+    }
+
+    actAsync(action, body) {
+        return call(() => this.#source.postAsync(action, body));
+    }
+}
+
+/** 서버 실행 결과 → Result<{ok, output, kind?, message?}> */
+export class CodeRunRepository {
+    #source;
+
+    constructor(source) {
+        this.#source = source;
+    }
+
+    runAsync(language, src, input) {
+        return call(() => this.#source.runAsync({ language, src, input }), (b) => ({
+            ok: b.result?.ok === true,
+            output: String(b.result?.output ?? ''),
+            kind: b.result?.kind,
+            message: b.result?.message,
+            files: {},
+        }));
     }
 }
 

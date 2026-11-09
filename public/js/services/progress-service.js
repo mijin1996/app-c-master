@@ -2,6 +2,7 @@
 // 저장은 Repository에 맡기고(조금 모았다가 한 번에), 변화는 구독자에게 알린다(옵저버).
 import { Result, Failure } from '../core/result.js';
 import { progressFromDto } from '../mappers/progress-mapper.js';
+import { LanguageId, languageOf, codeKey } from '../domain/languages.js';
 import {
     xpForSolve, summarize, problemLevelMap, isChapterCleared, formOf, levelOf, nextStreak,
     SOLVE_LIMIT_SEC, QUIZ_PASS_SCORE, QUIZ_SIZE, QUIZ_PASS_XP, QUIZ_PERFECT_XP, HISTORY_LIMIT,
@@ -115,14 +116,15 @@ export class ProgressService {
      * @param {'AC'|'WA'|'CE'|'RE'|'TLE'|'OLE'} verdict
      * @param {string} code 제출한 코드
      */
-    recordSubmission(problemId, verdict, code) {
+    recordSubmission(problemId, verdict, code, languageId = LanguageId.C) {
+        const template = languageId === LanguageId.C ? DEFAULT_CODE : languageOf(languageId).template;
         const p = this.#progress;
         const id = String(problemId);
         const chapterNo = this.#chapterOf(id);
         const before = this.#snapshot(chapterNo);
 
         p.tries[id] = (p.tries[id] ?? 0) + 1;
-        if (squash(code) !== squash(DEFAULT_CODE) && squash(code).length > squash(DEFAULT_CODE).length + REAL_TRY_MIN_EXTRA_CHARS) {
+        if (squash(code) !== squash(template) && squash(code).length > squash(template).length + REAL_TRY_MIN_EXTRA_CHARS) {
             p.realTries[id] = (p.realTries[id] ?? 0) + 1;
         }
         p.history = [{ id: Number(id), res: verdict, at: this.#calendar.now() }, ...p.history].slice(0, HISTORY_LIMIT);
@@ -200,12 +202,13 @@ export class ProgressService {
         return this.#progress.hintsOpen[id];
     }
 
-    codeOf(problemId) {
-        return this.#progress.code[String(problemId)] ?? DEFAULT_CODE;
+    codeOf(problemId, languageId = LanguageId.C) {
+        const saved = this.#progress.code[codeKey(problemId, languageId)];
+        return saved ?? (languageId === LanguageId.C ? DEFAULT_CODE : languageOf(languageId).template);
     }
 
-    saveCode(problemId, code) {
-        this.#progress.code[String(problemId)] = code;
+    saveCode(problemId, code, languageId = LanguageId.C) {
+        this.#progress.code[codeKey(problemId, languageId)] = code;
         this.#changed(false);
     }
 

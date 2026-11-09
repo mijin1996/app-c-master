@@ -19,6 +19,21 @@ const chapters = [
     ...require(path.join(root, 'content/chapters-10-18.cjs')),
 ];
 const tracks = require(path.join(root, 'content/algorithm.cjs'));
+const pythonSolutions = require(path.join(root, 'content/algorithm-python.cjs'));
+
+/** python3 가 있으면 Python 모범답안도 gcc 출력과 같은지 확인한다 */
+function hasPython() {
+    try {
+        execFileSync('python3', ['--version']);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+const PYTHON_OK = hasPython();
+if (!PYTHON_OK) {
+    console.error('python3 가 없어 Python 모범답안 대조를 건너뜁니다');
+}
 
 const normalize = (s) => s.replace(/\r/g, '').split('\n').map((l) => l.replace(/\s+$/, '')).join('\n').replace(/\n+$/, '');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'cm-build-'));
@@ -55,6 +70,35 @@ for (const chapter of [...chapters, ...tracks]) {
                 console.error('불일치', problem.id, '테스트', index);
             }
             return problem.judge ? { out, screen } : { out };
+        });
+    }
+}
+
+for (const track of tracks) {
+    for (const problem of track.problems) {
+        const py = pythonSolutions[problem.id];
+        if (!py) {
+            console.error('Python 모범답안 없음', problem.id);
+            mismatches++;
+            continue;
+        }
+        problem.solutions = { c: problem.solution, python: py };
+        if (!PYTHON_OK) {
+            continue;
+        }
+        problem.tests.forEach((test, index) => {
+            const input = typeof test === 'string' ? test : (test.input || '');
+            const started = Date.now();
+            const out = execFileSync('python3', ['-c', py], { input }).toString();
+            const took = Date.now() - started;
+            checked++;
+            if (normalize(out) !== normalize(problem.expected[index].out)) {
+                mismatches++;
+                console.error('Python 불일치', problem.id, '테스트', index);
+            }
+            if (took > SLOW_MS / 2) {
+                console.error('Python 느림', problem.id, '테스트', index, took + 'ms');
+            }
         });
     }
 }

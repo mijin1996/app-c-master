@@ -68,7 +68,7 @@ export const logout = guard(async (context, container) => {
 });
 
 export const me = authed(async (context, container, user) => {
-    return json({ user: publicUser(user, container.auth.isTeacher(user)), features: { aiHint: container.hint.enabled } });
+    return json({ user: publicUser(user, container.auth.isTeacher(user)), features: { aiHint: container.hint.enabled, paidLanguages: container.codeRun.enabled } });
 });
 
 export const changeNickname = authed(async (context, container, user) => {
@@ -130,3 +130,55 @@ export const hint = authed(async (context, container) => {
     const result = await container.hint.requestHintAsync(read.data.body);
     return result instanceof Failure ? failureResponse(result) : json({ hint: result.data });
 });
+
+// POST /api/run  유료 언어(C++ · Java) 서버 실행. PAID_LANGUAGES_ENABLED=true 일 때만 동작
+export const runCode = authed(async (context, container) => {
+    const read = await bodyOf(context);
+    if (read instanceof Failure) {
+        return failureResponse(read);
+    }
+    const result = await container.codeRun.runAsync(read.data.body);
+    return result instanceof Failure ? failureResponse(result) : json({ result: result.data });
+});
+
+// ---------- 커뮤니티 ----------
+const queryOf = (context) => Object.fromEntries(new URL(context.request.url).searchParams);
+
+/** 본문을 읽어 서비스에 넘기는 POST 공통 모양 */
+function postWith(work) {
+    return authed(async (context, container, user) => {
+        const read = await bodyOf(context);
+        if (read instanceof Failure) {
+            return failureResponse(read);
+        }
+        return resultResponse(await work(container, user, read.data.body));
+    });
+}
+
+// GET /api/community/problems?sort=new|popular&page=0
+export const communityProblems = authed(async (context, container, user) => {
+    const result = await container.community.listProblemsAsync(user, queryOf(context));
+    return result instanceof Failure ? failureResponse(result) : json({ problems: result.data });
+});
+
+// POST /api/community/problems  문제 내기
+export const communityCreateProblem = authed(async (context, container, user) => {
+    const read = await bodyOf(context);
+    if (read instanceof Failure) {
+        return failureResponse(read);
+    }
+    const result = await container.community.createProblemAsync(user, read.data.body);
+    return result instanceof Failure ? failureResponse(result) : json({ id: result.data }, 201);
+});
+
+// GET /api/community/problem?id=3  문제 + 댓글
+export const communityProblem = authed(async (context, container, user) => {
+    return resultResponse(await container.community.getProblemAsync(user, queryOf(context).id));
+});
+
+export const communityDeleteProblem = postWith((container, user, body) => container.community.deleteProblemAsync(user, body?.id));
+export const communityComment = postWith((container, user, body) => container.community.addCommentAsync(user, body));
+export const communityAccept = postWith((container, user, body) => container.community.acceptCommentAsync(user, body?.commentId));
+export const communityLike = postWith((container, user, body) => container.community.toggleLikeAsync(user, body));
+export const communityReport = postWith((container, user, body) => container.community.reportAsync(user, body));
+export const communityHide = postWith((container, user, body) => container.community.setHiddenAsync(user, body));

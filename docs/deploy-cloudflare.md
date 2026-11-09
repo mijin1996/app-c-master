@@ -11,7 +11,7 @@
 
 1. Cloudflare 대시보드 → **Storage & Databases → D1 SQL Database → Create**
 2. 이름: `code-ai-db` → 만들기
-3. 만든 DB의 **Console** 탭에서 `migrations/0001_init.sql` 내용을 통째로 붙여 넣고 실행
+3. 만든 DB의 **Console** 탭에서 `migrations/0001_init.sql`, 그다음 `migrations/0002_community.sql` 내용을 차례로 붙여 넣고 실행
 4. DB 화면에 보이는 **Database ID**를 복사해서 `wrangler.toml` 의 `database_id` 에 붙여 넣고 커밋·푸시
 
 ## 2. Pages 프로젝트 만들고 저장소 연결

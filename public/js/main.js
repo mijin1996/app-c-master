@@ -7,16 +7,16 @@ import { CURRICULUM } from './domain/curriculum.js';
 import { DEFAULT_SETTINGS } from './domain/progress-model.js';
 import { FetchHttpClient } from './datasources/http-client.js';
 import {
-    AuthApiDataSource, ProgressApiDataSource, RankingApiDataSource, HintApiDataSource, StaticContentDataSource,
+    AuthApiDataSource, ProgressApiDataSource, RankingApiDataSource, HintApiDataSource, StaticContentDataSource, CodeRunApiDataSource, CommunityApiDataSource,
 } from './datasources/api-datasources.js';
 import {
-    AuthRepository, ProgressRepository, RankingRepository, HintRepository, ContentRepository,
+    AuthRepository, ProgressRepository, RankingRepository, HintRepository, ContentRepository, CodeRunRepository, CommunityRepository,
 } from './repositories/api-repositories.js';
 import { AuthService } from './services/auth-service.js';
 import { ProgressService } from './services/progress-service.js';
 import { JudgeService } from './services/judge-service.js';
-import { RankingService, TeacherService, HintService } from './services/learning-services.js';
-import { WorkerJudgeRunner } from './judge/judge-runners.js';
+import { RankingService, TeacherService, HintService, CommunityService } from './services/learning-services.js';
+import { WorkerJudgeRunner, PythonWorkerRunner, ServerJudgeRunner } from './judge/judge-runners.js';
 import { Sky } from './ui/sky.js';
 import { SoundPlayer } from './ui/sound.js';
 import { dayKey, yesterdayKey, esc } from './ui/dom.js';
@@ -28,6 +28,7 @@ import { renderQuiz } from './views/quiz-view.js';
 import { renderProblems, renderRanking, renderRecords, renderTeacher } from './views/list-views.js';
 import { openSettings } from './views/settings-modal.js';
 import { renderAlgorithm } from './views/algorithm-view.js';
+import { renderCommunityList, renderCommunityNew, renderCommunityProblem } from './views/community-view.js';
 import { indexContent } from './mappers/content-mapper.js';
 
 // ---------- 조립 ----------
@@ -40,14 +41,21 @@ const progress = new ProgressService(
     { today: () => dayKey(), yesterday: () => yesterdayKey(), now: () => Date.now() },
 );
 const contentRepository = new ContentRepository(new StaticContentDataSource(http));
+const codeRunRepository = new CodeRunRepository(new CodeRunApiDataSource(http));
 const currentSettings = () => progress.progress?.settings ?? DEFAULT_SETTINGS;
 
 const app = {
     root: document.getElementById('app'),
     auth,
     progress,
-    judge: new JudgeService(new WorkerJudgeRunner(new URL('./judge/judge-worker.js', import.meta.url))),
+    judge: new JudgeService({
+        c: new WorkerJudgeRunner(new URL('./judge/judge-worker.js', import.meta.url)),
+        python: new PythonWorkerRunner(new URL('./judge/python-worker.js', import.meta.url)),
+        cpp: new ServerJudgeRunner(codeRunRepository, 'cpp'),
+        java: new ServerJudgeRunner(codeRunRepository, 'java'),
+    }),
     ranking: new RankingService(rankingRepository),
+    community: new CommunityService(new CommunityRepository(new CommunityApiDataSource(http))),
     teacher: new TeacherService(rankingRepository, auth),
     hint: new HintService(new HintRepository(new HintApiDataSource(http)), FEATURES.aiHint, auth),
     sound: new SoundPlayer('/assets/sounds/', currentSettings),
@@ -66,6 +74,9 @@ app.router = new Router([
     [/^quiz(\d+)$/, requireLogin((m) => renderQuiz(app, Number(m[1])))],
     [/^problems$/, requireLogin(() => renderProblems(app))],
     [/^algo(?:-(bronze|silver|gold|platinum))?$/, requireLogin((m) => renderAlgorithm(app, m[1] ?? null))],
+    [/^community$/, requireLogin(() => renderCommunityList(app))],
+    [/^community-new$/, requireLogin(() => renderCommunityNew(app))],
+    [/^c(\d+)$/, requireLogin((m) => renderCommunityProblem(app, Number(m[1])))],
     [/^ranking$/, requireLogin(() => renderRanking(app))],
     [/^records$/, requireLogin(() => renderRecords(app))],
     [/^teacher$/, requireLogin(() => renderTeacher(app))],

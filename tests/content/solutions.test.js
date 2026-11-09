@@ -1,4 +1,4 @@
-// 콘텐츠 검증: 단원 72문제 + 알고리즘 16문제 모범답안이 모두 "맞았습니다", 흔한 실수는 알맞은 판정을 받는다
+// 콘텐츠 검증: 단원 72문제 + 알고리즘 32문제 모범답안이 모두 "맞았습니다", 흔한 실수는 알맞은 판정을 받는다
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -29,10 +29,10 @@ test('curriculum.js 가 content.json 과 같은 문제·난이도를 가진다',
     assert.deepEqual(fromCurriculum, fromContent);
 });
 
-test('알고리즘은 브론즈·실버·골드·플래티넘 4단계, 단계마다 문제 4개, 난이도 4~7', () => {
+test('알고리즘은 브론즈·실버·골드·플래티넘 4단계, 단계마다 문제 8개, 난이도 4~7', () => {
     assert.deepEqual(dto.tracks.map((t) => t.track), ['bronze', 'silver', 'gold', 'platinum']);
     dto.tracks.forEach((track, i) => {
-        assert.equal(track.problems.length, 4, track.name + ' 문제 수');
+        assert.equal(track.problems.length, 8, track.name + ' 문제 수');
         assert.ok(track.problems.every((p) => p.level === 4 + i), track.name + ' 난이도');
     });
     const fromContent = dto.tracks.map((t) => t.problems.map((p) => p.id + ':' + p.level).join(','));

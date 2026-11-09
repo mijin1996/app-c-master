@@ -44,6 +44,21 @@ test('경험치는 화면이 보낸 값이 아니라 기록으로 다시 계산�
     assert.deepEqual(Object.keys(loaded.data.progress.solved), ['1001']);
 });
 
+test('객체지향 퀴즈 경험치도 서버가 기록으로 다시 계산한다 (없는 레슨 · 범위 밖 점수는 무시 · 정리)', async () => {
+    // Given: 레슨 1 만점, 레슨 2 는 9점으로 속임(→5), 없는 레슨 88
+    const { c, users } = await setupWithUsers();
+    const dto = { xp: 5000, oopQuiz: { 1: 5, 2: 9, 88: 5 } };
+
+    // When
+    const saved = await c.progress.saveAsync(users.kim, dto, 100);
+    const loaded = await c.progress.loadAsync(users.kim);
+
+    // Then
+    assert.equal(saved.data.summary.xp, 40);
+    assert.deepEqual(loaded.data.progress.oopQuiz, { 1: 5, 2: 5, 88: 5 }); // 모양만 정리, 경험치에는 안 셈
+    assert.equal(loaded.data.summary.clearedCount, 0);
+});
+
 test('너무 큰 진도는 PAYLOAD_TOO_LARGE, 배열이나 null은 INVALID_PROGRESS', async () => {
     const { c, users } = await setupWithUsers();
 

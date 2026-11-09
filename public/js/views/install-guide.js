@@ -88,6 +88,8 @@ export function openInstallGuide() {
 }
 
 export const INSTALL_BUTTON = '<button type="button" class="btn install-btn" data-install aria-label="홈 화면 추가 방법 보기"><span aria-hidden="true">📲</span><span class="install-label">홈 화면 추가</span></button>';
+// 로그인한 뒤 상단에는 배경 없이 📲 만 (이름은 화면 읽기 프로그램 · 마우스 올리면 보임)
+export const INSTALL_ICON_BUTTON = '<button type="button" class="install-icon" data-install aria-label="홈 화면 추가 방법 보기" title="홈 화면 추가">📲</button>';
 
 export function bindInstallButtons(root = document) {
     root.querySelectorAll('[data-install]').forEach((button) => {

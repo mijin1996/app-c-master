@@ -60,7 +60,7 @@ export function renderLogin(app, mode = 'login') {
         '<div class="err" id="f-err" role="alert"></div>' +
         (isJoin ? '' : '<button type="button" class="btn ghost link-btn" id="f-forgot">아이디·비밀번호를 잊었어요</button>') +
         '<button class="btn primary" id="f-submit" type="submit">' + (isJoin ? '가입하고 시작하기' : '로그인') + '</button>' +
-        '<div class="login-install">' + INSTALL_BUTTON + '</div>' +
+        (isJoin ? '' : '<div class="login-install">' + INSTALL_BUTTON + '</div>') + // 회원가입 탭에서는 안 보여 준다
         '</form></div><div class="login-foot">' + CREDITS_BUTTON + VISIT_SLOT + '</div></div>';
 
     new TechText($('#tech'), { text: 'c-master' }).mountAsync();

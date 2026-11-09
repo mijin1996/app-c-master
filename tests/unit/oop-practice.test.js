@@ -161,6 +161,20 @@ test('Service: 틀리면 기록 · 경험치 없음', async () => {
     assert.deepEqual(service.progress.oopPractice, {});
 });
 
+test('Service.answerOopPractice: 채점 + 기록을 한 번에, 칸마다 맞았는지도 돌려준다', async () => {
+    // Given
+    const service = await createService();
+
+    // When
+    const wrong = service.answerOopPractice(1, 0, blank, ['virtual', 'new']);
+    const right = service.answerOopPractice(1, 0, blank, ['virtual', 'override']);
+
+    // Then
+    assert.deepEqual([wrong.data.correct, wrong.data.marks, wrong.data.gainedXp], [false, [true, false], 0]);
+    assert.deepEqual([right.data.correct, right.data.gainedXp], [true, 5]);
+    assert.equal(service.isPracticeSolved(1, 0), true);
+});
+
 test('Service: 없는 레슨 · 범위 밖 순서(개수 딱 = 2 는 밖) 는 INVALID_PROGRESS', async () => {
     // Given
     const service = await createService();

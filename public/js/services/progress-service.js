@@ -4,7 +4,7 @@ import { Result, Failure } from '../core/result.js';
 import { AppError } from '../core/app-error.js';
 import { OOP_LESSONS } from '../domain/oop-curriculum.js';
 import { oopGainedXp, OOP_QUIZ_SIZE } from '../domain/oop-rules.js';
-import { practiceKey, PRACTICE_XP } from '../domain/oop-practice-rules.js';
+import { practiceKey, checkPractice, PRACTICE_XP } from '../domain/oop-practice-rules.js';
 import { progressFromDto } from '../mappers/progress-mapper.js';
 import { LanguageId, languageOf, codeKey } from '../domain/languages.js';
 import {
@@ -220,6 +220,16 @@ export class ProgressService {
         const events = this.#eventsSince(before, null);
         this.#changed();
         return Result.success({ gainedXp, solved: p.oopPractice[key] === 1, events });
+    }
+
+    /** 화면이 부르는 곳: 채점(checkPractice)하고 기록까지. 성공: { correct, marks, gainedXp, solved, events } */
+    answerOopPractice(lessonNo, index, practice, inputs) {
+        const graded = checkPractice(practice, inputs);
+        const recorded = this.recordOopPractice(lessonNo, index, graded.correct);
+        if (recorded instanceof Failure) {
+            return recorded;
+        }
+        return Result.success({ ...graded, ...recorded.data });
     }
 
     isPracticeSolved(lessonNo, index) {

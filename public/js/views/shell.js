@@ -1,7 +1,6 @@
 // 화면 틀: 상단 메뉴 + 본문 자리. 모든 화면이 이 틀 안에 그려진다.
-import { $, esc, ICON, toast } from '../ui/dom.js';
-import { cody } from '../ui/cody.js';
-import { FORM_NAMES } from '../domain/progress-rules.js';
+// 코디는 학습 지도 · 문제 화면에 크게 보이니 상단에는 따로 두지 않는다.
+import { $, ICON } from '../ui/dom.js';
 import { CREDITS_BUTTON, bindCreditsButtons } from './credits-modal.js';
 import { INSTALL_ICON_BUTTON, bindInstallButtons } from './install-guide.js';
 import { VISIT_SLOT, bindVisits } from './visit-count.js';
@@ -17,8 +16,6 @@ const NAV = Object.freeze([
 ]);
 
 export function renderShell(app, active, inner) {
-    const settings = app.progress.progress.settings;
-    const form = app.progress.currentForm();
     const nav = app.teacher.isTeacher ? [...NAV, ['teacher', '선생님']] : NAV;
     app.root.innerHTML =
         '<header class="top"><div class="wrap">' +
@@ -26,7 +23,6 @@ export function renderShell(app, active, inner) {
         '<nav class="nav" aria-label="메뉴">' + nav.map(([hash, title]) => '<a href="#' + hash + '" class="' + (active === hash ? 'on' : '') + '">' + title + '</a>').join('') + '</nav>' +
         '<div class="right"><span class="skychip"></span>' + INSTALL_ICON_BUTTON +
         '<button class="iconbtn" id="btn-settings" title="설정" aria-label="설정">' + ICON.gear + '</button>' +
-        '<a class="mini-cody" href="#map" title="' + esc(settings.codyName) + ' · ' + FORM_NAMES[form] + '">' + cody(form, 'normal', { name: settings.codyName }) + '</a>' +
         '</div></div></header><main><div class="wrap visit-bar">' + VISIT_SLOT + '</div><div class="wrap" id="view">' + inner + '</div></main>' +
         '<footer class="foot"><div class="wrap">' + CREDITS_BUTTON + '</div></footer>';
     app.sky.compute();

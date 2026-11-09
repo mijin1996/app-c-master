@@ -7,9 +7,11 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
 
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+// fileURLToPath: 윈도우에서도 C:\... 경로가 바르게 나오게 한다 (URL.pathname 은 /C:/... 가 된다)
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = Number(process.env.PORT || 8788);
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.mp3': 'audio/mpeg', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp', '.woff2': 'font/woff2', '.txt': 'text/plain; charset=utf-8' };
 
@@ -53,7 +55,7 @@ async function handleApi(req, res, url, body) {
         res.writeHead(404, { 'content-type': 'application/json' }).end('{"error":"NOT_FOUND"}');
         return;
     }
-    const mod = await import(file);
+    const mod = await import(pathToFileURL(file).href); // 윈도우 경로는 file:// 주소로 바꿔야 불러올 수 있다
     const method = req.method.charAt(0) + req.method.slice(1).toLowerCase();
     const handler = mod['onRequest' + method] || mod.onRequest;
     if (!handler) {
@@ -102,5 +104,5 @@ http.createServer((req, res) => {
         }
     });
 }).listen(PORT, () => {
-    console.log('C 마스터 개발 서버: http://localhost:' + PORT);
+    console.log('code.ai 개발 서버: http://localhost:' + PORT);
 });

@@ -7,11 +7,13 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { execute } from '../public/js/judge/c-interpreter.js';
 
 const require = createRequire(import.meta.url);
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+// fileURLToPath: 윈도우에서도 C:\... 경로가 바르게 나오게 한다 (URL.pathname 은 /C:/... 가 된다)
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const chapters = [
     ...require(path.join(root, 'content/chapters-01-09.cjs')),
     ...require(path.join(root, 'content/chapters-10-18.cjs')),

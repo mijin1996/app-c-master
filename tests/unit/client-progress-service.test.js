@@ -145,9 +145,9 @@ test('지금 저장하면 Repository에 진도가 넘어가고, 실패하면 Fai
 test('설정을 바꾸면 이상한 값은 정리된다', async () => {
     const { service } = await createService({});
 
-    service.updateSettings({ volume: 5, codyName: '  ', sky: 'night' });
+    service.updateSettings({ bgm: true, codyName: '  ', sky: 'night' });
 
-    assert.equal(service.progress.settings.volume, 1);
+    assert.equal('bgm' in service.progress.settings, false); // 배경음악 설정은 더 이상 없다
     assert.equal(service.progress.settings.codyName, '코디');
     assert.equal(service.progress.settings.sky, 'night');
 });

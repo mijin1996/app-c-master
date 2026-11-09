@@ -40,7 +40,7 @@ export function renderQuiz(app, chapterNo) {
             button.onclick = () => {
                 state.picked = Number(button.dataset.k);
                 state.correct[state.index] = state.picked === q.answer;
-                app.sound.play(state.correct[state.index] ? 'quizOk' : 'quizNo');
+                app.sound.play(state.correct[state.index] ? 'correct' : 'wrong');
                 draw();
             };
         });
@@ -75,7 +75,7 @@ export function renderQuiz(app, chapterNo) {
             (chapterNo < 18 ? '<a class="btn primary" href="#ch' + (chapterNo + 1) + '">' + (chapterNo + 1) + '단원으로</a>' : '') + '</div></section>');
         $('#q-retry').onclick = () => renderQuiz(app, chapterNo);
         if (pass) {
-            app.sound.play('quizOk');
+            app.sound.play('correct');
         }
         celebrateAsync(app, recorded.events);
     };

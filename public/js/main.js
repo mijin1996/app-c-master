@@ -91,14 +91,10 @@ app.afterLoginAsync = async () => {
     }
     app.sky.compute();
     app.sound.unlock();
-    if (progress.progress.settings.bgm) {
-        app.sound.setBgmAsync(true);
-    }
     app.router.refresh();
 };
 
 app.logoutAsync = async () => {
-    app.sound.setBgmAsync(false);
     await auth.logoutAsync();
     progress.clear();
     history.replaceState(null, '', location.pathname);
@@ -130,10 +126,7 @@ async function startAsync() {
     app.content = indexContent(content.data);
     const restored = await auth.restoreAsync(); // 쿠키가 살아 있으면 자동 로그인
     if (!(restored instanceof Failure)) {
-        const loaded = await progress.loadAsync();
-        if (!(loaded instanceof Failure) && progress.progress.settings.bgm) {
-            app.sound.setBgmAsync(true);
-        }
+        await progress.loadAsync();
     }
     app.router.start(); // 로그인 안 했으면 requireLogin 이 로그인 화면을 보여 준다
 }

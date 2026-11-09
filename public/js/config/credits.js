@@ -44,7 +44,7 @@ export const CREDITS = Object.freeze([
         group: '그림 · 소리 · 교재',
         items: [
             { name: '캐릭터 코디 픽셀 아트', by: 'code.ai (Google Gemini로 생성)', license: '오리지널 그림', url: 'https://gemini.google.com/', note: '아기 코더 → 초딩 → 중딩 → 고딩 → C 마스터 15장' },
-            { name: '효과음 · 배경음악', by: 'code.ai', license: '오리지널', url: '', note: '피아노 소리를 직접 합성해 만든 mp3' },
+            { name: '효과음 (맞았을 때 · 틀렸을 때)', by: 'code.ai', license: '오리지널', url: '', note: '피아노 소리를 직접 합성해 만든 짧은 mp3 두 개' },
             { name: '《자기주도 C언어 프로그래밍》', by: '김동규', license: '단원 순서 · 개념만 참고', url: '', note: '문제 · 퀴즈 · 해설은 모두 새로 썼어요' },
         ],
     },

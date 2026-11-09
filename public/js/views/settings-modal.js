@@ -15,9 +15,7 @@ export function openSettings(app) {
         '<div class="row2"><label class="f">내 도시 (해 뜨고 지는 시각 기준)<select id="s-city">' +
         Object.entries(CITIES).map(([key, city]) => '<option value="' + key + '"' + (key === s.city ? ' selected' : '') + '>' + city[0] + '</option>').join('') + '</select></label>' +
         '<label class="f">배경<select id="s-sky"><option value="auto">자동 (해의 위치)</option><option value="day">항상 낮</option><option value="night">항상 밤</option></select></label></div>' +
-        '<div class="switch"><span>효과음 (정답·오답·클리어)</span><input type="checkbox" id="s-sfx" ' + (s.sfx ? 'checked' : '') + '></div>' +
-        '<div class="switch"><span>배경음악 (피아노)</span><input type="checkbox" id="s-bgm" ' + (s.bgm ? 'checked' : '') + '></div>' +
-        '<label class="f">배경음악 볼륨<input type="range" id="s-vol" min="0" max="1" step="0.05" value="' + s.volume + '"></label>' +
+        '<div class="switch"><span>효과음 (맞았을 때 · 틀렸을 때)</span><input type="checkbox" id="s-sfx" ' + (s.sfx ? 'checked' : '') + '></div>' +
         '<div class="switch"><span>친구 랭킹에 참여하기</span><input type="checkbox" id="s-rank" ' + (s.rankOptIn ? 'checked' : '') + '></div>' +
         '<div class="switch"><span>복구 코드 (아이디·비밀번호 찾기용)</span><button class="btn" id="s-rec">새로 만들기</button></div>' +
         '<div class="row-buttons spread"><button class="btn" id="s-logout">로그아웃</button><button class="btn primary" id="s-close">닫기</button></div></div>';
@@ -25,22 +23,13 @@ export function openSettings(app) {
     $('#s-sky').value = s.sky;
 
     const apply = async () => {
-        const bgmOn = $('#s-bgm').checked;
-        const bgmChanged = bgmOn !== app.progress.progress.settings.bgm;
         app.progress.updateSettings({
             codyName: $('#s-cody').value,
             city: $('#s-city').value,
             sky: $('#s-sky').value,
             sfx: $('#s-sfx').checked,
-            bgm: bgmOn,
-            volume: Number($('#s-vol').value),
             rankOptIn: $('#s-rank').checked,
         });
-        if (bgmChanged) {
-            app.sound.setBgmAsync(bgmOn);
-        } else {
-            app.sound.applyVolume();
-        }
         app.sky.compute();
         const nickname = $('#s-nick').value.trim();
         if (nickname && nickname !== app.auth.user.nickname) {
@@ -59,10 +48,6 @@ export function openSettings(app) {
     $$('input[type=checkbox], select', bg).forEach((el) => {
         el.onchange = apply;
     });
-    $('#s-vol').oninput = () => {
-        app.progress.updateSettings({ volume: Number($('#s-vol').value) });
-        app.sound.applyVolume();
-    };
     $('#s-close').onclick = close;
     bg.addEventListener('click', (e) => {
         if (e.target === bg) {

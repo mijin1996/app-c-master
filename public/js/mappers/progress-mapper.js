@@ -93,12 +93,9 @@ function historyList(raw) {
 
 function settingsOf(raw) {
     const s = isObject(raw) ? raw : {};
-    const volume = Number(s.volume);
     const codyName = typeof s.codyName === 'string' ? s.codyName.trim().slice(0, 8) : '';
     return {
         sfx: typeof s.sfx === 'boolean' ? s.sfx : DEFAULT_SETTINGS.sfx,
-        bgm: typeof s.bgm === 'boolean' ? s.bgm : DEFAULT_SETTINGS.bgm,
-        volume: Number.isFinite(volume) ? clamp(volume, 0, 1) : DEFAULT_SETTINGS.volume,
         city: typeof s.city === 'string' && /^[a-z]{2,20}$/.test(s.city) ? s.city : DEFAULT_SETTINGS.city,
         sky: SKY_MODES.has(s.sky) ? s.sky : DEFAULT_SETTINGS.sky,
         rankOptIn: typeof s.rankOptIn === 'boolean' ? s.rankOptIn : DEFAULT_SETTINGS.rankOptIn,

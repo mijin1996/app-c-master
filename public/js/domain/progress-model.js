@@ -3,8 +3,6 @@
 
 export const DEFAULT_SETTINGS = Object.freeze({
     sfx: true,          // 효과음
-    bgm: false,         // 배경음악
-    volume: 0.45,       // 배경음악 볼륨 0~1
     city: 'seoul',      // 해 뜨고 지는 시각 기준 도시
     sky: 'auto',        // auto | day | night
     rankOptIn: true,    // 친구 랭킹 참여

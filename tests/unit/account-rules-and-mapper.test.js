@@ -54,7 +54,7 @@ test('Mapper: 잘못된 값은 걸러 내고 범위를 맞춘다', () => {
         quiz: { 1: 7, 2: -3, 3: 4, 99: 5 },
         spent: { 1001: -50, 1002: 120.7 },
         code: { 1001: 'int main() { }', 1002: 12 },
-        settings: { volume: 9, sky: 'rainbow', codyName: '', sfx: 'yes' },
+        settings: { volume: 9, bgm: true, sky: 'rainbow', codyName: '', sfx: 'yes' },
         formSeen: 10,
         history: Array.from({ length: 300 }, (_, i) => ({ id: 1001, res: 'AC', at: i })),
     };
@@ -67,7 +67,8 @@ test('Mapper: 잘못된 값은 걸러 내고 범위를 맞춘다', () => {
     assert.deepEqual(p.quiz, { 1: 5, 2: 0, 3: 4 });
     assert.deepEqual(p.spent, { 1001: 0, 1002: 120 });
     assert.deepEqual(p.code, { 1001: 'int main() { }' });
-    assert.equal(p.settings.volume, 1);
+    assert.equal('volume' in p.settings, false); // 배경음악 · 볼륨 설정은 버린다
+    assert.equal('bgm' in p.settings, false);
     assert.equal(p.settings.sky, 'auto');
     assert.equal(p.settings.codyName, '코디');
     assert.equal(p.settings.sfx, true);

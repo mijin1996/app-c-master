@@ -16,6 +16,9 @@ import { D1CommunityDataSource } from './datasources/d1-community-datasource.js'
 import { CommunityRepository } from './repositories/community-repository.js';
 import { CommunityService } from './services/community-service.js';
 import { DisabledJudgeProvider, Judge0JudgeProvider } from './judge/judge-providers.js';
+import { D1VisitDataSource } from './datasources/d1-visit-datasource.js';
+import { VisitRepository } from './repositories/visit-repository.js';
+import { VisitService } from './services/visit-service.js';
 import { Pbkdf2PasswordHasher } from './security/password-hasher.js';
 import { SecretGenerator } from './security/secret-generator.js';
 
@@ -66,5 +69,6 @@ export function createContainer(env, options = {}) {
         teacher: new TeacherService(progress, teachers),
         hint: new HintService(hintProvider, hintEnabled),
         codeRun: new CodeRunService(runProvider, runEnabled),
+        visits: new VisitService(new VisitRepository(new D1VisitDataSource(env.DB)), clock),
     };
 }

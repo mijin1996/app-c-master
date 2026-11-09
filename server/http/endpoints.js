@@ -112,6 +112,10 @@ export const putProgress = authed(async (context, container, user) => {
     return resultResponse(await container.progress.saveAsync(user, read.data.body, read.data.bytes));
 });
 
+/** 하루 접속 수: 로그인 없이 누구나. POST 는 1 늘리기, GET 은 보기만 */
+export const recordVisit = guard(async (context, container) => resultResponse(await container.visits.recordAsync()));
+export const todayVisits = guard(async (context, container) => resultResponse(await container.visits.todayAsync()));
+
 export const ranking = authed(async (context, container, user) => {
     const result = await container.ranking.listAsync(user);
     return result instanceof Failure ? failureResponse(result) : json({ entries: result.data });

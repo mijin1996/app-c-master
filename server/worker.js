@@ -23,6 +23,7 @@ import * as progress from '../functions/api/progress.js';
 import * as ranking from '../functions/api/ranking.js';
 import * as run from '../functions/api/run.js';
 import * as teacherStudents from '../functions/api/teacher/students.js';
+import * as visits from '../functions/api/visits.js';
 import { json } from './http/http.js';
 
 // 주소 → 처리기 모듈 (functions/api 에 파일을 추가하면 여기에도 한 줄. 빠지면 테스트가 알려 준다)
@@ -48,6 +49,7 @@ export const API_ROUTES = Object.freeze({
     '/api/ranking': ranking,
     '/api/run': run,
     '/api/teacher/students': teacherStudents,
+    '/api/visits': visits,
 });
 
 const METHODS = Object.freeze(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);

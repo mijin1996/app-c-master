@@ -4,6 +4,8 @@ import { renderShell } from './shell.js';
 import { XP_BY_LEVEL, SOLVE_LIMIT_SEC } from '../domain/progress-rules.js';
 
 const SEC_PER_MIN = 60;
+// 단계마다 더 공부할 곳 (USACO Guide 단계 주소)
+const GUIDE_PATH = Object.freeze({ bronze: 'bronze', silver: 'silver', gold: 'gold', platinum: 'plat' });
 
 /** 단계의 진행 상태: 다 풀었는지, 몇 개 풀었는지 */
 function trackProgress(progress, track) {
@@ -27,6 +29,8 @@ function trackSection(app, track, open) {
         (state.done ? ' <span class="chip good">완료</span>' : '') + '</div></div>' +
         '<p class="tier-intro">' + esc(track.intro) + '</p>' +
         '<div class="chips">' + track.topics.map((topic) => '<span class="chip">' + esc(topic) + '</span>').join('') + '</div>' +
+        '<div class="tier-links">더 풀어 보기: <a href="https://usaco.org/index.php" target="_blank" rel="noopener noreferrer">USACO 원래 문제</a> · ' +
+        '<a href="https://usaco.guide/' + GUIDE_PATH[track.track] + '" target="_blank" rel="noopener noreferrer">USACO Guide ' + esc(track.name) + ' 단계</a></div>' +
         '<div class="tbl-wrap"><table><thead><tr><th>번호</th><th>제목</th><th>상태</th><th class="num">제출</th></tr></thead><tbody>' + rows + '</tbody></table></div></section>';
 }
 
@@ -38,9 +42,11 @@ export function renderAlgorithm(app, focus) {
     }).join('<span class="rung-arrow" aria-hidden="true">›</span>');
     renderShell(app, 'algo',
         '<div class="view-title"><h1>알고리즘</h1><span class="on-sky muted">단원을 끝냈다면 단계별 알고리즘 문제에 도전해요</span></div>' +
+        '<div class="panel pad lang-note"><b>풀이 언어: C (C11)</b> · code.ai 는 C언어 학습 사이트라 알고리즘 문제도 C로 풀고, 브라우저 안의 C 실행기로 채점해요. ' +
+        'USACO 대회는 C · C++ · Java · Python 을 받지만, 여기서는 배운 C로 같은 생각을 연습해요.</div>' +
         '<nav class="ladder panel" aria-label="알고리즘 단계">' + ladder + '</nav>' +
         '<div class="tier-list">' + tracks.map((track) => trackSection(app, track, track.track === focus)).join('') + '</div>' +
-        '<p class="muted small on-sky" style="margin-top:12px">USACO처럼 단계를 나눴어요. 문제는 모두 code.ai 가 새로 만든 연습 문제예요.</p>');
+        '<p class="muted small on-sky" style="margin-top:12px">단계 나누기는 USACO를 참고했고, 문제는 모두 code.ai 가 새로 만든 연습 문제예요. 자세한 출처는 아래 "출처 · 라이선스"에 있어요.</p>');
     if (focus) {
         document.getElementById('tier-' + focus)?.scrollIntoView({ block: 'start' });
     }

@@ -2,6 +2,7 @@
 import { $, esc, toast } from '../ui/dom.js';
 import { cody } from '../ui/cody.js';
 import { TechText } from '../ui/tech-text.js';
+import { CREDITS_BUTTON, bindCreditsButtons } from './credits-modal.js';
 import { Failure } from '../core/result.js';
 import { messageOf } from '../core/app-error.js';
 import { FORM_NAMES } from '../domain/progress-rules.js';
@@ -58,9 +59,10 @@ export function renderLogin(app, mode = 'login') {
         (isJoin ? '' : '<button type="button" class="btn ghost link-btn" id="f-forgot">아이디·비밀번호를 잊었어요</button>') +
         '<button class="btn primary" id="f-submit" type="submit">' + (isJoin ? '가입하고 시작하기' : '로그인') + '</button>' +
         '<div class="notice">진도는 서버에 저장돼서 어느 기기에서든 로그인하면 이어서 할 수 있어요. 다른 사이트에서 쓰는 비밀번호는 쓰지 마세요.</div>' +
-        '</form></div></div>';
+        '</form></div>' + CREDITS_BUTTON + '</div>';
 
     new TechText($('#tech'), { text: 'code.ai' }).mountAsync();
+    bindCreditsButtons(app.root);
 
     $('#tab-login').onclick = () => renderLogin(app, 'login');
     $('#tab-join').onclick = () => renderLogin(app, 'join');

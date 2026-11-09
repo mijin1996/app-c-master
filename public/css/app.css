@@ -360,3 +360,17 @@ a.btn.primary { color: var(--accent-ink); }
 }
 .sol-lock { font-size: 13px; line-height: 1.6; margin-top: 6px; }
 .sol-lock ul { margin: 4px 0; padding-left: 4px; list-style: none; }
+
+/* 출처 · 라이선스 */
+.credits-link { background: none; border: 0; padding: 6px 4px; font: inherit; font-size: 12.5px; color: var(--muted); text-decoration: underline; cursor: pointer; }
+.login .credits-link { color: var(--hero-ink, var(--fg)); opacity: .85; }
+.foot { padding: 18px 0 28px; text-align: center; }
+.foot .credits-link { background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; text-decoration: none; }
+.modal.credits { width: min(640px, 100%); }
+.cr-group h3 { font-size: 17px; margin-bottom: 6px; }
+.cr-group ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.cr-group li { padding: 10px 12px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; display: grid; gap: 4px; justify-items: start; }
+.cr-name { font-weight: 700; }
+.cr-note { font-size: 13px; }
+.tier-links { font-size: 13.5px; margin-bottom: 10px; color: var(--muted); }
+.lang-note { margin-bottom: 16px; font-size: 14px; }

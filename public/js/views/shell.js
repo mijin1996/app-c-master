@@ -2,6 +2,7 @@
 import { $, esc, ICON, toast } from '../ui/dom.js';
 import { cody } from '../ui/cody.js';
 import { FORM_NAMES } from '../domain/progress-rules.js';
+import { CREDITS_BUTTON, bindCreditsButtons } from './credits-modal.js';
 
 const NAV = Object.freeze([
     ['map', '학습 지도'],
@@ -23,8 +24,10 @@ export function renderShell(app, active, inner) {
         '<button class="iconbtn ' + (settings.bgm ? 'on' : '') + '" id="btn-bgm" title="배경음악 켜기/끄기" aria-label="배경음악 켜기/끄기" aria-pressed="' + settings.bgm + '">' + ICON.music + '</button>' +
         '<button class="iconbtn" id="btn-settings" title="설정" aria-label="설정">' + ICON.gear + '</button>' +
         '<a class="mini-cody" href="#map" title="' + esc(settings.codyName) + ' · ' + FORM_NAMES[form] + '">' + cody(form, 'normal', { name: settings.codyName }) + '</a>' +
-        '</div></div></header><main><div class="wrap" id="view">' + inner + '</div></main>';
+        '</div></div></header><main><div class="wrap" id="view">' + inner + '</div></main>' +
+        '<footer class="foot"><div class="wrap">' + CREDITS_BUTTON + '</div></footer>';
     app.sky.compute();
+    bindCreditsButtons(app.root);
 
     $('#btn-bgm').onclick = async () => {
         const on = !app.progress.progress.settings.bgm;

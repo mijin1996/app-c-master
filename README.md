@@ -71,6 +71,12 @@ docs/                    아키텍처, 배포 안내, 설계·계획 문서
 2. Cloudflare 대시보드 → 설정 → 변수 및 비밀: `AI_HINT_ENABLED=true`, `AI_HINT_API_KEY`(Secret으로)
 3. 다른 AI 서비스를 쓰려면 `server/hint/hint-providers.js` 에 `getHintAsync(prompt)` 를 가진 클래스를 추가하고 `server/container.js` 에서 바꿔 끼운다
 
-## 저작권
+## 저작권 · 출처
+
+사이트의 모든 화면 아래쪽(첫 화면 포함) **출처 · 라이선스** 버튼에서 글꼴, 화면 효과, 참고한 대회, 그림 출처를 볼 수 있어요. 목록은 `public/js/config/credits.js` 에서 고칩니다.
+
+- USACO: 브론즈~플래티넘 단계 나누기만 참고했고 문제·코드는 옮기지 않았어요. 각 단계에서 USACO 원래 문제로 가는 링크를 둡니다.
+- Vue Bits Tech Text: 효과 아이디어만 참고, 코드는 새로 작성.
+
 
 《자기주도 C언어 프로그래밍》의 단원 순서와 다루는 개념만 참고했습니다. 문제 지문·예제·테스트·힌트·해설·퀴즈·음악은 모두 새로 만든 것이고, 캐릭터 코디 그림은 Google Gemini로 새로 그린 오리지널 픽셀 아트입니다 (`public/assets/cody/`).

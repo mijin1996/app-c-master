@@ -136,6 +136,7 @@ function springBack(button, pullX, pullY, recoil) {
  */
 export function installSlingButtons(root = document) {
     let active = null;
+    let syntheticClick = false; // 새총이 대신 누른 클릭에는 키보드용 입자를 또 뿌리지 않는다
 
     root.addEventListener('pointerdown', (event) => {
         const button = event.target.closest?.(BUTTON_SELECTOR);
@@ -162,8 +163,16 @@ export function installSlingButtons(root = document) {
         const { button, launch } = active;
         active = null;
         springBack(button, launch.pullX, launch.pullY, SLING_RECOIL);
-        if (fire) {
-            burst(button, launch.angle, launch.power);
+        if (!fire) {
+            return;
+        }
+        burst(button, launch.angle, launch.power);
+        // 장전된 새총은 손가락이 버튼 밖에서 놓여도 발사(클릭)된다. 버튼 안이면 브라우저가 알아서 클릭한다
+        const under = document.elementFromPoint(event.clientX, event.clientY);
+        if (launch.armed && !button.contains(under)) {
+            syntheticClick = true;
+            button.click();
+            syntheticClick = false;
         }
     };
     addEventListener('pointerup', release(true), { passive: true });
@@ -172,7 +181,7 @@ export function installSlingButtons(root = document) {
     // 키보드로 누른 클릭(detail 0)도 위로 작게 쏜다
     root.addEventListener('click', (event) => {
         const button = event.target.closest?.(BUTTON_SELECTOR);
-        if (event.detail === 0 && button && !reduceMotion()) {
+        if (event.detail === 0 && !syntheticClick && button && !reduceMotion()) {
             burst(button, -Math.PI / 2, SLING_KEY_POWER);
         }
     });

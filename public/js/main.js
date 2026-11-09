@@ -29,6 +29,7 @@ import { renderQuiz } from './views/quiz-view.js';
 import { renderProblems, renderRanking, renderRecords, renderTeacher } from './views/list-views.js';
 import { openSettings } from './views/settings-modal.js';
 import { renderAlgorithm } from './views/algorithm-view.js';
+import { renderOopList, renderOopLesson } from './views/oop-view.js';
 import { renderCommunityList, renderCommunityNew, renderCommunityProblem } from './views/community-view.js';
 import { indexContent } from './mappers/content-mapper.js';
 
@@ -62,6 +63,7 @@ const app = {
     sound: new SoundPlayer('/assets/sounds/', currentSettings),
     sky: Sky,
     content: null,
+    contentRepository,
     router: null,
     openSettings: () => openSettings(app),
 };
@@ -75,6 +77,8 @@ app.router = new Router([
     [/^quiz(\d+)$/, requireLogin((m) => renderQuiz(app, Number(m[1])))],
     [/^problems$/, requireLogin(() => renderProblems(app))],
     [/^algo(?:-(bronze|silver|gold|platinum))?$/, requireLogin((m) => renderAlgorithm(app, m[1] ?? null))],
+    [/^oop$/, requireLogin(() => renderOopList(app))],
+    [/^oop(\d+)$/, requireLogin((m) => renderOopLesson(app, Number(m[1])))],
     [/^community$/, requireLogin(() => renderCommunityList(app))],
     [/^community-new$/, requireLogin(() => renderCommunityNew(app))],
     [/^c(\d+)$/, requireLogin((m) => renderCommunityProblem(app, Number(m[1])))],

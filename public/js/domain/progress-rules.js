@@ -11,13 +11,13 @@ export const QUIZ_PASS_XP = 10;
 export const QUIZ_PERFECT_XP = 10;
 export const HISTORY_LIMIT = 200;
 
-export const FORM_NAMES = Object.freeze(['새싹 코더', '견습 개발자', '주니어 개발자', '시니어 개발자', 'C 마스터']);
+export const FORM_NAMES = Object.freeze(['아기 코더', '초딩 코더', '중딩 코더', '고딩 코더', 'C 마스터']);
 export const FORM_COUNT_BY_STAGE = 3; // 앞의 세 스테이지가 1~3단계 진화를 결정, 전체 클리어가 4단계
 
 export const STAGES = Object.freeze([
-    { name: '기초', reward: '클리어하면 코디가 견습 개발자로 진화' },
-    { name: '제어', reward: '클리어하면 주니어 개발자로 진화' },
-    { name: '자료·함수', reward: '클리어하면 시니어 개발자로 진화' },
+    { name: '기초', reward: '클리어하면 코디가 초딩 코더로 진화' },
+    { name: '제어', reward: '클리어하면 중딩 코더로 진화' },
+    { name: '자료·함수', reward: '클리어하면 고딩 코더로 진화' },
     { name: '문자열·구조체', reward: '마스터까지 한 걸음' },
     { name: '포인터·파일', reward: '모두 클리어하면 C 마스터!' },
 ]);

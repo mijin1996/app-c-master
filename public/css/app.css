@@ -305,3 +305,6 @@ body { margin: 0; }
 th.num { text-align: right; }
 a.btn { text-decoration: none; color: inherit; }
 a.btn.primary { color: var(--accent-ink); }
+
+/* 코디 픽셀 아트: 48×48 원본을 네모 픽셀 그대로 키운다 */
+.cody-img { display: block; width: 100%; height: auto; aspect-ratio: 1; image-rendering: pixelated; image-rendering: crisp-edges; user-select: none; }

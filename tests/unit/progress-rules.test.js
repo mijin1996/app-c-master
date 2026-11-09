@@ -82,7 +82,7 @@ test('아무것도 안 했으면 시작 전', () => {
     assert.equal(chapterState(createEmptyProgress(), CURRICULUM[0]), 'notStarted');
 });
 
-test('기초 스테이지(1~4단원)를 클리어하면 코디가 견습 개발자(1단계)가 된다', () => {
+test('기초 스테이지(1~4단원)를 클리어하면 코디가 초딩 코더(1단계)가 된다', () => {
     const progress = createEmptyProgress();
     for (let ch = 1; ch <= 4; ch++) {
         solveChapter(progress, ch, 5);

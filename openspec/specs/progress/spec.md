@@ -39,7 +39,7 @@ A chapter SHALL be cleared when all 4 problems are solved and the best quiz scor
 
 #### Scenario: Stage 1 cleared
 - **WHEN** chapters 1-4 become cleared
-- **THEN** Cody becomes 견습 개발자 with the evolution animation and sound
+- **THEN** Cody becomes 초딩 코더 with the evolution animation and sound
 
 ### Requirement: Saving progress
 Progress SHALL be saved to the server shortly after each change and when the tab is hidden. The server SHALL reject bodies over 512 KB and clean every field through the progress mapper.

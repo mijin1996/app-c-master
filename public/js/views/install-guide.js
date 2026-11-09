@@ -1,56 +1,14 @@
 // 홈 화면 추가 안내창: 사이트에 들어올 때마다 "앱처럼 쓰는 법" 을 보여 준다.
-// 안쪽 카드 3장(내 기기 → 다른 기기 → 좋은 점)은 스크롤하면 위에 차곡차곡 쌓인다 (Scroll Stack 느낌).
+// 안쪽 카드 4장(내 기기 → 다른 기기 → 좋은 점, 글은 install-guide-cards.js)은 스크롤하면 위에 차곡차곡 쌓인다 (Scroll Stack 느낌).
 // ✕ 버튼을 눌러야만 닫힌다 (실수로 바깥을 눌러 놓치지 않게). 닫으면 이번 방문(탭)에서는 다시 안 뜨고,
 // 홈 화면 앱으로 열었으면 처음부터 안 뜬다. "📲 홈 화면 추가" 버튼(openInstallGuide)으로는 언제든 다시 연다.
 import { esc } from '../ui/dom.js';
+import { INSTALL_CARDS } from '../ui/install-guide-cards.js';
 import { platformOf, shouldShowInstallGuide, orderedCards, stackScale, endSpace, Platform, STACK_GAP_PX } from '../ui/install-guide-rules.js';
 
 const CLOSED_KEY = 'cm-install-guide-closed';
 const STICKY_TOP_PX = 8;       // 첫 카드가 붙는 높이
 const STICKY_STEP_PX = 14;     // 뒤 카드는 조금씩 아래에 붙어서 앞 카드 윗부분이 보인다
-
-const CARDS = Object.freeze({
-    ios: {
-        title: '아이폰 · 아이패드',
-        sub: 'Safari 에서',
-        steps: [
-            '<b>Safari</b> 로 이 사이트를 열어요 (카카오톡 · 인스타 안에서 열었다면 <b>"Safari로 열기"</b>)',
-            '화면 아래(아이패드는 위)의 <b>공유 버튼</b> <span class="key">□↑</span> 을 눌러요. 안 보이면 <span class="key">···</span> 더보기 → 공유',
-            '목록을 내려서 <b>"홈 화면에 추가"</b> 를 눌러요',
-            '오른쪽 위 <b>"추가"</b> 를 누르면 끝! 홈 화면에 코디 아이콘이 생겨요',
-        ],
-    },
-    android: {
-        title: '안드로이드',
-        sub: 'Chrome · 삼성 인터넷에서',
-        steps: [
-            '<b>Chrome</b> 으로 이 사이트를 열어요',
-            '오른쪽 위 <b>⋮ 메뉴</b> 를 눌러요',
-            '<b>"홈 화면에 추가"</b> 또는 <b>"앱 설치"</b> 를 누르고 <b>"설치"</b>',
-            '삼성 인터넷은 아래 <b>≡ 메뉴</b> → <b>"현재 페이지 추가"</b> → <b>"홈 화면"</b>',
-        ],
-    },
-    desktop: {
-        title: '컴퓨터 (Windows · Mac)',
-        sub: 'Chrome · Edge · Safari 에서',
-        steps: [
-            '<b>Chrome</b>: 주소창 오른쪽 끝의 <b>설치 아이콘</b> <span class="key">⊕</span> 을 누르고 <b>"설치"</b>. 안 보이면 <b>⋮ 메뉴</b> → <b>"전송, 저장, 공유"</b> → <b>"페이지를 앱으로 설치"</b>',
-            '<b>Edge</b>: <b>··· 메뉴</b> → <b>"앱"</b> → <b>"이 사이트를 앱으로 설치"</b>',
-            '<b>Mac Safari</b>: 위 메뉴 <b>"파일"</b> → <b>"Dock에 추가"</b>',
-            '설치하면 주소창 없는 <b>따로 된 창</b>으로 열리고, 바탕화면 · 시작 메뉴 · Dock 에 코디 아이콘이 생겨요',
-        ],
-    },
-    why: {
-        title: '앱처럼 쓰면 좋은 점',
-        sub: '설치해도 용량은 거의 0',
-        steps: [
-            '주소창 없이 <b>화면 전체</b>로 문제를 풀어요',
-            '홈 화면의 <b>코디 아이콘</b>을 누르면 바로 시작',
-            '로그인이 그대로 남아 있어요',
-            '홈 화면 아이콘으로 열면 이 안내창은 더 이상 안 떠요. 다시 보고 싶으면 위쪽 <b>"📲 홈 화면 추가"</b> 버튼',
-        ],
-    },
-});
 
 const storage = {
     get() {
@@ -80,9 +38,9 @@ addEventListener('beforeinstallprompt', (event) => {
 });
 
 function cardHtml(id, index, mine) {
-    const card = CARDS[id];
+    const card = INSTALL_CARDS[id];
     return '<section class="stack-card ' + id + '" style="top:' + (STICKY_TOP_PX + index * STICKY_STEP_PX) + 'px">' +
-        '<div class="stack-head"><b>' + esc(card.title) + '</b><span class="muted small">' + esc(card.sub) + '</span>' + (mine ? '<span class="chip accent">내 기기</span>' : '') + '</div>' +
+        '<div class="stack-head"><b>' + esc(card.title) + '</b>' + (mine ? '<span class="chip accent">내 기기</span>' : '') + '</div>' +
         '<ol>' + card.steps.map((s) => '<li>' + s + '</li>').join('') + '</ol></section>';
 }
 
@@ -115,6 +73,12 @@ function bindStack(scroller) {
     };
     scroller.addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
     addEventListener('resize', fitEnd);
+    // 글꼴이 늦게 들어와 카드 높이가 바뀌어도 다시 잰다
+    if (typeof ResizeObserver === 'function') {
+        const watcher = new ResizeObserver(() => fitEnd());
+        cards.forEach((card) => watcher.observe(card));
+        watcher.observe(scroller);
+    }
     fitEnd();
 }
 
@@ -145,7 +109,7 @@ export function showInstallGuideIfNeeded({ force = false } = {}) {
     bg.className = 'modal-bg install-bg';
     bg.innerHTML = '<div class="panel modal install-guide" role="dialog" aria-modal="true" aria-labelledby="ig-title">' +
         '<button class="iconbtn ig-close" id="ig-close" aria-label="닫기">✕</button>' +
-        '<div class="ig-top"><img src="/assets/icons/icon-192.png" alt="" width="56" height="56"><h2 id="ig-title">c-master 를 앱처럼 써 봐요</h2></div>' +
+        '<div class="ig-top"><h2 id="ig-title">c-master 를 앱처럼 써 봐요</h2></div>' +
         '<div class="stack-scroller" tabindex="0" aria-label="설치 안내" style="--stack-gap:' + STACK_GAP_PX + 'px">' + ids.map((id, i) => cardHtml(id, i, mineOf(id))).join('') +
         '<div class="stack-end" aria-hidden="true"></div></div>' +
         '<div class="row-buttons"' + (deferredPrompt ? '' : ' hidden') + ' id="ig-install-row"><button class="btn primary" id="ig-install">지금 바로 설치하기</button></div></div>';
@@ -166,7 +130,9 @@ export function showInstallGuideIfNeeded({ force = false } = {}) {
         deferredPrompt = null;
         close();
     };
-    bindStack(bg.querySelector('.stack-scroller'));
+    const scroller = bg.querySelector('.stack-scroller');
+    bindStack(scroller);
+    scroller.scrollTop = 0; // 언제나 첫 카드(내 기기)부터
     bg.querySelector('#ig-close').focus();
     return bg;
 }

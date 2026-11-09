@@ -451,6 +451,8 @@ a.btn.primary { color: var(--accent-ink); }
 }
 /* ---------- 홈 화면 추가 버튼 (상단 · 첫 화면) ---------- */
 .install-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 13.5px; white-space: nowrap; }
+.login-install { display: flex; justify-content: center; }
+.login-install .install-btn { width: 100%; justify-content: center; }
 .login-foot { display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 12px; }
 /* 좁은 화면 상단에서는 글자를 줄여 아이콘 + "추가" 만 (버튼 이름은 aria-label 로 그대로 읽힘) */
 @media (max-width: 520px) {
@@ -461,13 +463,14 @@ a.btn.primary { color: var(--accent-ink); }
 /* ---------- 홈 화면 추가 안내창 (쌓이는 카드) ---------- */
 .install-bg { z-index: 70; animation: lu-in .2s ease both; }
 .install-bg.out { animation: lu-out .2s ease forwards; }
-.install-guide { position: relative; width: min(480px, 100%); max-height: min(88vh, 720px); overflow: hidden; grid-template-rows: auto 1fr auto; padding: 18px; }
+/* 높이를 정해 둬야 끝 여백(마지막 카드가 쌓일 자리)을 바르게 잰다 (내용에 따라 높이가 바뀌면 계산이 어긋남) */
+.install-guide { position: relative; width: min(480px, 100%); height: min(80vh, 600px); overflow: hidden; grid-template-rows: auto 1fr auto; padding: 18px; }
 .install-guide .ig-close { position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; font-size: 16px; }
 .ig-top { display: flex; gap: 12px; align-items: center; padding-right: 40px; }
-.ig-top img { border-radius: 14px; image-rendering: pixelated; flex: none; }
 .ig-top h2 { font-size: 20px; margin: 0; }
 /* 카드는 글 길이만큼 늘어난다 (grid 로 두면 카드 높이가 고정돼 글이 다음 카드 뒤로 숨어서 block 으로 쌓는다) */
-.stack-scroller { overflow-y: auto; overscroll-behavior: contain; min-height: 0; padding: 4px 2px 8px; display: block; }
+/* overflow-anchor: none — 카드 높이가 바뀔 때 브라우저가 스크롤 위치를 몰래 옮기지 않게 (늘 맨 위에서 시작) */
+.stack-scroller { overflow-y: auto; overflow-anchor: none; overscroll-behavior: contain; min-height: 0; padding: 4px 2px 8px; display: block; }
 .stack-card { position: sticky; height: auto; transform-origin: center top; transition: transform .08s linear, filter .08s linear; border-radius: 16px; padding: 14px 16px;
   border: 1px solid var(--line); background: var(--panel-2); box-shadow: 0 8px 24px rgba(0, 0, 0, .22);
   margin-bottom: var(--stack-gap, 18px); }
@@ -483,7 +486,7 @@ a.btn.primary { color: var(--accent-ink); }
 .key { display: inline-block; padding: 0 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); font-family: var(--f-code); font-size: 13px; }
 @media (max-width: 520px) {
   .install-bg { place-items: end center; padding: 0; }
-  .install-guide { width: 100%; max-height: 86vh; border-radius: 20px 20px 0 0; padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px)); }
+  .install-guide { width: 100%; height: min(80vh, 600px); border-radius: 20px 20px 0 0; padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .stack-card { transition: none; }

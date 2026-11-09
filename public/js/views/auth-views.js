@@ -59,8 +59,8 @@ export function renderLogin(app, mode = 'login') {
         '<div class="err" id="f-err" role="alert"></div>' +
         (isJoin ? '' : '<button type="button" class="btn ghost link-btn" id="f-forgot">아이디·비밀번호를 잊었어요</button>') +
         '<button class="btn primary" id="f-submit" type="submit">' + (isJoin ? '가입하고 시작하기' : '로그인') + '</button>' +
-        '<div class="notice">진도는 서버에 저장돼서 어느 기기에서든 로그인하면 이어서 할 수 있어요. 다른 사이트에서 쓰는 비밀번호는 쓰지 마세요.</div>' +
-        '</form></div><div class="login-foot">' + INSTALL_BUTTON + CREDITS_BUTTON + '</div></div>';
+        '<div class="login-install">' + INSTALL_BUTTON + '</div>' +
+        '</form></div><div class="login-foot">' + CREDITS_BUTTON + '</div></div>';
 
     new TechText($('#tech'), { text: 'c-master' }).mountAsync();
     bindCreditsButtons(app.root);

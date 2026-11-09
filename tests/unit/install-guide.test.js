@@ -36,11 +36,17 @@ test('들어올 때마다 보여 주되, 이미 앱으로 설치해 열었거나
     assert.equal(shouldShowInstallGuide({ standalone: false, closedThisVisit: true }), false);
 });
 
-test('카드 순서: 내 기기 안내가 맨 앞, 나머지는 뒤', () => {
+test('카드 순서: 내 기기 안내가 맨 앞, 컴퓨터(데스크탑)도 안내하고, 좋은 점은 맨 뒤', () => {
     // Given / When / Then
-    assert.deepEqual(orderedCards(Platform.ANDROID), ['android', 'ios', 'why']);
-    assert.deepEqual(orderedCards(Platform.IOS), ['ios', 'android', 'why']);
-    assert.deepEqual(orderedCards(Platform.OTHER), ['ios', 'android', 'why']);
+    assert.deepEqual(orderedCards(Platform.ANDROID), ['android', 'ios', 'desktop', 'why']);
+    assert.deepEqual(orderedCards(Platform.IOS), ['ios', 'android', 'desktop', 'why']);
+    assert.deepEqual(orderedCards(Platform.OTHER), ['desktop', 'ios', 'android', 'why']);
+});
+
+test('버튼으로 직접 열면(force) 이미 닫았거나 앱으로 열었어도 보여 준다', () => {
+    // Given / When / Then
+    assert.equal(shouldShowInstallGuide({ standalone: true, closedThisVisit: true, force: true }), true);
+    assert.equal(shouldShowInstallGuide({ standalone: false, closedThisVisit: true, force: false }), false);
 });
 
 test('쌓이는 카드: 위에 덮인 만큼 작아지고(0장 → 1), 아무리 덮여도 최소 크기 아래로는 안 간다', () => {

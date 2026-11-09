@@ -21,14 +21,23 @@ export function platformOf(nav) {
     return Platform.OTHER;
 }
 
-/** 들어올 때마다 보여 준다. 단, 이미 홈 화면 앱으로 열었거나 이번 방문에 닫았으면 안 보여 준다 */
-export function shouldShowInstallGuide({ standalone, closedThisVisit }) {
-    return !standalone && !closedThisVisit;
+/**
+ * 들어올 때마다 보여 준다. 단, 이미 홈 화면 앱으로 열었거나 이번 방문에 닫았으면 안 보여 준다.
+ * "홈 화면 추가" 버튼으로 직접 열 때(force)는 언제나 보여 준다.
+ */
+export function shouldShowInstallGuide({ standalone, closedThisVisit, force = false }) {
+    return force || (!standalone && !closedThisVisit);
 }
 
-/** 카드 순서: 지금 쓰는 기기 안내를 맨 앞에 */
+/** 카드 순서: 지금 쓰는 기기 안내를 맨 앞에, "좋은 점" 은 맨 뒤 */
 export function orderedCards(platform) {
-    return platform === Platform.ANDROID ? ['android', 'ios', 'why'] : ['ios', 'android', 'why'];
+    if (platform === Platform.ANDROID) {
+        return ['android', 'ios', 'desktop', 'why'];
+    }
+    if (platform === Platform.IOS) {
+        return ['ios', 'android', 'desktop', 'why'];
+    }
+    return ['desktop', 'ios', 'android', 'why'];
 }
 
 /** 위에 덮인 카드 양(0 = 안 덮임, 1 = 한 장이 다 덮음)에 따른 크기 */

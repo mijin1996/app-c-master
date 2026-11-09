@@ -21,6 +21,8 @@ export const CREDITS = Object.freeze([
                 note: '레벨 업 때 화면 전체를 덮는 회전 글자 (public/js/ui/effects.js)' },
             { name: 'Sling Button', by: 'Vue Bits (React Bits의 Vue 버전, davidhaz)', license: '효과 아이디어 참고 · 코드는 쓰지 않음 (Vue Bits 라이선스: MIT + Commons Clause)', url: 'https://vue-bits.dev/micro/sling-button',
                 note: '모든 버튼의 누름 효과. 누른 채 끌면 고무줄처럼 끌려가고, 놓으면 반대로 튕기며 입자가 부채꼴로 날아가요. Vue Bits 코드를 가져오지 않고 바닐라 자바스크립트로 새로 만들었어요 (public/js/ui/sling-math.js, public/js/ui/effects.js)' },
+            { name: 'Scroll Stack', by: 'Vue Bits', license: '효과 아이디어 참고 · 코드는 쓰지 않음 (Vue Bits 라이선스: MIT + Commons Clause)', url: 'https://vue-bits.dev/components/scroll-stack',
+                note: '들어올 때 뜨는 "앱처럼 쓰기" 안내창 안에서 카드가 차곡차곡 쌓이는 움직임 (public/js/views/install-guide.js)' },
             { name: 'Fuse Button', by: 'Vue Bits', license: '효과 아이디어 참고 · 코드는 쓰지 않음', url: 'https://vue-bits.dev/micro/fuse-button',
                 note: '문제 지우기의 4초 되돌리기 도화선 (public/js/ui/effects.js)' },
         ],
@@ -45,7 +47,7 @@ export const CREDITS = Object.freeze([
     {
         group: '그림 · 소리 · 교재',
         items: [
-            { name: '캐릭터 코디 픽셀 아트', by: 'c-master (Google Gemini로 생성)', license: '오리지널 그림', url: 'https://gemini.google.com/', note: '아기 코더 → 초딩 → 중딩 → 고딩 → C 마스터 15장' },
+            { name: '캐릭터 코디 픽셀 아트', by: 'c-master (Google Gemini로 생성)', license: '오리지널 그림', url: 'https://gemini.google.com/', note: '아기 코더 → 초딩 → 중딩 → 고딩 → C 마스터 15장. 홈 화면 앱 아이콘은 C 마스터 코디를 픽셀 그대로 키워 만들었어요 (public/assets/icons)' },
             { name: '효과음 (맞았을 때 · 틀렸을 때)', by: 'c-master', license: '오리지널', url: '', note: '전자 피아노(FM 합성) 소리를 코드로 직접 만든 짧은 wav 두 개 (tools/sound-synth.mjs)' },
             { name: '《자기주도 C언어 프로그래밍》', by: '김동규', license: '단원 순서 · 개념만 참고', url: '', note: '문제 · 퀴즈 · 해설은 모두 새로 썼어요' },
             { name: 'Java vs C# 객체지향 · C# 아키텍처 수업 교안과 개인 필기', by: '수업 자료 · c-master 학습자 필기', license: '주제 순서 · 개념만 참고', url: '',

@@ -36,6 +36,12 @@ Every button press SHALL show a slingshot effect: dragging pulls the button a li
 - **WHEN** they release outside the button
 - **THEN** the button springs up, particles fly upward, and the quiz starts
 
+### Requirement: Install guide on every visit
+When the site is opened in a browser (not as an installed home-screen app), it SHALL show a guide explaining how to add it to the home screen on iPhone/iPad (Safari) and Android (Chrome, Samsung Internet), with the visitor's own platform first. The cards SHALL stack as the guide scrolls. Tapping ✕, the backdrop, or pressing Esc SHALL close it for the rest of the visit.
+
+### Requirement: Soft electric piano sounds (2026-11-10)
+The correct and wrong sounds SHALL be soft FM electric piano clips: a rising major arpeggio for correct and two gentle falling low notes for wrong, never clipping and fading out without a click.
+
 ## MODIFIED Requirements (2026-11-09)
 
 ### Requirement: Sounds

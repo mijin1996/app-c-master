@@ -18,6 +18,14 @@ The site SHALL offer an 객체지향 menu with 13 numbered lessons drawn from th
 - **WHEN** they score 5
 - **THEN** they gain another 10 XP only once, and chapter clears and Cody's form do not change
 
+### Requirement: Code practice per lesson
+Each lesson SHALL include two practice problems built on its code example: one fill-in-the-blank (blanks typed inside the code, case-sensitive, surrounding spaces ignored) and one "what does it print" (line-end spaces, CRLF and trailing blank lines ignored). A first correct answer SHALL give 5 XP, recomputed by the server from `oopPractice`. After two wrong tries the learner MAY reveal the answer.
+
+#### Scenario: Wrong case in a blank
+- **GIVEN** lesson 3's blank problem
+- **WHEN** the learner types `Virtual` instead of `virtual`
+- **THEN** that blank turns red and no XP is given
+
 ### Requirement: Server recomputes OOP XP
 The server SHALL compute OOP XP from stored best scores of known lessons only. The mapper SHALL keep only lesson keys 1–99 and clamp scores to 0–5.
 

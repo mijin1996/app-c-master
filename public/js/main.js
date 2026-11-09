@@ -30,6 +30,7 @@ import { renderProblems, renderRanking, renderRecords, renderTeacher } from './v
 import { openSettings } from './views/settings-modal.js';
 import { renderAlgorithm } from './views/algorithm-view.js';
 import { renderOopList, renderOopLesson } from './views/oop-view.js';
+import { showInstallGuideIfNeeded } from './views/install-guide.js';
 import { renderCommunityList, renderCommunityNew, renderCommunityProblem } from './views/community-view.js';
 import { indexContent } from './mappers/content-mapper.js';
 
@@ -121,6 +122,7 @@ document.addEventListener('pointerdown', () => {
 async function startAsync() {
     installClickSpark();
     installSlingButtons();
+    showInstallGuideIfNeeded(); // 들어올 때마다 "앱처럼 쓰는 법" 안내 (홈 화면 앱으로 열었으면 안 뜸)
     Sky.init(document.getElementById('sky'), currentSettings);
     const content = await contentRepository.loadAsync();
     if (content instanceof Failure) {

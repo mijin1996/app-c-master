@@ -40,16 +40,15 @@ export function orderedCards(platform) {
     return ['desktop', 'ios', 'android', 'why'];
 }
 
-export const STACK_DWELL_MIN_PX = 48; // 카드 사이 스크롤 여유 (최소)
-export const STACK_DWELL_RATE = 0.85; // 보이는 높이의 85% 까지는 앞 카드를 덮지 않는다
+export const STACK_GAP_PX = 18; // 카드 사이 간격 (처음 모양 그대로)
 
 /**
- * 카드 사이 스크롤 여유(px): 앞 카드가 맨 위에 붙은 뒤에도 이만큼 더 내려야 다음 카드가 닿는다.
- * 화면이 크고 카드가 짧을수록 여유가 커서, 글이 많아도 끝까지 읽은 다음에 덮인다.
+ * 마지막 카드 아래 여백(px). 여백이 없으면 마지막 카드가 끝까지 내려도 자기 자리(위)에 못 올라가서
+ * 앞 카드 위에 쌓이지 않는다. 그래서 "보이는 높이 - 마지막 카드 - 붙는 높이" 만큼 빈 자리를 둔다.
  */
-export function stackDwell(viewportPx, tallestCardPx) {
-    const room = Math.round(viewportPx * STACK_DWELL_RATE - tallestCardPx);
-    return Number.isFinite(room) ? Math.max(STACK_DWELL_MIN_PX, room) : STACK_DWELL_MIN_PX;
+export function endSpace(viewportPx, lastCardPx, lastStickyTopPx) {
+    const space = Math.round(viewportPx - lastCardPx - lastStickyTopPx);
+    return Number.isFinite(space) ? Math.max(0, space) : 0;
 }
 
 /** 위에 덮인 카드 양(0 = 안 덮임, 1 = 한 장이 다 덮음)에 따른 크기 */

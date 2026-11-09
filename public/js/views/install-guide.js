@@ -3,7 +3,7 @@
 // ✕ 버튼을 눌러야만 닫힌다 (실수로 바깥을 눌러 놓치지 않게). 닫으면 이번 방문(탭)에서는 다시 안 뜨고,
 // 홈 화면 앱으로 열었으면 처음부터 안 뜬다. "📲 홈 화면 추가" 버튼(openInstallGuide)으로는 언제든 다시 연다.
 import { esc } from '../ui/dom.js';
-import { platformOf, shouldShowInstallGuide, orderedCards, stackScale, stackDwell, Platform } from '../ui/install-guide-rules.js';
+import { platformOf, shouldShowInstallGuide, orderedCards, stackScale, endSpace, Platform, STACK_GAP_PX } from '../ui/install-guide-rules.js';
 
 const CLOSED_KEY = 'cm-install-guide-closed';
 const STICKY_TOP_PX = 8;       // 첫 카드가 붙는 높이
@@ -104,15 +104,18 @@ function bindStack(scroller) {
             card.dataset.stuck = rect.top - box.top <= STICKY_TOP_PX + i * STICKY_STEP_PX + 1 ? '1' : '0';
         });
     };
-    // 읽을 여유: 보이는 높이에서 가장 긴 카드를 뺀 만큼 (화면 크기 · 글 길이에 맞게 저절로)
-    const fitDwell = () => {
-        const tallest = Math.max(...cards.map((c) => c.offsetHeight));
-        scroller.style.setProperty('--stack-dwell', stackDwell(scroller.clientHeight, tallest) + 'px');
+    // 마지막 카드도 위로 올라가 쌓이게, 끝에 빈 자리를 둔다 (화면 크기 · 글 길이에 맞게 저절로)
+    const spacer = scroller.querySelector('.stack-end');
+    const fitEnd = () => {
+        const last = cards[cards.length - 1];
+        const lastTop = STICKY_TOP_PX + (cards.length - 1) * STICKY_STEP_PX;
+        const padding = parseFloat(getComputedStyle(scroller).paddingBottom) || 0;
+        spacer.style.height = endSpace(scroller.clientHeight - padding, last.offsetHeight, lastTop) + 'px';
         update();
     };
     scroller.addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
-    addEventListener('resize', fitDwell);
-    fitDwell();
+    addEventListener('resize', fitEnd);
+    fitEnd();
 }
 
 /** 상단 · 첫 화면의 "홈 화면 추가" 버튼: 이미 닫았어도 언제든 다시 연다 */
@@ -142,10 +145,9 @@ export function showInstallGuideIfNeeded({ force = false } = {}) {
     bg.className = 'modal-bg install-bg';
     bg.innerHTML = '<div class="panel modal install-guide" role="dialog" aria-modal="true" aria-labelledby="ig-title">' +
         '<button class="iconbtn ig-close" id="ig-close" aria-label="닫기">✕</button>' +
-        '<div class="ig-top"><img src="/assets/icons/icon-192.png" alt="" width="56" height="56"><div><h2 id="ig-title">c-master 를 앱처럼 써 봐요</h2>' +
-        '<p class="muted small" style="margin:2px 0 0">홈 화면에 추가하면 앱처럼 바로 열려요. 아래로 밀어 보면 안내 카드가 차곡차곡 쌓여요.</p></div></div>' +
-        '<div class="stack-scroller" tabindex="0" aria-label="설치 안내">' + ids.map((id, i) => cardHtml(id, i, mineOf(id))).join('') +
-        '<div class="stack-end muted small">다 읽었으면 오른쪽 위 ✕ 를 눌러 닫아요</div></div>' +
+        '<div class="ig-top"><img src="/assets/icons/icon-192.png" alt="" width="56" height="56"><h2 id="ig-title">c-master 를 앱처럼 써 봐요</h2></div>' +
+        '<div class="stack-scroller" tabindex="0" aria-label="설치 안내" style="--stack-gap:' + STACK_GAP_PX + 'px">' + ids.map((id, i) => cardHtml(id, i, mineOf(id))).join('') +
+        '<div class="stack-end" aria-hidden="true"></div></div>' +
         '<div class="row-buttons"' + (deferredPrompt ? '' : ' hidden') + ' id="ig-install-row"><button class="btn primary" id="ig-install">지금 바로 설치하기</button></div></div>';
     document.body.appendChild(bg);
 

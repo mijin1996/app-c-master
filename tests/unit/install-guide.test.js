@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-    platformOf, shouldShowInstallGuide, stackScale, orderedCards, stackDwell, Platform, STACK_MIN_SCALE, STACK_DWELL_MIN_PX,
+    platformOf, shouldShowInstallGuide, stackScale, orderedCards, endSpace, Platform, STACK_MIN_SCALE, STACK_GAP_PX,
 } from '../../public/js/ui/install-guide-rules.js';
 
 const IPHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
@@ -49,26 +49,29 @@ test('버튼으로 직접 열면(force) 이미 닫았거나 앱으로 열었어�
     assert.equal(shouldShowInstallGuide({ standalone: false, closedThisVisit: true, force: false }), false);
 });
 
-test('카드 사이 여유: 보이는 높이의 85% 에서 가장 긴 카드를 뺀 만큼, 최소 48px', () => {
+test('카드 사이 간격은 원래대로 18px 하나로 고정', () => {
     // Given / When / Then
-    assert.equal(stackDwell(640, 228), Math.round(640 * 0.85 - 228)); // 폰: 316
-    assert.equal(stackDwell(300, 280), STACK_DWELL_MIN_PX);           // 화면이 작아 여유가 없을 때도 최소만큼
-    assert.equal(stackDwell(0, 0), STACK_DWELL_MIN_PX);
-    assert.equal(stackDwell(NaN, 200), STACK_DWELL_MIN_PX);
+    assert.equal(STACK_GAP_PX, 18);
 });
 
-test('여유를 두면 다음 카드가 앞 카드에 닿기 전, 앞 카드 전체가 보이는 칸 안에 들어온다', () => {
-    // Given: 보이는 높이 640, 카드 228px, 앞 카드가 붙는 높이 8px
-    const viewport = 640;
-    const card = 228;
-    const dwell = stackDwell(viewport, card);
+test('마지막 카드 아래 여백: 마지막 카드도 자기 자리(위)까지 올라가 앞 카드 위에 쌓일 만큼', () => {
+    // Given: 보이는 높이 518, 마지막 카드 221px, 마지막(4번째) 카드가 붙는 높이 8 + 3×14 = 50
+    const viewport = 518;
+    const last = 221;
+    const stickyTop = 50;
 
-    // When: 앞 카드가 맨 위에 붙은 순간, 다음 카드의 윗변 위치
-    const nextTop = 8 + card + dwell;
+    // When
+    const space = endSpace(viewport, last, stickyTop);
 
-    // Then: 앞 카드 아래끝(8+228)이 보이는 칸 안이고, 다음 카드는 그보다 아래에 있다
-    assert.ok(8 + card <= viewport);
-    assert.ok(nextTop > 8 + card);
+    // Then: 여백이 있어야 끝까지 내렸을 때 마지막 카드 윗변이 붙는 높이에 닿는다
+    assert.equal(space, viewport - last - stickyTop);
+    assert.ok(stickyTop + last + space >= viewport);
+});
+
+test('마지막 카드 아래 여백: 카드가 화면보다 길거나 값이 이상하면 0 (음수 여백 없음)', () => {
+    // Given / When / Then
+    assert.equal(endSpace(300, 400, 50), 0);
+    assert.equal(endSpace(NaN, 200, 50), 0);
 });
 
 test('쌓이는 카드: 위에 덮인 만큼 작아지고(0장 → 1), 아무리 덮여도 최소 크기 아래로는 안 간다', () => {

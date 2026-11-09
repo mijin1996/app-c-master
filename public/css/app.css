@@ -470,15 +470,16 @@ a.btn.primary { color: var(--accent-ink); }
 .stack-scroller { overflow-y: auto; overscroll-behavior: contain; min-height: 0; padding: 4px 2px 8px; display: block; }
 .stack-card { position: sticky; height: auto; transform-origin: center top; transition: transform .08s linear, filter .08s linear; border-radius: 16px; padding: 14px 16px;
   border: 1px solid var(--line); background: var(--panel-2); box-shadow: 0 8px 24px rgba(0, 0, 0, .22);
-  /* 다음 카드가 덮기 전에 이 카드를 끝까지 읽을 수 있게 스크롤 여유를 둔다 */
-  margin-bottom: var(--stack-dwell, 120px); }
+  margin-bottom: var(--stack-gap, 18px); }
 .stack-card:last-of-type { margin-bottom: 0; }
+/* 첫 카드를 처음부터 붙는 자리(위 8px)에 두어, 밀려 내려가며 첫 간격만 좁아지는 일이 없게 */
+.stack-card:first-of-type { margin-top: 8px; }
 .stack-card.ios { background: linear-gradient(160deg, var(--panel-2), var(--accent-soft)); }
 .stack-card.android { background: linear-gradient(160deg, var(--panel-2), var(--good-soft)); }
 .stack-head { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; margin-bottom: 6px; }
 .stack-head b { font-size: 17px; }
 .stack-card ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; line-height: 1.55; }
-.stack-end { text-align: center; padding: 18px 0 8px; }
+.stack-end { pointer-events: none; } /* 마지막 카드가 위로 올라가 쌓일 빈 자리 (높이는 JS 가 화면에 맞게) */
 .key { display: inline-block; padding: 0 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); font-family: var(--f-code); font-size: 13px; }
 @media (max-width: 520px) {
   .install-bg { place-items: end center; padding: 0; }

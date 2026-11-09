@@ -1,6 +1,9 @@
 // Service(화면 쪽): 지금 로그인한 사람의 진도를 들고 있고, 학습 규칙대로 바꾼다.
 // 저장은 Repository에 맡기고(조금 모았다가 한 번에), 변화는 구독자에게 알린다(옵저버).
 import { Result, Failure } from '../core/result.js';
+import { AppError } from '../core/app-error.js';
+import { OOP_LESSONS } from '../domain/oop-curriculum.js';
+import { oopGainedXp, OOP_QUIZ_SIZE } from '../domain/oop-rules.js';
 import { progressFromDto } from '../mappers/progress-mapper.js';
 import { LanguageId, languageOf, codeKey } from '../domain/languages.js';
 import {
@@ -20,6 +23,7 @@ export class ProgressService {
     #curriculum;
     #calendar;
     #timer;
+    #oopLessons;
     #progress = null;
     #levels = new Map();
     #listeners = new Set();
@@ -31,11 +35,12 @@ export class ProgressService {
      * @param {{today: () => string, yesterday: () => string, now: () => number}} calendar
      * @param {{setTimeout: Function, clearTimeout: Function}} timer
      */
-    constructor(repository, curriculum, calendar, timer = globalThis) {
+    constructor(repository, curriculum, calendar, timer = globalThis, oopLessons = OOP_LESSONS) {
         this.#repository = repository;
         this.#curriculum = curriculum;
         this.#calendar = calendar;
         this.#timer = timer;
+        this.#oopLessons = oopLessons;
         this.#levels = problemLevelMap(curriculum);
     }
 
@@ -60,7 +65,7 @@ export class ProgressService {
     }
 
     get summary() {
-        return summarize(this.#progress, this.#curriculum);
+        return summarize(this.#progress, this.#curriculum, this.#oopLessons);
     }
 
     get curriculum() {
@@ -89,7 +94,7 @@ export class ProgressService {
 
     /** 바뀐 뒤에 생긴 일(단원 클리어, 레벨 업, 진화)을 찾는다 */
     #eventsSince(before, chapterNo) {
-        const after = summarize(this.#progress, this.#curriculum);
+        const after = summarize(this.#progress, this.#curriculum, this.#oopLessons);
         const chapter = this.#curriculum.find((c) => c.chapter === chapterNo);
         const form = formOf(this.#progress, this.#curriculum);
         return {
@@ -101,7 +106,7 @@ export class ProgressService {
 
     #snapshot(chapterNo) {
         const chapter = this.#curriculum.find((c) => c.chapter === chapterNo);
-        const s = summarize(this.#progress, this.#curriculum);
+        const s = summarize(this.#progress, this.#curriculum, this.#oopLessons);
         return { cleared: chapter ? isChapterCleared(this.#progress, chapter) : false, level: s.level };
     }
 
@@ -165,6 +170,29 @@ export class ProgressService {
         const events = this.#eventsSince(before, chapterNo);
         this.#changed();
         return { gainedXp, events };
+    }
+
+    /**
+     * 객체지향 레슨 퀴즈 점수 기록 (최고 점수만 남긴다). 단원 클리어 · 진화와는 상관없다
+     * @returns {Result} 성공: { gainedXp, best, events } / 실패: INVALID_PROGRESS
+     */
+    recordOopQuiz(lessonNo, score) {
+        const known = this.#oopLessons.some((lesson) => lesson.no === Number(lessonNo));
+        if (!known || !Number.isInteger(score) || score < 0 || score > OOP_QUIZ_SIZE) {
+            return Result.failure(AppError.INVALID_PROGRESS);
+        }
+        const p = this.#progress;
+        const key = String(lessonNo);
+        const before = this.#snapshot(null);
+        const prev = p.oopQuiz[key];
+        const gainedXp = oopGainedXp(prev, score);
+        if (prev === undefined || score > prev) {
+            p.oopQuiz[key] = score;
+        }
+        this.#touchStreak();
+        const events = this.#eventsSince(before, null);
+        this.#changed();
+        return Result.success({ gainedXp, best: p.oopQuiz[key], events });
     }
 
     /** 문제 화면이 1초 열려 있을 때마다 부른다 */

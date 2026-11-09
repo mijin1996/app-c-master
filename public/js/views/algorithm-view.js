@@ -46,7 +46,7 @@ export function renderAlgorithm(app, focus) {
         'Python은 처음 고를 때 실행기(약 10MB)를 한 번 받아요. C++ · Java는 채점 서버가 필요해서 유료 언어로 준비 중이에요.</div>' +
         '<nav class="ladder panel" aria-label="알고리즘 단계">' + ladder + '</nav>' +
         '<div class="tier-list">' + tracks.map((track) => trackSection(app, track, track.track === focus)).join('') + '</div>' +
-        '<p class="muted small on-sky" style="margin-top:12px">단계 나누기와 단계별 주제는 USACO를 참고했고, 문제는 모두 code.ai 가 새로 만든 연습 문제예요. 자세한 출처는 아래 "출처 · 라이선스"에 있어요.</p>');
+        '<p class="muted small on-sky" style="margin-top:12px">단계 나누기와 단계별 주제는 USACO를 참고했고, 문제는 모두 c-master 가 새로 만든 연습 문제예요. 자세한 출처는 아래 "출처 · 라이선스"에 있어요.</p>');
     if (focus) {
         document.getElementById('tier-' + focus)?.scrollIntoView({ block: 'start' });
     }

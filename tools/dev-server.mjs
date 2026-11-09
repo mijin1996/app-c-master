@@ -113,5 +113,5 @@ http.createServer((req, res) => {
         }
     });
 }).listen(PORT, () => {
-    console.log('code.ai 개발 서버: http://localhost:' + PORT);
+    console.log('c-master 개발 서버: http://localhost:' + PORT);
 });

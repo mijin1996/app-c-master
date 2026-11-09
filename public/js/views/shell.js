@@ -19,7 +19,7 @@ export function renderShell(app, active, inner) {
     const nav = app.teacher.isTeacher ? [...NAV, ['teacher', '선생님']] : NAV;
     app.root.innerHTML =
         '<header class="top"><div class="wrap">' +
-        '<a class="logo" href="#map"><span>code<b>.ai</b></span></a>' +
+        '<a class="logo" href="#map"><span>c-<b>master</b></span></a>' +
         '<nav class="nav" aria-label="메뉴">' + nav.map(([hash, title]) => '<a href="#' + hash + '" class="' + (active === hash ? 'on' : '') + '">' + title + '</a>').join('') + '</nav>' +
         '<div class="right"><span class="skychip"></span>' +
         '<button class="iconbtn" id="btn-settings" title="설정" aria-label="설정">' + ICON.gear + '</button>' +

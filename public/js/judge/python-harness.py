@@ -1,4 +1,4 @@
-# code.ai Python 채점 도우미: Pyodide(브라우저 속 Python) 안에서 학생 코드를 한 번 실행한다.
+# c-master Python 채점 도우미: Pyodide(브라우저 속 Python) 안에서 학생 코드를 한 번 실행한다.
 # 입력은 sys.stdin 으로, 출력은 모아서 돌려준다. 시간 제한은 바깥(자바스크립트)에서 Worker를 끊어서 지킨다.
 import io
 import sys

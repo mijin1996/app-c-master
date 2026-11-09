@@ -3,14 +3,14 @@
 # 쓰려면: 이 파일을 wrangler.toml 로 복사하고 database_id 를 진짜 값으로 바꾸세요.
 # 주의: 저장소에 wrangler.toml 이 있으면 Cloudflare가 대시보드 설정 대신 이 파일을 따르므로,
 #       ID가 비어 있는 wrangler.toml 을 올리면 배포가 실패해요. 그래서 .gitignore 에 넣어 두었습니다.
-name = "code-ai"
+name = "c-master"
 compatibility_date = "2026-10-01"
 pages_build_output_dir = "public"
 
-# D1 데이터베이스: 대시보드에서 code-ai-db 를 만든 뒤 database_id 를 아래에 붙여 넣으세요.
+# D1 데이터베이스: 대시보드에서 c-master-db 를 만든 뒤 database_id 를 아래에 붙여 넣으세요.
 [[d1_databases]]
 binding = "DB"
-database_name = "code-ai-db"
+database_name = "c-master-db"
 database_id = "여기에-D1-데이터베이스-ID"
 migrations_dir = "migrations"
 

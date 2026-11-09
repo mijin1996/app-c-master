@@ -38,7 +38,7 @@ export function showRecoveryCodeAsync(code, isNew) {
 }
 
 export function renderLogin(app, mode = 'login') {
-    document.title = 'code.ai · C언어 학습';
+    document.title = 'c-master · C언어 학습';
     const isJoin = mode === 'join';
     app.root.innerHTML =
         '<div class="wrap login">' +
@@ -61,7 +61,7 @@ export function renderLogin(app, mode = 'login') {
         '<div class="notice">진도는 서버에 저장돼서 어느 기기에서든 로그인하면 이어서 할 수 있어요. 다른 사이트에서 쓰는 비밀번호는 쓰지 마세요.</div>' +
         '</form></div>' + CREDITS_BUTTON + '</div>';
 
-    new TechText($('#tech'), { text: 'code.ai' }).mountAsync();
+    new TechText($('#tech'), { text: 'c-master' }).mountAsync();
     bindCreditsButtons(app.root);
 
     $('#tab-login').onclick = () => renderLogin(app, 'login');

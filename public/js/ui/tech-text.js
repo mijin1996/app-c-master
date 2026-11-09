@@ -8,7 +8,7 @@ const SPECK_SIZE = 4;
 const SPECK_LIFE_MS = 900;
 
 export const TECH_TEXT_DEFAULTS = Object.freeze({
-    text: 'code.ai',
+    text: 'c-master',
     fontFamily: 'LevelUp',
     fontWeight: 700,
     fontSize: 150,

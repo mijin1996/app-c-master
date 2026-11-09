@@ -4,7 +4,7 @@
 
 ## 0. 준비
 
-- GitHub에 이 저장소를 올려 둔다 (예: `code-ai`)
+- GitHub에 이 저장소를 올려 둔다 (지금 저장소: `mijin1996/app-c-master`)
 - Cloudflare 계정
 
 > 저장소에는 `wrangler.toml` 을 올리지 않아요 (`wrangler.example.toml` 만 있음). 그래야 아래 대시보드 설정이 그대로 쓰여요.
@@ -12,7 +12,7 @@
 ## 1. D1 데이터베이스 만들기
 
 1. Cloudflare 대시보드 → **Storage & Databases → D1 SQL Database → Create**
-2. 이름: `code-ai-db` → 만들기
+2. 이름: `c-master-db` → 만들기
 3. 만든 DB의 **Console** 탭에서 아래 두 파일 내용을 **차례대로** 붙여 넣고 실행
    1. `migrations/0001_init.sql` (회원 · 로그인 · 진도)
    2. `migrations/0002_community.sql` (커뮤니티)
@@ -22,7 +22,7 @@
 
 1. **Workers & Pages → Create → Pages → Connect to Git**
 2. GitHub 연결을 허락하고 저장소 선택
-3. 프로젝트 이름: `code-ai` (주소가 `https://code-ai.pages.dev` 가 돼요. 이미 있으면 다른 이름)
+3. 프로젝트 이름: `c-master` (주소가 `https://c-master.pages.dev` 가 돼요. 이미 있으면 다른 이름)
 4. 빌드 설정
    - Framework preset: **None**
    - Build command: **비워 두기**
@@ -35,7 +35,7 @@
 
 프로젝트 → **Settings**
 
-1. **Bindings → Add → D1 database**: 변수 이름 **`DB`**, 데이터베이스 **`code-ai-db`**
+1. **Bindings → Add → D1 database**: 변수 이름 **`DB`**, 데이터베이스 **`c-master-db`**
 2. **Variables and Secrets** (Production)
 
    | 이름 | 값 | 종류 |
@@ -51,7 +51,7 @@
 
 ## 4. 배포 후 확인 (5분)
 
-- [ ] 첫 화면에 `code.ai` 글자 효과와 레벨업 글꼴이 보인다
+- [ ] 첫 화면에 `c-master` 글자 효과와 레벨업 글꼴이 보인다
 - [ ] 회원가입 → 복구 코드 창이 뜬다
 - [ ] 문제 1001 제출 → "맞았습니다!!" → 새로고침해도 정답 표시가 남는다
 - [ ] 알고리즘 문제에서 언어를 Python으로 바꾸면 "Python 준비 완료"가 뜬다

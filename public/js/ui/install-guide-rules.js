@@ -40,6 +40,18 @@ export function orderedCards(platform) {
     return ['desktop', 'ios', 'android', 'why'];
 }
 
+export const STACK_DWELL_MIN_PX = 48; // 카드 사이 스크롤 여유 (최소)
+export const STACK_DWELL_RATE = 0.85; // 보이는 높이의 85% 까지는 앞 카드를 덮지 않는다
+
+/**
+ * 카드 사이 스크롤 여유(px): 앞 카드가 맨 위에 붙은 뒤에도 이만큼 더 내려야 다음 카드가 닿는다.
+ * 화면이 크고 카드가 짧을수록 여유가 커서, 글이 많아도 끝까지 읽은 다음에 덮인다.
+ */
+export function stackDwell(viewportPx, tallestCardPx) {
+    const room = Math.round(viewportPx * STACK_DWELL_RATE - tallestCardPx);
+    return Number.isFinite(room) ? Math.max(STACK_DWELL_MIN_PX, room) : STACK_DWELL_MIN_PX;
+}
+
 /** 위에 덮인 카드 양(0 = 안 덮임, 1 = 한 장이 다 덮음)에 따른 크기 */
 export function stackScale(coveredBy) {
     if (!(coveredBy > 0)) {

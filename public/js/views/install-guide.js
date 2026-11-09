@@ -3,7 +3,7 @@
 // ✕ 버튼을 눌러야만 닫힌다 (실수로 바깥을 눌러 놓치지 않게). 닫으면 이번 방문(탭)에서는 다시 안 뜨고,
 // 홈 화면 앱으로 열었으면 처음부터 안 뜬다. "📲 홈 화면 추가" 버튼(openInstallGuide)으로는 언제든 다시 연다.
 import { esc } from '../ui/dom.js';
-import { platformOf, shouldShowInstallGuide, orderedCards, stackScale, Platform } from '../ui/install-guide-rules.js';
+import { platformOf, shouldShowInstallGuide, orderedCards, stackScale, stackDwell, Platform } from '../ui/install-guide-rules.js';
 
 const CLOSED_KEY = 'cm-install-guide-closed';
 const STICKY_TOP_PX = 8;       // 첫 카드가 붙는 높이
@@ -104,8 +104,15 @@ function bindStack(scroller) {
             card.dataset.stuck = rect.top - box.top <= STICKY_TOP_PX + i * STICKY_STEP_PX + 1 ? '1' : '0';
         });
     };
+    // 읽을 여유: 보이는 높이에서 가장 긴 카드를 뺀 만큼 (화면 크기 · 글 길이에 맞게 저절로)
+    const fitDwell = () => {
+        const tallest = Math.max(...cards.map((c) => c.offsetHeight));
+        scroller.style.setProperty('--stack-dwell', stackDwell(scroller.clientHeight, tallest) + 'px');
+        update();
+    };
     scroller.addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
-    update();
+    addEventListener('resize', fitDwell);
+    fitDwell();
 }
 
 /** 상단 · 첫 화면의 "홈 화면 추가" 버튼: 이미 닫았어도 언제든 다시 연다 */

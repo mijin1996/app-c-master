@@ -1,0 +1,17 @@
+/* 하다 타입 레벨업 (SIL OFL 1.1, LICENSE.txt). 사이트가 쓰는 두 굵기만 직접 올려 둔다:
+   400 = 제목, 700 = 첫 화면 워드마크 */
+@font-face {
+    font-family: "LevelUp";
+    src: url("./LevelUp-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "LevelUp";
+    src: url("./LevelUp-Bold.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}

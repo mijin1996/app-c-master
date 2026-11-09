@@ -55,7 +55,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
-h1, h2, h3 { font-family: var(--f-display); font-weight: 400; line-height: 1.25; text-wrap: balance; margin: 0; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 700; line-height: 1.25; text-wrap: balance; margin: 0; }
 .wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
 .muted { color: var(--muted); }
@@ -79,8 +79,8 @@ label.f { display: grid; gap: 4px; font-size: 13px; font-weight: 600; color: var
 .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--panel); border-bottom: 1px solid var(--line); }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--panel); }
 .top .wrap { display: flex; align-items: center; gap: 14px; min-height: 58px; flex-wrap: wrap; padding-block: 6px; }
-.logo { font-family: var(--f-display); font-size: 24px; display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--fg); }
-.logo b { color: var(--accent); font-weight: 400; }
+.logo { font-family: var(--f-display); font-weight: 700; font-size: 24px; display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--fg); }
+.logo b { color: var(--accent); font-weight: inherit; }
 .nav { display: flex; gap: 2px; flex-wrap: wrap; }
 .nav a { padding: 6px 11px; border-radius: 9px; text-decoration: none; color: var(--muted); font-weight: 600; font-size: 14px; }
 .nav a:hover { background: var(--panel-2); color: var(--fg); }
@@ -104,7 +104,7 @@ main { flex: 1; padding-block: 22px 40px; }
 .login-card { width: min(920px, 100%); display: grid; grid-template-columns: 1.05fr 1fr; overflow: hidden; }
 .login-hero { background: var(--panel-2); padding: 28px; display: flex; flex-direction: column; gap: 10px; border-right: 1px solid var(--line); }
 .login-hero h1 { font-size: 46px; }
-.login-hero h1 b { color: var(--accent); font-weight: 400; }
+.login-hero h1 b { color: var(--accent); font-weight: inherit; }
 .login-hero .cody-big { width: 100%; max-width: 220px; align-self: center; }
 .login-form { padding: 28px; display: grid; gap: 14px; align-content: start; }
 .tabs { display: flex; gap: 6px; background: var(--panel-2); padding: 4px; border-radius: 12px; }
@@ -121,7 +121,7 @@ main { flex: 1; padding-block: 22px 40px; }
 .profile .cody-box { position: relative; background: var(--panel-2); border-radius: 12px; padding: 6px 6px 0; }
 .bubble { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 9px 12px; font-size: 14px; }
 .bubble::after { content: ""; position: absolute; left: 30px; bottom: -7px; width: 12px; height: 12px; background: var(--panel); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); transform: rotate(45deg); }
-.form-name { font-family: var(--f-display); font-size: 22px; }
+.form-name { font-family: var(--f-display); font-weight: 700; font-size: 22px; }
 .xpbar { height: 10px; background: var(--panel-2); border-radius: 99px; overflow: hidden; border: 1px solid var(--line); }
 .xpbar i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), #f6a04d); border-radius: 99px; transition: width .5s; }
 .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
@@ -343,8 +343,8 @@ a.btn.primary { color: var(--accent-ink); }
 .tech-letter.on .tech-outline { opacity: 1; }
 .tech-frame { transition: transform .32s cubic-bezier(.3, .7, .2, 1), opacity .2s ease; }
 .tech-label { font-family: var(--f-code); font-weight: 700; letter-spacing: .02em; }
-.tech-tag { margin: 4px 0 0; font-family: var(--f-display); font-size: clamp(17px, 2.6vw, 24px); }
-.tech-tag b { color: var(--accent); font-weight: 400; }
+.tech-tag { margin: 4px 0 0; font-family: var(--f-display); font-weight: 700; font-size: clamp(17px, 2.6vw, 24px); }
+.tech-tag b { color: var(--accent); font-weight: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .tech-fill, .tech-outline, .tech-frame { transition: none; }
 }

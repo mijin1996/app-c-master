@@ -1,14 +1,15 @@
-// 콘텐츠 검증: 72문제 모범답안이 모두 "맞았습니다", 흔한 실수는 알맞은 판정을 받는다
+// 콘텐츠 검증: 단원 72문제 + 알고리즘 16문제 모범답안이 모두 "맞았습니다", 흔한 실수는 알맞은 판정을 받는다
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { JudgeService, Verdict } from '../../public/js/services/judge-service.js';
 import { DirectJudgeRunner } from '../../public/js/judge/judge-runners.js';
-import { CURRICULUM } from '../../public/js/domain/curriculum.js';
+import { CURRICULUM, ALGORITHM_TRACKS } from '../../public/js/domain/curriculum.js';
 
-const content = JSON.parse(fs.readFileSync(new URL('../../public/data/content.json', import.meta.url), 'utf8'));
+const dto = JSON.parse(fs.readFileSync(new URL('../../public/data/content.json', import.meta.url), 'utf8'));
+const content = dto.chapters;
 const judge = new JudgeService(new DirectJudgeRunner());
-const problems = content.flatMap((c) => c.problems);
+const problems = [...content, ...dto.tracks].flatMap((c) => c.problems);
 const byId = new Map(problems.map((p) => [p.id, p]));
 
 test('18단원, 단원마다 문제 4개와 퀴즈 5문항', () => {
@@ -26,6 +27,20 @@ test('curriculum.js 가 content.json 과 같은 문제·난이도를 가진다',
     const fromContent = content.map((c) => c.problems.map((p) => p.id + ':' + p.level).join(','));
     const fromCurriculum = CURRICULUM.map((c) => c.problems.map((p) => p.id + ':' + p.level).join(','));
     assert.deepEqual(fromCurriculum, fromContent);
+});
+
+test('알고리즘은 브론즈·실버·골드·플래티넘 4단계, 단계마다 문제 4개, 난이도 4~7', () => {
+    assert.deepEqual(dto.tracks.map((t) => t.track), ['bronze', 'silver', 'gold', 'platinum']);
+    dto.tracks.forEach((track, i) => {
+        assert.equal(track.problems.length, 4, track.name + ' 문제 수');
+        assert.ok(track.problems.every((p) => p.level === 4 + i), track.name + ' 난이도');
+    });
+    const fromContent = dto.tracks.map((t) => t.problems.map((p) => p.id + ':' + p.level).join(','));
+    assert.deepEqual(ALGORITHM_TRACKS.map((t) => t.problems.map((p) => p.id + ':' + p.level).join(',')), fromContent);
+});
+
+test('문제 번호는 단원과 알고리즘을 통틀어 겹치지 않는다', () => {
+    assert.equal(byId.size, problems.length);
 });
 
 for (const problem of problems) {

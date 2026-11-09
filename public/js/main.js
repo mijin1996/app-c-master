@@ -27,6 +27,8 @@ import { renderProblem } from './views/problem-view.js';
 import { renderQuiz } from './views/quiz-view.js';
 import { renderProblems, renderRanking, renderRecords, renderTeacher } from './views/list-views.js';
 import { openSettings } from './views/settings-modal.js';
+import { renderAlgorithm } from './views/algorithm-view.js';
+import { indexContent } from './mappers/content-mapper.js';
 
 // ---------- 조립 ----------
 const http = new FetchHttpClient();
@@ -63,6 +65,7 @@ app.router = new Router([
     [/^p(\d+)$/, requireLogin((m) => renderProblem(app, Number(m[1])))],
     [/^quiz(\d+)$/, requireLogin((m) => renderQuiz(app, Number(m[1])))],
     [/^problems$/, requireLogin(() => renderProblems(app))],
+    [/^algo(?:-(bronze|silver|gold|platinum))?$/, requireLogin((m) => renderAlgorithm(app, m[1] ?? null))],
     [/^ranking$/, requireLogin(() => renderRanking(app))],
     [/^records$/, requireLogin(() => renderRecords(app))],
     [/^teacher$/, requireLogin(() => renderTeacher(app))],
@@ -89,21 +92,6 @@ app.logoutAsync = async () => {
     history.replaceState(null, '', location.pathname);
     renderLogin(app);
 };
-
-function indexContent(chapters) {
-    const byChapter = new Map();
-    const byProblem = new Map();
-    const problems = [];
-    for (const chapter of chapters) {
-        byChapter.set(chapter.ch, chapter);
-        for (const problem of chapter.problems) {
-            problem.ch = chapter.ch;
-            byProblem.set(problem.id, problem);
-            problems.push(problem);
-        }
-    }
-    return { chapters, byChapter, byProblem, problems };
-}
 
 // 탭을 닫거나 숨길 때 진도를 바로 저장
 document.addEventListener('visibilitychange', () => {

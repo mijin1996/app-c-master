@@ -3,6 +3,7 @@
 import { Result, Success } from '../core/result.js';
 import { AppError } from '../core/app-error.js';
 import { progressFromDto, progressToDto } from '../mappers/progress-mapper.js';
+import { contentFromDto } from '../mappers/content-mapper.js';
 
 const ERROR_BY_STATUS = Object.freeze({ 401: AppError.UNAUTHORIZED, 403: AppError.FORBIDDEN, 404: AppError.NOT_FOUND, 413: AppError.PAYLOAD_TOO_LARGE, 503: AppError.FEATURE_DISABLED });
 
@@ -125,12 +126,12 @@ export class ContentRepository {
         this.#source = source;
     }
 
-    /** 단원 목록. 한 번 불러오면 기억해 둔다 */
+    /** 단원과 알고리즘 단계. 한 번 불러오면 기억해 둔다 */
     async loadAsync() {
         if (this.#cache) {
             return Result.success(this.#cache);
         }
-        const loaded = await call(() => this.#source.loadAsync(), (b) => (Array.isArray(b) ? b : []));
+        const loaded = await call(() => this.#source.loadAsync(), contentFromDto);
         if (loaded instanceof Success) {
             this.#cache = loaded.data;
         }

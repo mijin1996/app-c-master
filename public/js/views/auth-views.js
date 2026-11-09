@@ -1,6 +1,7 @@
 // 로그인 · 회원가입 · 계정 찾기 화면, 복구 코드 안내 창
 import { $, esc, toast } from '../ui/dom.js';
 import { cody } from '../ui/cody.js';
+import { TechText } from '../ui/tech-text.js';
 import { Failure } from '../core/result.js';
 import { messageOf } from '../core/app-error.js';
 import { FORM_NAMES } from '../domain/progress-rules.js';
@@ -36,11 +37,14 @@ export function showRecoveryCodeAsync(code, isNew) {
 }
 
 export function renderLogin(app, mode = 'login') {
-    document.title = 'C 마스터';
+    document.title = 'code.ai · C언어 학습';
     const isJoin = mode === 'join';
     app.root.innerHTML =
-        '<div class="wrap login"><div class="panel login-card">' +
-        '<div class="login-hero"><h1>C <b>마스터</b></h1><p class="muted" style="margin:0">교재 18단원을 따라 문제를 풀고 퀴즈를 통과하며, 코딩 친구 코디와 함께 C언어 마스터가 되어 보세요.</p>' +
+        '<div class="wrap login">' +
+        '<section class="tech-hero"><div class="tech" id="tech"></div>' +
+        '<p class="tech-tag">C언어, 한 문제씩 풀다 보면 <b>C 마스터</b>까지</p></section>' +
+        '<div class="panel login-card">' +
+        '<div class="login-hero"><h1>코디와 <b>C언어</b></h1><p class="muted" style="margin:0">교재 18단원을 따라 문제를 풀고 퀴즈를 통과하며, 코딩 친구 코디와 함께 C언어 마스터가 되어 보세요.</p>' +
         '<div class="cody-big">' + cody(0, 'happy') + '</div>' +
         '<div class="muted" style="font-size:12.5px;font-weight:600">단계를 클리어할 때마다 코디가 자라요</div>' +
         '<div class="evo-strip">' + FORM_NAMES.map((name, i) => '<div>' + cody(i, 'normal') + '<span>' + name + '</span></div>').join('') + '</div></div>' +
@@ -55,6 +59,8 @@ export function renderLogin(app, mode = 'login') {
         '<button class="btn primary" id="f-submit" type="submit">' + (isJoin ? '가입하고 시작하기' : '로그인') + '</button>' +
         '<div class="notice">진도는 서버에 저장돼서 어느 기기에서든 로그인하면 이어서 할 수 있어요. 다른 사이트에서 쓰는 비밀번호는 쓰지 마세요.</div>' +
         '</form></div></div>';
+
+    new TechText($('#tech'), { text: 'code.ai' }).mountAsync();
 
     $('#tab-login').onclick = () => renderLogin(app, 'login');
     $('#tab-join').onclick = () => renderLogin(app, 'join');

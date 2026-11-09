@@ -416,3 +416,99 @@ export const CURRICULUM = Object.freeze([
         ]
     }
 ]);
+
+// 알고리즘 단계 (브론즈 4 · 실버 5 · 골드 6 · 플래티넘 7). 단원 클리어·진화에는 들어가지 않는다
+export const ALGORITHM_TRACKS = Object.freeze([
+    {
+        "track": "bronze",
+        "name": "브론즈",
+        "level": 4,
+        "problems": [
+            {
+                "id": 5101,
+                "level": 4
+            },
+            {
+                "id": 5102,
+                "level": 4
+            },
+            {
+                "id": 5103,
+                "level": 4
+            },
+            {
+                "id": 5104,
+                "level": 4
+            }
+        ]
+    },
+    {
+        "track": "silver",
+        "name": "실버",
+        "level": 5,
+        "problems": [
+            {
+                "id": 5201,
+                "level": 5
+            },
+            {
+                "id": 5202,
+                "level": 5
+            },
+            {
+                "id": 5203,
+                "level": 5
+            },
+            {
+                "id": 5204,
+                "level": 5
+            }
+        ]
+    },
+    {
+        "track": "gold",
+        "name": "골드",
+        "level": 6,
+        "problems": [
+            {
+                "id": 5301,
+                "level": 6
+            },
+            {
+                "id": 5302,
+                "level": 6
+            },
+            {
+                "id": 5303,
+                "level": 6
+            },
+            {
+                "id": 5304,
+                "level": 6
+            }
+        ]
+    },
+    {
+        "track": "platinum",
+        "name": "플래티넘",
+        "level": 7,
+        "problems": [
+            {
+                "id": 5401,
+                "level": 7
+            },
+            {
+                "id": 5402,
+                "level": 7
+            },
+            {
+                "id": 5403,
+                "level": 7
+            },
+            {
+                "id": 5404,
+                "level": 7
+            }
+        ]
+    }
+]);

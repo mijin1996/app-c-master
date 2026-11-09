@@ -1,8 +1,12 @@
 // 학습 규칙: 경험치, 레벨, 단원 클리어, 코디 진화.
 // 화면과 서버가 똑같이 쓰는 순수 함수 모음이라 저장소나 화면 코드를 모른다.
+import { ALGORITHM_TRACKS } from './curriculum.js';
 
-export const XP_BY_LEVEL = Object.freeze({ 1: 10, 2: 20, 3: 30 });   // 난이도별 경험치
-export const SOLVE_LIMIT_SEC = Object.freeze({ 1: 600, 2: 1200, 3: 1800 }); // 풀이 제한 시간(초)
+// 난이도 1~3은 단원 문제(★), 4~7은 알고리즘 단계(브론즈·실버·골드·플래티넘)
+export const XP_BY_LEVEL = Object.freeze({ 1: 10, 2: 20, 3: 30, 4: 40, 5: 60, 6: 80, 7: 100 });   // 난이도별 경험치
+export const SOLVE_LIMIT_SEC = Object.freeze({ 1: 600, 2: 1200, 3: 1800, 4: 1800, 5: 2700, 6: 3600, 7: 5400 }); // 풀이 제한 시간(초)
+export const ALGORITHM_LEVEL_MIN = 4;
+export const TIER_NAMES = Object.freeze({ 4: '브론즈', 5: '실버', 6: '골드', 7: '플래티넘' });
 export const LATE_XP_RATE = 0.2;    // 시간을 넘겨 맞히면 20%만
 export const XP_PER_LEVEL = 100;
 export const QUIZ_SIZE = 5;
@@ -35,14 +39,19 @@ export function levelOf(xp) {
     return Math.floor(Math.max(0, xp) / XP_PER_LEVEL) + 1;
 }
 
-function problemLevelMap(curriculum) {
+/** 문제 번호 → 난이도. 단원 문제와 알고리즘 문제를 모두 담는다 */
+export function problemLevelMap(curriculum, tracks = ALGORITHM_TRACKS) {
     const map = new Map();
-    for (const chapter of curriculum) {
-        for (const p of chapter.problems) {
+    for (const group of [...curriculum, ...tracks]) {
+        for (const p of group.problems) {
             map.set(String(p.id), p.level);
         }
     }
     return map;
+}
+
+export function isAlgorithmLevel(level) {
+    return level >= ALGORITHM_LEVEL_MIN;
 }
 
 /** 저장된 기록으로 경험치를 다시 계산한다 (서버도 이 값만 믿는다) */
@@ -123,6 +132,7 @@ export function nextStreak(streak, today, yesterday) {
 export function summarize(progress, curriculum) {
     const xp = computeXp(progress, curriculum);
     const states = curriculum.map((c) => chapterState(progress, c));
+    const levels = problemLevelMap(curriculum);
     const quizScores = Object.values(progress.quiz);
     const quizAvg = quizScores.length
         ? Math.round((quizScores.reduce((a, b) => a + b, 0) / quizScores.length) * 10) / 10
@@ -131,7 +141,8 @@ export function summarize(progress, curriculum) {
         xp,
         level: levelOf(xp),
         form: formOf(progress, curriculum),
-        solvedCount: Object.keys(progress.solved).filter((id) => problemLevelMap(curriculum).has(String(id))).length,
+        solvedCount: Object.keys(progress.solved).filter((id) => levels.has(String(id))).length,
+        algorithmSolvedCount: Object.keys(progress.solved).filter((id) => isAlgorithmLevel(levels.get(String(id)) ?? 0)).length,
         clearedCount: states.filter((s) => s === 'cleared').length,
         chapterStates: states,
         quizAvg,

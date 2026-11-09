@@ -1,4 +1,6 @@
-# C 마스터
+# code.ai
+
+C언어 학습 웹사이트. 캐릭터 코디가 아기 코더에서 **C 마스터**까지 자랍니다.
 
 C언어를 처음 배우는 사람이 **18단원 문제 풀이 + 단원 퀴즈**로 개념을 익히는 학습 웹사이트입니다.
 브라우저 안에서 C 코드를 바로 실행·자동 채점하고, 성장형 캐릭터 **코디**와 함께 C 마스터까지 올라갑니다.
@@ -9,6 +11,8 @@ C언어를 처음 배우는 사람이 **18단원 문제 풀이 + 단원 퀴즈**
 - 회원가입 · 로그인 · 복구 코드로 아이디 찾기/비밀번호 재설정
 - 친구 랭킹, 선생님용 학생 진도 화면
 - 해의 위치로 바뀌는 시간대 배경, 피아노 효과음·배경음악
+- 알고리즘 단계: USACO처럼 브론즈 · 실버 · 골드 · 플래티넘 16문제 (모두 오리지널)
+- 제목 글꼴: [하다 타입 레벨업](https://hada-type.com/levelup) (SIL OFL 1.1, jsDelivr 분할 WOFF2)
 - AI 힌트: 코드와 서버 자리는 준비됨, 지금은 꺼져 있음 ([켜는 방법](#ai-힌트-켜기))
 
 ## 바로 실행해 보기 (설치 없음)
@@ -18,7 +22,7 @@ Node.js 22.13 이상이면 됩니다.
 ```bash
 node tools/dev-server.mjs                       # http://localhost:8788
 TEACHER_USERNAMES=myid node tools/dev-server.mjs  # myid 아이디를 선생님으로
-npm test                                        # 테스트 131개
+npm test                                        # 전체 테스트
 ```
 
 `tools/dev-server.mjs` 는 Cloudflare Pages(정적 파일) + Functions(API) + D1(데이터베이스)을 흉내 냅니다. D1 대신 `.dev/dev.sqlite` 파일을 씁니다.

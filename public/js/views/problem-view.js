@@ -9,7 +9,7 @@ import { celebrateAsync } from './celebrate.js';
 import { starStr } from './map-views.js';
 import { DEFAULT_CODE, SOLUTION_MIN_REAL_TRIES } from '../services/progress-service.js';
 import { Verdict, normalizeOutput, testCaseOf } from '../services/judge-service.js';
-import { SOLVE_LIMIT_SEC, XP_BY_LEVEL, LATE_XP_RATE, xpForSolve } from '../domain/progress-rules.js';
+import { SOLVE_LIMIT_SEC, XP_BY_LEVEL, LATE_XP_RATE, xpForSolve, isAlgorithmLevel, TIER_NAMES } from '../domain/progress-rules.js';
 
 const MAX_SAMPLES = 2;
 const WARN_RATIO = 0.8;
@@ -42,15 +42,14 @@ export function renderProblem(app, problemId) {
         app.router.go('problems');
         return null;
     }
-    const chapter = app.content.byChapter.get(problem.ch);
     const firstCase = testCaseOf(problem.tests[0]);
     const fileName = Object.keys(firstCase.files)[0];
     const solved = app.progress.progress.solved[problemId];
 
-    renderShell(app, 'problems',
-        '<div class="crumbs"><a href="#map">학습 지도</a> › <a href="#ch' + problem.ch + '">' + problem.ch + '단원 ' + esc(chapter.title) + '</a> › ' + problem.id + '</div>' +
+    renderShell(app, problem.track ? 'algo' : 'problems',
+        crumbsOf(app, problem) +
         '<div class="prob"><article class="panel statement">' +
-        '<div><div class="muted code-text" style="font-size:13px">#' + problem.id + ' · <span class="stars">' + starStr(problem.level) + '</span></div><h1>' + esc(problem.title) + '</h1>' +
+        '<div><div class="muted code-text" style="font-size:13px">#' + problem.id + ' · ' + levelBadge(problem.level) + '</div><h1>' + esc(problem.title) + '</h1>' +
         '<div class="chips">' + (solved ? '<span class="chip good">정답</span>' : '') +
         '<span class="chip" title="제출한 프로그램이 한 번 실행될 때 3초 안에 끝나야 해요">실행 시간 3초</span>' +
         '<span class="chip">' + (problem.judge ? '채점: ' + problem.judge : '채점: 화면 출력') + '</span></div></div>' +
@@ -215,7 +214,32 @@ async function runCustomAsync(ctx) {
     showRun(ctx, run, null);
 }
 
+function crumbsOf(app, problem) {
+    if (problem.track) {
+        const track = app.content.byTrack.get(problem.track);
+        return '<div class="crumbs"><a href="#algo">알고리즘</a> › <a href="#algo-' + track.track + '">' + esc(track.name) + '</a> › ' + problem.id + '</div>';
+    }
+    const chapter = app.content.byChapter.get(problem.ch);
+    return '<div class="crumbs"><a href="#map">학습 지도</a> › <a href="#ch' + problem.ch + '">' + problem.ch + '단원 ' + esc(chapter.title) + '</a> › ' + problem.id + '</div>';
+}
+
+/** 단원 문제는 별, 알고리즘 문제는 단계 배지 */
+export function levelBadge(level) {
+    if (isAlgorithmLevel(level)) {
+        return '<span class="tier t' + level + '">' + TIER_NAMES[level] + '</span>';
+    }
+    return '<span class="stars">' + starStr(level) + '</span>';
+}
+
 function nextButtons(app, problem) {
+    if (problem.track) {
+        const track = app.content.byTrack.get(problem.track);
+        const p = app.progress.progress;
+        const index = track.problems.indexOf(problem);
+        const next = track.problems.slice(index + 1).find((x) => !p.solved[x.id]) ?? track.problems.find((x) => !p.solved[x.id]);
+        return (next ? '<a class="btn primary" href="#p' + next.id + '">다음 문제 ' + next.id + '</a>' : '') +
+            '<a class="btn" href="#algo-' + track.track + '">' + esc(track.name) + ' 목록으로</a>';
+    }
     const chapter = app.content.byChapter.get(problem.ch);
     const p = app.progress.progress;
     const index = chapter.problems.indexOf(problem);

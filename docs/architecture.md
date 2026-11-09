@@ -1,6 +1,6 @@
 # 아키텍처
 
-C 마스터는 Cloudflare Pages 하나로 동작합니다. 정적 화면(`public/`)과 API(`functions/` → `server/`), 데이터베이스(D1)가 같은 주소에서 돌아갑니다. C 코드 실행과 채점은 서버가 아니라 **학생의 브라우저**에서 합니다.
+code.ai 는 Cloudflare Pages 하나로 동작합니다. 정적 화면(`public/`)과 API(`functions/` → `server/`), 데이터베이스(D1)가 같은 주소에서 돌아갑니다. C 코드 실행과 채점은 서버가 아니라 **학생의 브라우저**에서 합니다.
 
 ```mermaid
 flowchart LR

@@ -3,7 +3,7 @@
 import { Result, Failure } from '../core/result.js';
 import { progressFromDto } from '../mappers/progress-mapper.js';
 import {
-    xpForSolve, summarize, isChapterCleared, formOf, levelOf, nextStreak,
+    xpForSolve, summarize, problemLevelMap, isChapterCleared, formOf, levelOf, nextStreak,
     SOLVE_LIMIT_SEC, QUIZ_PASS_SCORE, QUIZ_SIZE, QUIZ_PASS_XP, QUIZ_PERFECT_XP, HISTORY_LIMIT,
 } from '../domain/progress-rules.js';
 
@@ -35,11 +35,7 @@ export class ProgressService {
         this.#curriculum = curriculum;
         this.#calendar = calendar;
         this.#timer = timer;
-        for (const chapter of curriculum) {
-            for (const p of chapter.problems) {
-                this.#levels.set(String(p.id), p.level);
-            }
-        }
+        this.#levels = problemLevelMap(curriculum);
     }
 
     async loadAsync() {

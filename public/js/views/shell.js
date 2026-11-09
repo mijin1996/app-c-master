@@ -6,6 +6,7 @@ import { FORM_NAMES } from '../domain/progress-rules.js';
 const NAV = Object.freeze([
     ['map', '학습 지도'],
     ['problems', '문제'],
+    ['algo', '알고리즘'],
     ['ranking', '랭킹'],
     ['records', '내 기록'],
 ]);
@@ -16,7 +17,7 @@ export function renderShell(app, active, inner) {
     const nav = app.teacher.isTeacher ? [...NAV, ['teacher', '선생님']] : NAV;
     app.root.innerHTML =
         '<header class="top"><div class="wrap">' +
-        '<a class="logo" href="#map">C <b>마스터</b></a>' +
+        '<a class="logo" href="#map"><span>code<b>.ai</b></span></a>' +
         '<nav class="nav" aria-label="메뉴">' + nav.map(([hash, title]) => '<a href="#' + hash + '" class="' + (active === hash ? 'on' : '') + '">' + title + '</a>').join('') + '</nav>' +
         '<div class="right"><span class="skychip"></span>' +
         '<button class="iconbtn ' + (settings.bgm ? 'on' : '') + '" id="btn-bgm" title="배경음악 켜기/끄기" aria-label="배경음악 켜기/끄기" aria-pressed="' + settings.bgm + '">' + ICON.music + '</button>' +

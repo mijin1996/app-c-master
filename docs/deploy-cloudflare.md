@@ -10,7 +10,7 @@
 ## 1. D1 데이터베이스 만들기
 
 1. Cloudflare 대시보드 → **Storage & Databases → D1 SQL Database → Create**
-2. 이름: `c-master-db` → 만들기
+2. 이름: `code-ai-db` → 만들기
 3. 만든 DB의 **Console** 탭에서 `migrations/0001_init.sql` 내용을 통째로 붙여 넣고 실행
 4. DB 화면에 보이는 **Database ID**를 복사해서 `wrangler.toml` 의 `database_id` 에 붙여 넣고 커밋·푸시
 
@@ -30,7 +30,7 @@
 
 프로젝트 → **Settings**
 
-1. **Bindings → Add → D1 database**: 변수 이름 `DB`, 데이터베이스 `c-master-db`
+1. **Bindings → Add → D1 database**: 변수 이름 `DB`, 데이터베이스 `code-ai-db`
    (wrangler.toml 에 database_id 를 넣었다면 자동으로 잡혀 있을 수 있어요)
 2. **Variables and Secrets**
    - `TEACHER_USERNAMES` = 선생님 아이디 (여러 명이면 쉼표로: `teacher1,teacher2`)

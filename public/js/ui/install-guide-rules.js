@@ -29,15 +29,15 @@ export function shouldShowInstallGuide({ standalone, closedThisVisit, force = fa
     return force || (!standalone && !closedThisVisit);
 }
 
-/** 카드 순서: 지금 쓰는 기기 안내를 맨 앞에, "좋은 점" 은 맨 뒤 */
+/** 카드 순서: 지금 쓰는 기기 안내를 맨 앞에 */
 export function orderedCards(platform) {
     if (platform === Platform.ANDROID) {
-        return ['android', 'ios', 'desktop', 'why'];
+        return ['android', 'ios', 'desktop'];
     }
     if (platform === Platform.IOS) {
-        return ['ios', 'android', 'desktop', 'why'];
+        return ['ios', 'android', 'desktop'];
     }
-    return ['desktop', 'ios', 'android', 'why'];
+    return ['desktop', 'ios', 'android'];
 }
 
 export const STACK_GAP_PX = 18; // 카드 사이 간격 (처음 모양 그대로)

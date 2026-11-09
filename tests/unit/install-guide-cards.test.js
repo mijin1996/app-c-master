@@ -5,9 +5,9 @@ import { INSTALL_CARDS, MAX_STEPS, MAX_STEP_CHARS } from '../../public/js/ui/ins
 
 const plain = (html) => html.replace(/<[^>]+>/g, '');
 
-test('카드는 아이폰 · 안드로이드 · 컴퓨터 · 좋은 점 네 장', () => {
+test('카드는 아이폰 · 안드로이드 · 컴퓨터 세 장 (좋은 점 카드는 없음)', () => {
     // Given / When / Then
-    assert.deepEqual(Object.keys(INSTALL_CARDS).sort(), ['android', 'desktop', 'ios', 'why']);
+    assert.deepEqual(Object.keys(INSTALL_CARDS).sort(), ['android', 'desktop', 'ios']);
 });
 
 test('카드마다 1~3줄', () => {

@@ -25,11 +25,4 @@ export const INSTALL_CARDS = Object.freeze({
             '<b>"설치"</b> 누르기',
         ],
     },
-    why: {
-        title: '앱처럼 쓰면',
-        steps: [
-            '주소창 없이 <b>전체 화면</b>',
-            '홈 화면 아이콘으로 <b>바로 시작</b>',
-        ],
-    },
 });

@@ -36,11 +36,11 @@ test('들어올 때마다 보여 주되, 이미 앱으로 설치해 열었거나
     assert.equal(shouldShowInstallGuide({ standalone: false, closedThisVisit: true }), false);
 });
 
-test('카드 순서: 내 기기 안내가 맨 앞, 컴퓨터(데스크탑)도 안내하고, 좋은 점은 맨 뒤', () => {
+test('카드 순서: 내 기기 안내가 맨 앞, 컴퓨터(데스크탑)도 안내 (좋은 점 카드는 없음)', () => {
     // Given / When / Then
-    assert.deepEqual(orderedCards(Platform.ANDROID), ['android', 'ios', 'desktop', 'why']);
-    assert.deepEqual(orderedCards(Platform.IOS), ['ios', 'android', 'desktop', 'why']);
-    assert.deepEqual(orderedCards(Platform.OTHER), ['desktop', 'ios', 'android', 'why']);
+    assert.deepEqual(orderedCards(Platform.ANDROID), ['android', 'ios', 'desktop']);
+    assert.deepEqual(orderedCards(Platform.IOS), ['ios', 'android', 'desktop']);
+    assert.deepEqual(orderedCards(Platform.OTHER), ['desktop', 'ios', 'android']);
 });
 
 test('버튼으로 직접 열면(force) 이미 닫았거나 앱으로 열었어도 보여 준다', () => {
@@ -55,7 +55,7 @@ test('카드 사이 간격은 원래대로 18px 하나로 고정', () => {
 });
 
 test('마지막 카드 아래 여백: 마지막 카드도 자기 자리(위)까지 올라가 앞 카드 위에 쌓일 만큼', () => {
-    // Given: 보이는 높이 518, 마지막 카드 221px, 마지막(4번째) 카드가 붙는 높이 8 + 3×14 = 50
+    // Given: 보이는 높이 518, 마지막 카드 221px, 마지막 카드가 붙는 높이 50
     const viewport = 518;
     const last = 221;
     const stickyTop = 50;

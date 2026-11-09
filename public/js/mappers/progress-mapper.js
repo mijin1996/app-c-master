@@ -3,6 +3,7 @@
 import { createEmptyProgress, DEFAULT_SETTINGS } from '../domain/progress-model.js';
 import { QUIZ_SIZE, HISTORY_LIMIT, FORM_NAMES } from '../domain/progress-rules.js';
 import { isLanguageId } from '../domain/languages.js';
+import { isOopLessonNo, OOP_QUIZ_SIZE } from '../domain/oop-rules.js';
 
 const PROBLEM_ID = /^\d{4}$/;
 const CODE_KEY = /^\d{4}(?::(?:python|cpp|java))?$/; // C는 번호만, 다른 언어는 "번호:언어"
@@ -81,6 +82,21 @@ function quizMap(raw) {
     return out;
 }
 
+/** 객체지향 레슨 번호(1~99) → 최고 점수(0~5) 모양만 남긴다 */
+function oopQuizMap(raw) {
+    const out = {};
+    if (!isObject(raw)) {
+        return out;
+    }
+    for (const [key, value] of Object.entries(raw)) {
+        const n = Number(value);
+        if (isOopLessonNo(key) && typeof value === 'number' && Number.isFinite(n)) {
+            out[key] = clamp(Math.floor(n), 0, OOP_QUIZ_SIZE);
+        }
+    }
+    return out;
+}
+
 function historyList(raw) {
     if (!Array.isArray(raw)) {
         return [];
@@ -124,6 +140,7 @@ export function progressFromDto(dto) {
         code: codeMap(raw.code),
         hintsOpen: countMap(raw.hintsOpen),
         quiz: quizMap(raw.quiz),
+        oopQuiz: oopQuizMap(raw.oopQuiz),
         history: historyList(raw.history),
         streak: streakOf(raw.streak),
         formSeen: clamp(toCount(raw.formSeen) ?? 0, 0, FORM_NAMES.length - 1),

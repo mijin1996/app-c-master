@@ -1,6 +1,8 @@
 // 학습 규칙: 경험치, 레벨, 단원 클리어, 코디 진화.
 // 화면과 서버가 똑같이 쓰는 순수 함수 모음이라 저장소나 화면 코드를 모른다.
 import { ALGORITHM_TRACKS } from './curriculum.js';
+import { OOP_LESSONS } from './oop-curriculum.js';
+import { computeOopXp, OOP_PASS_SCORE } from './oop-rules.js';
 
 // 난이도 1~3은 단원 문제(★), 4~7은 알고리즘 단계(브론즈·실버·골드·플래티넘)
 export const XP_BY_LEVEL = Object.freeze({ 1: 10, 2: 20, 3: 30, 4: 40, 5: 60, 6: 80, 7: 100 });   // 난이도별 경험치
@@ -55,7 +57,7 @@ export function isAlgorithmLevel(level) {
 }
 
 /** 저장된 기록으로 경험치를 다시 계산한다 (서버도 이 값만 믿는다) */
-export function computeXp(progress, curriculum) {
+export function computeXp(progress, curriculum, oopLessons = OOP_LESSONS) {
     const levels = problemLevelMap(curriculum);
     let xp = 0;
     for (const [id, record] of Object.entries(progress.solved)) {
@@ -74,7 +76,7 @@ export function computeXp(progress, curriculum) {
             xp += QUIZ_PERFECT_XP;
         }
     }
-    return xp;
+    return xp + computeOopXp(progress.oopQuiz, oopLessons);
 }
 
 export function solvedCountIn(progress, chapter) {
@@ -129,8 +131,9 @@ export function nextStreak(streak, today, yesterday) {
 }
 
 /** 랭킹·선생님 화면용 요약 (코드 같은 개인 내용은 넣지 않는다) */
-export function summarize(progress, curriculum) {
-    const xp = computeXp(progress, curriculum);
+export function summarize(progress, curriculum, oopLessons = OOP_LESSONS) {
+    const xp = computeXp(progress, curriculum, oopLessons);
+    const oopPassedCount = oopLessons.filter((lesson) => (progress.oopQuiz?.[lesson.no] ?? 0) >= OOP_PASS_SCORE).length;
     const states = curriculum.map((c) => chapterState(progress, c));
     const levels = problemLevelMap(curriculum);
     const quizScores = Object.values(progress.quiz);
@@ -144,6 +147,7 @@ export function summarize(progress, curriculum) {
         solvedCount: Object.keys(progress.solved).filter((id) => levels.has(String(id))).length,
         algorithmSolvedCount: Object.keys(progress.solved).filter((id) => isAlgorithmLevel(levels.get(String(id)) ?? 0)).length,
         clearedCount: states.filter((s) => s === 'cleared').length,
+        oopPassedCount,
         chapterStates: states,
         quizAvg,
         lastStudyDay: progress.streak.last,

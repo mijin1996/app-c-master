@@ -28,6 +28,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
  * @property {Object<string, string>} code         문제별 마지막 코드
  * @property {Object<string, number>} hintsOpen    문제별 열어 본 힌트 단계
  * @property {Object<string, number>} quiz         단원별 퀴즈 최고 점수
+ * @property {Object<string, number>} oopQuiz      객체지향 레슨별 퀴즈 최고 점수
  * @property {Array<{id:number,res:string,at:number}>} history 최근 제출 기록
  * @property {{last: string|null, count: number}} streak 연속 학습일
  * @property {number} formSeen                      마지막으로 보여 준 코디 단계
@@ -45,6 +46,7 @@ export function createEmptyProgress() {
         code: {},
         hintsOpen: {},
         quiz: {},
+        oopQuiz: {},
         history: [],
         streak: { last: null, count: 0 },
         formSeen: 0,

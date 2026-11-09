@@ -1,0 +1,17 @@
+# Cloudflare Pages 설정 (대시보드에서 저장소를 연결해도 이 파일의 D1 연결 정보를 읽어요)
+name = "c-master"
+compatibility_date = "2026-10-01"
+pages_build_output_dir = "public"
+
+# D1 데이터베이스: 대시보드에서 c-master-db 를 만든 뒤 database_id 를 아래에 붙여 넣으세요.
+[[d1_databases]]
+binding = "DB"
+database_name = "c-master-db"
+database_id = "여기에-D1-데이터베이스-ID"
+migrations_dir = "migrations"
+
+# 공개해도 되는 설정값 (비밀값은 대시보드의 '변수 및 비밀'에서 Secret으로 넣으세요)
+[vars]
+TEACHER_USERNAMES = ""
+AI_HINT_ENABLED = "false"
+AI_HINT_MODEL = "claude-haiku-5-5"

@@ -1,0 +1,14 @@
+# 푸시·PR마다 테스트를 돌린다 (배포는 Cloudflare가 저장소 연결로 따로 한다)
+name: test
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test

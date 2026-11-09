@@ -1,6 +1,7 @@
-// 소리: 미리 만들어 둔 짧은 효과음(mp3)을 정답 · 오답 때만 재생한다. 배경음악은 쓰지 않는다.
+// 소리: 미리 만들어 둔 짧은 전자 피아노 효과음(wav, tools/build-sounds.mjs)을 정답 · 오답 때만 재생한다. 배경음악은 쓰지 않는다.
 // 브라우저는 사용자가 한 번 눌러야 소리를 허락하므로 unlock()은 누를 때 부른다.
-const SOUND_FILES = Object.freeze({ correct: 'correct', wrong: 'wrong' });
+// 파일 이름을 바꾸면 하루짜리 캐시에 남은 예전 소리 대신 새 소리를 바로 받는다.
+const SOUND_FILES = Object.freeze({ correct: 'epiano-correct.wav', wrong: 'epiano-wrong.wav' });
 const SFX_GAIN = 0.9;
 
 export class SoundPlayer {
@@ -34,7 +35,7 @@ export class SoundPlayer {
         this.#gain.connect(this.#ctx.destination);
         this.#loading = Promise.all(Object.entries(SOUND_FILES).map(async ([key, file]) => {
             try {
-                const response = await fetch(this.#baseUrl + file + '.mp3');
+                const response = await fetch(this.#baseUrl + file);
                 this.#buffers[key] = await this.#ctx.decodeAudioData(await response.arrayBuffer());
             } catch (e) {
                 // 이 기기에서 못 읽는 소리는 건너뛴다

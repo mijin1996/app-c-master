@@ -46,7 +46,7 @@ export const CREDITS = Object.freeze([
         group: '그림 · 소리 · 교재',
         items: [
             { name: '캐릭터 코디 픽셀 아트', by: 'c-master (Google Gemini로 생성)', license: '오리지널 그림', url: 'https://gemini.google.com/', note: '아기 코더 → 초딩 → 중딩 → 고딩 → C 마스터 15장' },
-            { name: '효과음 (맞았을 때 · 틀렸을 때)', by: 'c-master', license: '오리지널', url: '', note: '피아노 소리를 직접 합성해 만든 짧은 mp3 두 개' },
+            { name: '효과음 (맞았을 때 · 틀렸을 때)', by: 'c-master', license: '오리지널', url: '', note: '전자 피아노(FM 합성) 소리를 코드로 직접 만든 짧은 wav 두 개 (tools/sound-synth.mjs)' },
             { name: '《자기주도 C언어 프로그래밍》', by: '김동규', license: '단원 순서 · 개념만 참고', url: '', note: '문제 · 퀴즈 · 해설은 모두 새로 썼어요' },
             { name: 'Java vs C# 객체지향 · C# 아키텍처 수업 교안과 개인 필기', by: '수업 자료 · c-master 학습자 필기', license: '주제 순서 · 개념만 참고', url: '',
                 note: '객체지향 13레슨의 주제(클래스 · 캡슐화 · 상속 · 다형성 · SOLID · Result 패턴 · 데이터 계층 등)를 따랐어요. "쉽게 말하면" 설명 · 문제 · 해설은 모두 새로 썼어요' },

@@ -1,4 +1,11 @@
-# Cloudflare Pages 배포 안내 (대시보드에서 저장소 연결)
+# Cloudflare 배포 안내
+
+> **지금 실제 서버는 Worker 예요** (`https://app-c-master.itsjinmi.workers.dev`, Workers Builds 가 `git push` 마다 배포).
+> 설정은 저장소의 `wrangler.jsonc` 하나: 화면 파일은 `public/`, `/api/**` 는 `server/worker.js` 가 `functions/` 처리기로 안내, D1 `c-master-db` 연결.
+> 예전에 API 가 404 로 로그인이 안 되던 이유: Worker 는 Pages 와 달리 `functions/` 를 알아서 실행하지 않아서였어요 (2026-11-10 고침).
+> 아래는 Pages 로 새로 만들 때의 안내예요 (Pages 는 `functions/` 를 직접 실행하므로 `wrangler.jsonc` 없이도 돼요).
+
+## (참고) Cloudflare Pages 로 배포할 때
 
 처음 한 번만 하면, 그다음부터는 `git push` 할 때마다 자동으로 다시 배포됩니다. 무료 플랜으로 충분해요.
 

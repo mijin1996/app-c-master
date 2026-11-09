@@ -1,6 +1,7 @@
 // 커뮤니티 화면: 회원이 낸 문제 목록, 문제 내기, 문제 풀기 + 토론(댓글 · 좋아요 · 채택 · 신고)
 import { $, $$, esc, toast } from '../ui/dom.js';
 import { mountEditor } from '../ui/editor.js';
+import { makeFuseUndoButton } from '../ui/effects.js';
 import { Failure } from '../core/result.js';
 import { messageOf } from '../core/app-error.js';
 import { renderShell } from './shell.js';
@@ -346,17 +347,15 @@ function bindDiscussion(ctx) {
         };
     }
     if ($('#delete-problem')) {
-        let armed = false;
-        $('#delete-problem').onclick = async (e) => {
-            if (!armed) {
-                armed = true; // 확인 창 대신 버튼을 한 번 더 누르게 한다
-                e.target.textContent = '정말 지울까요? 한 번 더 누르면 지워져요';
-                return;
-            }
-            if (afterAct(await app.community.deleteAsync(problem.id), '문제를 지웠어요.')) {
-                app.router.go('community');
-            }
-        };
+        // 누르면 도화선이 4초 동안 타고, 그 사이 다시 누르면 취소. 다 타면 지운다
+        makeFuseUndoButton($('#delete-problem'), {
+            armedLabel: '지우는 중 · 누르면 취소',
+            onCommitAsync: async () => {
+                if (afterAct(await app.community.deleteAsync(problem.id), '문제를 지웠어요.')) {
+                    app.router.go('community');
+                }
+            },
+        });
     }
     $$('.comment').forEach((node) => {
         const commentId = Number(node.dataset.id);

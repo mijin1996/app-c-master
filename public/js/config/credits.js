@@ -15,6 +15,12 @@ export const CREDITS = Object.freeze([
         items: [
             { name: 'Tech Text', by: 'Vue Bits (React Bits의 Vue 버전, davidhaz)', license: '효과 아이디어 참고 · 코드는 쓰지 않음', url: 'https://vue-bits.dev/text-animations/tech-text',
                 note: '첫 화면 code.ai 글자 효과. Vue Bits 코드를 가져오지 않고 같은 느낌을 바닐라 자바스크립트로 새로 만들었어요 (public/js/ui/tech-text.js)' },
+            { name: 'Click Spark', by: 'Vue Bits', license: '효과 아이디어 참고 · 코드는 쓰지 않음', url: 'https://vue-bits.dev/animations/click-spark',
+                note: '화면을 누를 때마다 튀는 불꽃 (public/js/ui/effects.js)' },
+            { name: 'Rotating Text', by: 'Vue Bits', license: '효과 아이디어 참고 · 코드는 쓰지 않음', url: 'https://vue-bits.dev/text-animations/rotating-text',
+                note: '레벨 업 때 화면 전체를 덮는 회전 글자 (public/js/ui/effects.js)' },
+            { name: 'Fuse Button', by: 'Vue Bits', license: '효과 아이디어 참고 · 코드는 쓰지 않음', url: 'https://vue-bits.dev/micro/fuse-button',
+                note: '버튼을 누르면 테두리를 따라 도화선이 타는 효과, 문제 지우기의 4초 되돌리기 (public/js/ui/effects.js)' },
         ],
     },
     {

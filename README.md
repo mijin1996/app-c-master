@@ -28,7 +28,7 @@ npm test                                        # 전체 테스트
 ```
 
 `tools/dev-server.mjs` 는 Cloudflare Pages(정적 파일) + Functions(API) + D1(데이터베이스)을 흉내 냅니다. D1 대신 `.dev/dev.sqlite` 파일을 씁니다.
-Cloudflare와 똑같은 환경으로 돌려 보려면 `npm run db:migrate:local` 후 `npm run dev` (wrangler 사용).
+Cloudflare와 똑같은 환경으로 돌려 보려면 `wrangler.example.toml` 을 `wrangler.toml` 로 복사하고 `npm run db:migrate:local` 후 `npm run dev` (wrangler 사용).
 
 ## 폴더 구조
 

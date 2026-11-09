@@ -25,3 +25,5 @@ Cody SHALL be an original character with 5 forms and normal, happy and thinking 
 #### Scenario: Wrong answer
 - **WHEN** a submission is wrong
 - **THEN** Cody shows the thinking face with an encouraging line
+### Requirement: Feedback effects
+Every click SHALL show a short spark; every button press SHALL burn a fuse along its rim; a level-up SHALL cover the screen briefly with rotating text; the code editor panel SHALL glow green while focused and return to normal when focus leaves. All effects SHALL respect reduced motion.

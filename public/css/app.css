@@ -410,3 +410,41 @@ a.btn.primary { color: var(--accent-ink); }
 }
 .lang-pick { white-space: nowrap; }
 .comment-form button { justify-self: end; }
+
+/* ---------- 효과: 클릭 불꽃 ---------- */
+.spark-layer { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 90; }
+
+/* ---------- 효과: 버튼 도화선 ---------- */
+.btn, .iconbtn, .like-btn, .tabs button, .credits-link { position: relative; }
+.fuse-rim { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.fuse-rim rect { fill: none; stroke: #f5a524; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 100 100; stroke-dashoffset: 0;
+  filter: drop-shadow(0 0 3px rgba(245, 165, 36, .9)); animation: fuse-burn var(--fuse-ms, 650ms) linear forwards; }
+@keyframes fuse-burn { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -100; } }
+.btn.armed { border-color: #f5a524; }
+
+/* ---------- 효과: 레벨 업 회전 글자 ---------- */
+.levelup-overlay { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; cursor: pointer;
+  background: radial-gradient(circle at 50% 45%, rgba(255, 196, 64, .35), rgba(10, 14, 30, .82) 60%); animation: lu-in .3s ease both; }
+.levelup-overlay.out { animation: lu-out .35s ease forwards; }
+.lu-box { display: grid; justify-items: center; gap: 6px; text-align: center; }
+.lu-label { font-family: var(--f-code); font-weight: 700; letter-spacing: .3em; color: #ffd36b; font-size: 14px; }
+.lu-word { display: inline-flex; overflow: hidden; padding: 6px 14px; border-radius: 16px; background: var(--accent); color: var(--accent-ink);
+  font-family: var(--f-display); font-weight: 700; font-size: clamp(40px, 9vw, 96px); line-height: 1.1; box-shadow: 0 10px 40px rgba(0, 0, 0, .35); }
+.lu-ch { display: inline-block; animation: lu-rise .45s cubic-bezier(.2, .9, .3, 1.2) both; }
+@keyframes lu-rise { from { transform: translateY(110%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes lu-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes lu-out { to { opacity: 0; } }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- 문제 풀이 창 초록 빛 (누르면 켜지고, 밖을 누르면 꺼짐) ---------- */
+.editor-panel { transition: border-color .25s ease, box-shadow .25s ease; }
+.editor-panel:focus-within { border-color: #2fd47a; animation: bloom 2.4s ease-in-out infinite; }
+@keyframes bloom {
+  0%, 100% { box-shadow: 0 0 0 1px #2fd47a, 0 0 14px 2px rgba(47, 212, 122, .45); }
+  50% { box-shadow: 0 0 0 1px #2fd47a, 0 0 26px 6px rgba(47, 212, 122, .7); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fuse-rim rect, .lu-ch, .levelup-overlay { animation-duration: 1ms; }
+  .editor-panel:focus-within { animation: none; box-shadow: 0 0 0 1px #2fd47a, 0 0 18px 4px rgba(47, 212, 122, .55); }
+}

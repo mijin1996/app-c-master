@@ -2,10 +2,13 @@
 import { $, esc, toast } from '../ui/dom.js';
 import { cody } from '../ui/cody.js';
 import { FORM_NAMES } from '../domain/progress-rules.js';
+import { showLevelUpOverlay } from '../ui/effects.js';
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const CELEBRATE_DELAY_MS = 900;
 const EVOLVE_DELAY_MS = 1300;
+const LEVEL_AFTER_CLEAR_MS = 1200;
+const LEVEL_OVERLAY_MS = 3000; // 레벨 업 화면이 끝난 뒤 진화 창을 띄운다
 
 function showEvolution(app, from, to) {
     app.sound.play('evolve');
@@ -33,10 +36,13 @@ export async function celebrateAsync(app, events) {
         app.sound.play('clear');
         const next = events.chapterCleared + 1;
         toast(events.chapterCleared + '단원 클리어! ' + (next <= 18 ? '다음은 ' + next + '단원이에요.' : '모든 단원을 마쳤어요!'));
-    } else if (events.levelUp) {
-        await wait(CELEBRATE_DELAY_MS);
+    }
+    if (events.levelUp) {
+        // 레벨이 오를 때마다 화면 전체를 잠깐 덮는 회전 글자
+        await wait(events.chapterCleared ? LEVEL_AFTER_CLEAR_MS : CELEBRATE_DELAY_MS);
         app.sound.play('clear');
-        toast('레벨 업! 이제 레벨 ' + events.levelUp + '이에요.');
+        showLevelUpOverlay(events.levelUp);
+        await wait(LEVEL_OVERLAY_MS);
     }
     if (events.evolvedTo !== null && events.evolvedTo !== undefined) {
         await wait(EVOLVE_DELAY_MS);

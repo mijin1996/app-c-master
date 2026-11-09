@@ -27,8 +27,8 @@ export function renderShell(app, active, inner) {
         '<div class="right"><span class="skychip"></span>' + INSTALL_ICON_BUTTON +
         '<button class="iconbtn" id="btn-settings" title="설정" aria-label="설정">' + ICON.gear + '</button>' +
         '<a class="mini-cody" href="#map" title="' + esc(settings.codyName) + ' · ' + FORM_NAMES[form] + '">' + cody(form, 'normal', { name: settings.codyName }) + '</a>' +
-        '</div></div></header><main><div class="wrap" id="view">' + inner + '</div></main>' +
-        '<footer class="foot"><div class="wrap">' + CREDITS_BUTTON + VISIT_SLOT + '</div></footer>';
+        '</div></div></header><main><div class="wrap visit-bar">' + VISIT_SLOT + '</div><div class="wrap" id="view">' + inner + '</div></main>' +
+        '<footer class="foot"><div class="wrap">' + CREDITS_BUTTON + '</div></footer>';
     app.sky.compute();
     bindCreditsButtons(app.root);
     bindInstallButtons(app.root);

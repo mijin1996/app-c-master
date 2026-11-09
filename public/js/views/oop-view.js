@@ -38,31 +38,129 @@ export async function renderOopList(app) {
     }
     const scores = app.progress.progress.oopQuiz;
     const passed = lessons.filter((l) => (scores[l.no] ?? 0) >= OOP_PASS_SCORE).length;
-    const cards = lessons.map((l) => '<a class="lesson-card panel" href="#oop' + l.no + '">' +
-        '<span class="lesson-no">' + String(l.no).padStart(2, '0') + '</span>' +
-        '<b class="lesson-title">' + esc(l.title) + '</b>' +
-        '<span class="muted small">' + esc(l.tag) + '</span>' + bestChip(scores[l.no]) + '</a>').join('');
+    const cards = lessons.map((l) => {
+        const solved = l.practice.filter((_, i) => app.progress.isPracticeSolved(l.no, i)).length;
+        return '<a class="lesson-card panel" href="#oop' + l.no + '">' +
+            '<span class="lesson-no">' + String(l.no).padStart(2, '0') + '</span>' +
+            '<b class="lesson-title">' + esc(l.title) + '</b>' +
+            '<span class="muted small">' + esc(l.tag) + '</span>' +
+            '<span class="chips">' + bestChip(scores[l.no]) + '<span class="chip' + (solved === l.practice.length && solved > 0 ? ' good' : '') + '">실습 ' + solved + ' / ' + l.practice.length + '</span></span></a>';
+    }).join('');
     renderShell(app, 'oop',
         '<div class="view-title"><h1>객체지향</h1><span class="on-sky muted">Java · C# 수업 내용을 쉬운 말로 풀고 바로 문제로 확인해요</span></div>' +
         '<div class="panel pad oop-intro">' +
-        '<p style="margin:0">레슨마다 <b>"쉽게 말하면"</b> 설명을 먼저 읽고, <b>5문항 퀴즈</b>를 풀어요. 틀려도 해설이 바로 나오니 걱정 말아요!</p>' +
-        '<p class="muted small" style="margin:6px 0 0">' + OOP_PASS_SCORE + '문항 이상 맞히면 +' + OOP_PASS_XP + ' XP, 만점이면 +' + OOP_PERFECT_XP + ' XP 더 · 지금까지 ' + passed + ' / ' + lessons.length + ' 레슨 통과 · 단원 클리어 · 코디 진화와는 따로예요</p></div>' +
+        '<p style="margin:0">레슨마다 <b>"쉽게 말하면"</b> 설명을 먼저 읽고, 예시 코드와 비슷한 <b>코드 실습 2문제</b>(빈칸 채우기 · 결과 맞히기)와 <b>5문항 퀴즈</b>를 풀어요. 틀려도 해설이 바로 나오니 걱정 말아요!</p>' +
+        '<p class="muted small" style="margin:6px 0 0">' + OOP_PASS_SCORE + '문항 이상 맞히면 +' + OOP_PASS_XP + ' XP, 만점이면 +' + OOP_PERFECT_XP + ' XP 더, 코드 실습은 문제당 +5 XP · 지금까지 ' + passed + ' / ' + lessons.length + ' 레슨 통과 · 단원 클리어 · 코디 진화와는 따로예요</p></div>' +
         '<div class="lesson-grid">' + cards + '</div>');
+}
+
+const SHOW_ANSWER_AFTER = 2; // 두 번 틀리면 "정답 보기" 버튼을 보여 준다
+const BLANK_SPLIT = /\[\[(\d+)\]\]/;
+
+/** 빈칸 표시 [[n]] 자리에 입력칸을 끼워 넣은 코드 (나머지 조각만 색칠한다) */
+function blankCodeHtml(practice, key) {
+    const parts = practice.code.split(BLANK_SPLIT); // [코드, 번호, 코드, 번호, …]
+    return parts.map((part, i) => {
+        if (i % 2 === 0) {
+            return highlight(part).replace(/\n$/, ''); // highlight 는 끝에 줄바꿈을 붙여서, 조각 사이에서는 떼어 낸다
+        }
+        const k = Number(part) - 1;
+        const width = Math.max(4, ...practice.blanks[k].answers.map((a) => a.length)) + 1;
+        return '<input class="blank" data-key="' + key + '" data-i="' + k + '" style="width:' + width + 'ch" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="빈칸 ' + (k + 1) + '">';
+    }).join('');
+}
+
+function practiceCardHtml(app, lesson, practice, index) {
+    const key = lesson.no + '-' + index;
+    const solved = app.progress.isPracticeSolved(lesson.no, index);
+    const kindName = practice.kind === 'blank' ? '빈칸 채우기' : '결과 맞히기';
+    const body = practice.kind === 'blank'
+        ? '<pre class="codeblock practice-code">' + blankCodeHtml(practice, key) + '</pre>'
+        : '<pre class="codeblock">' + highlight(practice.code) + '</pre>' +
+          '<label class="f">화면에 나오는 내용 (한 줄씩)<textarea class="output-answer" data-key="' + key + '" rows="' + (practice.answers[0].split('\n').length + 1) + '" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea></label>';
+    return '<div class="practice-card" id="pc-' + key + '">' +
+        '<div class="practice-head"><span class="chip accent">' + kindName + '</span>' + (solved ? '<span class="chip good">풀었음 ✓</span>' : '<span class="chip">+5 XP</span>') + '</div>' +
+        '<p class="practice-q">' + esc(practice.prompt) + '</p>' + body +
+        '<div class="row-buttons"><button class="btn primary" data-check="' + key + '">채점하기</button><button class="btn" data-hint="' + key + '">힌트</button>' +
+        '<button class="btn" data-show="' + key + '" hidden>정답 보기</button></div>' +
+        '<div class="practice-hint muted small" id="ph-' + key + '" hidden>' + esc(practice.kind === 'blank' ? practice.blanks.map((b, i) => (i + 1) + '번 칸: ' + b.hint).join(' · ') : practice.hint) + '</div>' +
+        '<div class="practice-result" id="pr-' + key + '" aria-live="polite"></div></div>';
+}
+
+function inputsOf(practice, key) {
+    if (practice.kind === 'blank') {
+        return $$('input.blank[data-key="' + key + '"]').map((el) => el.value);
+    }
+    return [$('textarea.output-answer[data-key="' + key + '"]').value];
+}
+
+function answerText(practice) {
+    return practice.kind === 'blank'
+        ? practice.blanks.map((b, i) => (i + 1) + '번: ' + b.answers[0]).join(' · ')
+        : practice.answers[0];
+}
+
+/** 채점 버튼 · 힌트 · 정답 보기 연결 */
+function bindPractice(app, lesson) {
+    const wrongCount = {};
+    lesson.practice.forEach((practice, index) => {
+        const key = lesson.no + '-' + index;
+        const result = $('#pr-' + key);
+        $('[data-hint="' + key + '"]').onclick = () => {
+            $('#ph-' + key).hidden = !$('#ph-' + key).hidden;
+        };
+        $('[data-show="' + key + '"]').onclick = () => {
+            result.innerHTML = '<div class="explain"><b>정답</b><pre class="codeblock small">' + esc(answerText(practice)) + '</pre>' + esc(practice.explain) + '</div>';
+        };
+        $('[data-check="' + key + '"]').onclick = () => {
+            const answered = app.progress.answerOopPractice(lesson.no, index, practice, inputsOf(practice, key));
+            if (answered instanceof Failure) {
+                toast(messageOf(answered.error));
+                return;
+            }
+            const { correct, marks, gainedXp } = answered.data;
+            if (practice.kind === 'blank') {
+                $$('input.blank[data-key="' + key + '"]').forEach((el, i) => {
+                    el.classList.toggle('ok', marks[i]);
+                    el.classList.toggle('no', !marks[i]);
+                });
+            } else {
+                $('textarea.output-answer[data-key="' + key + '"]').classList.toggle('no', !correct);
+            }
+            app.sound.play(correct ? 'correct' : 'wrong');
+            if (correct) {
+                result.innerHTML = '<div class="explain"><b class="good-text">정답이에요!</b> ' + (gainedXp ? '<span class="chip accent">+' + gainedXp + ' XP</span> ' : '') + esc(practice.explain) + '</div>';
+                $('#pc-' + key + ' .practice-head').lastElementChild.outerHTML = '<span class="chip good">풀었음 ✓</span>';
+                celebrateAsync(app, answered.data.events);
+                return;
+            }
+            wrongCount[key] = (wrongCount[key] ?? 0) + 1;
+            result.innerHTML = '<div class="explain"><b class="bad-text">아쉬워요!</b> ' +
+                (practice.kind === 'blank' ? '빨간 칸을 다시 생각해 봐요. 대소문자도 똑같아야 해요.' : '줄 순서와 글자를 다시 확인해 봐요.') +
+                (wrongCount[key] >= SHOW_ANSWER_AFTER ? ' 막히면 "정답 보기" 를 눌러도 돼요.' : ' "힌트" 를 눌러 봐요.') + '</div>';
+            $('[data-show="' + key + '"]').hidden = wrongCount[key] < SHOW_ANSWER_AFTER;
+        };
+    });
 }
 
 function explainStep(app, lesson, total, onStart) {
     const example = lesson.example
         ? '<h3>코드로 보면</h3><div class="muted small">' + esc(lesson.example.title) + '</div><pre class="codeblock">' + highlight(lesson.example.code) + '</pre>'
         : '';
+    const practice = lesson.practice.length
+        ? '<h3>코드 실습 <span class="muted small">위 코드와 비슷한 문제를 직접 풀어 봐요</span></h3><div class="practice-list">' +
+          lesson.practice.map((p, i) => practiceCardHtml(app, lesson, p, i)).join('') + '</div>'
+        : '';
     renderShell(app, 'oop', '<div class="crumbs"><a href="#oop">객체지향</a> › ' + lesson.no + '. ' + esc(lesson.title) + '</div>' +
         '<section class="panel pad lesson">' +
         '<div class="lesson-head"><span class="lesson-no big">' + String(lesson.no).padStart(2, '0') + '</span><div><h1>' + esc(lesson.title) + '</h1><span class="muted">' + esc(lesson.tag) + '</span></div></div>' +
         '<div class="easy"><div class="easy-cody">' + cody(app.progress.currentForm(), 'happy', { name: app.progress.progress.settings.codyName }) + '</div>' +
         '<div><h3>쉽게 말하면</h3>' + lesson.story.map((p) => '<p>' + esc(p) + '</p>').join('') + '</div></div>' +
-        '<h3>핵심 정리</h3><ul class="points">' + lesson.points.map((p) => '<li>' + esc(p) + '</li>').join('') + '</ul>' + example +
+        '<h3>핵심 정리</h3><ul class="points">' + lesson.points.map((p) => '<li>' + esc(p) + '</li>').join('') + '</ul>' + example + practice +
         '<div class="row-buttons"><a class="btn" href="#oop">목록으로</a><button class="btn primary" id="oop-start">퀴즈 풀기 (' + lesson.quiz.length + '문항)</button>' +
         (lesson.no < total ? '<a class="btn" href="#oop' + (lesson.no + 1) + '">다음 레슨 →</a>' : '') + '</div></section>');
     $('#oop-start').onclick = onStart;
+    bindPractice(app, lesson);
 }
 
 export async function renderOopLesson(app, lessonNo) {

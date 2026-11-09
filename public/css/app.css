@@ -432,6 +432,23 @@ a.btn.primary { color: var(--accent-ink); }
 .easy p { margin: 6px 0 0; line-height: 1.7; }
 .easy h3 { margin: 0; }
 .points { margin: 0; padding-left: 20px; display: grid; gap: 4px; line-height: 1.6; }
+.practice-list { display: grid; gap: 12px; }
+.practice-card { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; background: var(--panel-2); display: grid; gap: 8px; min-width: 0; }
+.practice-head { display: flex; gap: 6px; flex-wrap: wrap; }
+.practice-q { margin: 0; line-height: 1.6; }
+.practice-code input.blank { font: inherit; color: inherit; background: rgba(255, 255, 255, .12); border: 0; border-bottom: 2px solid var(--accent);
+  border-radius: 4px 4px 0 0; padding: 0 4px; min-width: 4ch; max-width: 100%; }
+.practice-code input.blank:focus { outline: 2px solid var(--accent); background: rgba(255, 255, 255, .2); }
+.practice-code input.blank.ok { border-bottom-color: var(--good); }
+.practice-code input.blank.no { border-bottom-color: var(--bad); background: rgba(255, 80, 80, .18); }
+.output-answer { font-family: var(--f-code); font-size: 15px; width: 100%; resize: vertical; padding: 8px 10px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--panel); color: var(--fg); }
+.output-answer.no { border-color: var(--bad); }
+.practice-card .codeblock { max-width: 100%; }
+/* 아이폰은 16px 보다 작은 입력칸을 누르면 화면을 확대해 버려서, 터치 기기에서는 16px 로 */
+@media (pointer: coarse) {
+  .practice-code input.blank, .output-answer { font-size: 16px; }
+}
 .review { text-align: left; background: var(--panel-2); border-radius: 12px; padding: 10px 14px; }
 .review ol { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 8px; }
 @media (max-width: 640px) {

@@ -2,9 +2,10 @@
 // Cloudflare D1과 같은 모양(prepare → bind → first/all/run)만 흉내 낸다.
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
 
-const MIGRATIONS_DIR = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../../migrations');
+const MIGRATIONS_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../migrations');
 
 class BoundStatement {
     #stmt;

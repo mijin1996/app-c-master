@@ -3,6 +3,7 @@ import { $, esc, ICON, toast } from '../ui/dom.js';
 import { cody } from '../ui/cody.js';
 import { FORM_NAMES } from '../domain/progress-rules.js';
 import { CREDITS_BUTTON, bindCreditsButtons } from './credits-modal.js';
+import { INSTALL_BUTTON, bindInstallButtons } from './install-guide.js';
 
 const NAV = Object.freeze([
     ['map', '학습 지도'],
@@ -22,13 +23,14 @@ export function renderShell(app, active, inner) {
         '<header class="top"><div class="wrap">' +
         '<a class="logo" href="#map"><span>c-<b>master</b></span></a>' +
         '<nav class="nav" aria-label="메뉴">' + nav.map(([hash, title]) => '<a href="#' + hash + '" class="' + (active === hash ? 'on' : '') + '">' + title + '</a>').join('') + '</nav>' +
-        '<div class="right"><span class="skychip"></span>' +
+        '<div class="right"><span class="skychip"></span>' + INSTALL_BUTTON +
         '<button class="iconbtn" id="btn-settings" title="설정" aria-label="설정">' + ICON.gear + '</button>' +
         '<a class="mini-cody" href="#map" title="' + esc(settings.codyName) + ' · ' + FORM_NAMES[form] + '">' + cody(form, 'normal', { name: settings.codyName }) + '</a>' +
         '</div></div></header><main><div class="wrap" id="view">' + inner + '</div></main>' +
         '<footer class="foot"><div class="wrap">' + CREDITS_BUTTON + '</div></footer>';
     app.sky.compute();
     bindCreditsButtons(app.root);
+    bindInstallButtons(app.root);
 
     $('#btn-settings').onclick = () => app.openSettings();
 }

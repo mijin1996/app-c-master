@@ -1,6 +1,7 @@
 // 홈 화면 추가 안내창: 사이트에 들어올 때마다 "앱처럼 쓰는 법" 을 보여 준다.
 // 안쪽 카드 3장(내 기기 → 다른 기기 → 좋은 점)은 스크롤하면 위에 차곡차곡 쌓인다 (Scroll Stack 느낌).
-// X · 바깥 · Esc 를 누르면 닫히고, 이번 방문(탭)에서는 다시 안 뜬다. 홈 화면 앱으로 열었으면 아예 안 뜬다.
+// ✕ 버튼을 눌러야만 닫힌다 (실수로 바깥을 눌러 놓치지 않게). 닫으면 이번 방문(탭)에서는 다시 안 뜨고,
+// 홈 화면 앱으로 열었으면 처음부터 안 뜬다. "📲 홈 화면 추가" 버튼(openInstallGuide)으로는 언제든 다시 연다.
 import { esc } from '../ui/dom.js';
 import { platformOf, shouldShowInstallGuide, orderedCards, stackScale, Platform } from '../ui/install-guide-rules.js';
 
@@ -29,6 +30,16 @@ const CARDS = Object.freeze({
             '삼성 인터넷은 아래 <b>≡ 메뉴</b> → <b>"현재 페이지 추가"</b> → <b>"홈 화면"</b>',
         ],
     },
+    desktop: {
+        title: '컴퓨터 (Windows · Mac)',
+        sub: 'Chrome · Edge · Safari 에서',
+        steps: [
+            '<b>Chrome</b>: 주소창 오른쪽 끝의 <b>설치 아이콘</b> <span class="key">⊕</span> 을 누르고 <b>"설치"</b>. 안 보이면 <b>⋮ 메뉴</b> → <b>"전송, 저장, 공유"</b> → <b>"페이지를 앱으로 설치"</b>',
+            '<b>Edge</b>: <b>··· 메뉴</b> → <b>"앱"</b> → <b>"이 사이트를 앱으로 설치"</b>',
+            '<b>Mac Safari</b>: 위 메뉴 <b>"파일"</b> → <b>"Dock에 추가"</b>',
+            '설치하면 주소창 없는 <b>따로 된 창</b>으로 열리고, 바탕화면 · 시작 메뉴 · Dock 에 코디 아이콘이 생겨요',
+        ],
+    },
     why: {
         title: '앱처럼 쓰면 좋은 점',
         sub: '설치해도 용량은 거의 0',
@@ -36,7 +47,7 @@ const CARDS = Object.freeze({
             '주소창 없이 <b>화면 전체</b>로 문제를 풀어요',
             '홈 화면의 <b>코디 아이콘</b>을 누르면 바로 시작',
             '로그인이 그대로 남아 있어요',
-            '홈 화면 아이콘으로 열면 이 안내창은 더 이상 안 떠요',
+            '홈 화면 아이콘으로 열면 이 안내창은 더 이상 안 떠요. 다시 보고 싶으면 위쪽 <b>"📲 홈 화면 추가"</b> 버튼',
         ],
     },
 });
@@ -65,7 +76,7 @@ let deferredPrompt = null;
 addEventListener('beforeinstallprompt', (event) => {
     event.preventDefault();
     deferredPrompt = event;
-    document.querySelector('#ig-install')?.removeAttribute('hidden');
+    document.querySelector('#ig-install-row')?.removeAttribute('hidden');
 });
 
 function cardHtml(id, index, mine) {
@@ -97,11 +108,28 @@ function bindStack(scroller) {
     update();
 }
 
-export function showInstallGuideIfNeeded() {
-    if (!shouldShowInstallGuide({ standalone: isStandalone(), closedThisVisit: storage.get() })) {
+/** 상단 · 첫 화면의 "홈 화면 추가" 버튼: 이미 닫았어도 언제든 다시 연다 */
+export function openInstallGuide() {
+    return showInstallGuideIfNeeded({ force: true });
+}
+
+export const INSTALL_BUTTON = '<button type="button" class="btn install-btn" data-install aria-label="홈 화면 추가 방법 보기"><span aria-hidden="true">📲</span><span class="install-label">홈 화면 추가</span></button>';
+
+export function bindInstallButtons(root = document) {
+    root.querySelectorAll('[data-install]').forEach((button) => {
+        button.onclick = openInstallGuide;
+    });
+}
+
+export function showInstallGuideIfNeeded({ force = false } = {}) {
+    if (document.querySelector('.install-bg')) {
+        return null; // 이미 열려 있으면 하나만
+    }
+    if (!shouldShowInstallGuide({ standalone: isStandalone(), closedThisVisit: storage.get(), force })) {
         return null;
     }
     const platform = platformOf(navigator);
+    const mineOf = (id) => (id === 'ios' && platform === Platform.IOS) || (id === 'android' && platform === Platform.ANDROID) || (id === 'desktop' && platform === Platform.OTHER);
     const ids = orderedCards(platform);
     const bg = document.createElement('div');
     bg.className = 'modal-bg install-bg';
@@ -109,30 +137,17 @@ export function showInstallGuideIfNeeded() {
         '<button class="iconbtn ig-close" id="ig-close" aria-label="닫기">✕</button>' +
         '<div class="ig-top"><img src="/assets/icons/icon-192.png" alt="" width="56" height="56"><div><h2 id="ig-title">c-master 를 앱처럼 써 봐요</h2>' +
         '<p class="muted small" style="margin:2px 0 0">홈 화면에 추가하면 앱처럼 바로 열려요. 아래로 밀어 보면 안내 카드가 차곡차곡 쌓여요.</p></div></div>' +
-        '<div class="stack-scroller" tabindex="0" aria-label="설치 안내">' + ids.map((id, i) => cardHtml(id, i, (id === 'ios' && platform === Platform.IOS) || (id === 'android' && platform === Platform.ANDROID))).join('') +
-        '<div class="stack-end muted small">다 읽었으면 바깥이나 ✕ 를 눌러 닫아요</div></div>' +
-        '<div class="row-buttons"><button class="btn primary" id="ig-install"' + (deferredPrompt ? '' : ' hidden') + '>지금 바로 설치하기</button><button class="btn" id="ig-ok">알겠어요</button></div></div>';
+        '<div class="stack-scroller" tabindex="0" aria-label="설치 안내">' + ids.map((id, i) => cardHtml(id, i, mineOf(id))).join('') +
+        '<div class="stack-end muted small">다 읽었으면 오른쪽 위 ✕ 를 눌러 닫아요</div></div>' +
+        '<div class="row-buttons"' + (deferredPrompt ? '' : ' hidden') + ' id="ig-install-row"><button class="btn primary" id="ig-install">지금 바로 설치하기</button></div></div>';
     document.body.appendChild(bg);
 
     const close = () => {
         storage.set();
         bg.classList.add('out');
-        removeEventListener('keydown', onKey);
         setTimeout(() => bg.remove(), 200);
     };
-    const onKey = (event) => {
-        if (event.key === 'Escape') {
-            close();
-        }
-    };
-    addEventListener('keydown', onKey);
-    bg.addEventListener('click', (event) => {
-        if (event.target === bg) {
-            close(); // 창 바깥(어두운 곳)을 누르면 닫기
-        }
-    });
-    bg.querySelector('#ig-close').onclick = close;
-    bg.querySelector('#ig-ok').onclick = close;
+    bg.querySelector('#ig-close').onclick = close; // ✕ 로만 닫는다
     bg.querySelector('#ig-install').onclick = async () => {
         if (!deferredPrompt) {
             return;

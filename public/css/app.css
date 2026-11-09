@@ -449,6 +449,15 @@ a.btn.primary { color: var(--accent-ink); }
 @media (pointer: coarse) {
   .practice-code input.blank, .output-answer { font-size: 16px; }
 }
+/* ---------- 홈 화면 추가 버튼 (상단 · 첫 화면) ---------- */
+.install-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 13.5px; white-space: nowrap; }
+.login-foot { display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+/* 좁은 화면 상단에서는 글자를 줄여 아이콘 + "추가" 만 (버튼 이름은 aria-label 로 그대로 읽힘) */
+@media (max-width: 520px) {
+  .top .install-btn { padding: 6px 9px; }
+  .top .install-label { font-size: 12.5px; }
+}
+
 /* ---------- 홈 화면 추가 안내창 (쌓이는 카드) ---------- */
 .install-bg { z-index: 70; animation: lu-in .2s ease both; }
 .install-bg.out { animation: lu-out .2s ease forwards; }

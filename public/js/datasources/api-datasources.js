@@ -40,6 +40,22 @@ export class AuthApiDataSource {
     }
 }
 
+export class VisitApiDataSource {
+    #http;
+
+    constructor(http) {
+        this.#http = http;
+    }
+
+    recordAsync() {
+        return this.#http.requestAsync('POST', '/api/visits', {});
+    }
+
+    todayAsync() {
+        return this.#http.requestAsync('GET', '/api/visits');
+    }
+}
+
 export class ProgressApiDataSource {
     #http;
 

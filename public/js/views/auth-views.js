@@ -4,6 +4,7 @@ import { cody } from '../ui/cody.js';
 import { TechText } from '../ui/tech-text.js';
 import { CREDITS_BUTTON, bindCreditsButtons } from './credits-modal.js';
 import { INSTALL_BUTTON, bindInstallButtons } from './install-guide.js';
+import { VISIT_SLOT, bindVisits } from './visit-count.js';
 import { Failure } from '../core/result.js';
 import { messageOf } from '../core/app-error.js';
 import { FORM_NAMES } from '../domain/progress-rules.js';
@@ -60,11 +61,12 @@ export function renderLogin(app, mode = 'login') {
         (isJoin ? '' : '<button type="button" class="btn ghost link-btn" id="f-forgot">아이디·비밀번호를 잊었어요</button>') +
         '<button class="btn primary" id="f-submit" type="submit">' + (isJoin ? '가입하고 시작하기' : '로그인') + '</button>' +
         '<div class="login-install">' + INSTALL_BUTTON + '</div>' +
-        '</form></div><div class="login-foot">' + CREDITS_BUTTON + '</div></div>';
+        '</form></div><div class="login-foot">' + CREDITS_BUTTON + VISIT_SLOT + '</div></div>';
 
     new TechText($('#tech'), { text: 'c-master' }).mountAsync();
     bindCreditsButtons(app.root);
     bindInstallButtons(app.root);
+    bindVisits(app.visits, app.root);
 
     $('#tab-login').onclick = () => renderLogin(app, 'login');
     $('#tab-join').onclick = () => renderLogin(app, 'join');

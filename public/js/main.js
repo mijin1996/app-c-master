@@ -8,10 +8,13 @@ import { DEFAULT_SETTINGS } from './domain/progress-model.js';
 import { FetchHttpClient } from './datasources/http-client.js';
 import {
     AuthApiDataSource, ProgressApiDataSource, RankingApiDataSource, HintApiDataSource, StaticContentDataSource, CodeRunApiDataSource, CommunityApiDataSource,
+    VisitApiDataSource,
 } from './datasources/api-datasources.js';
 import {
     AuthRepository, ProgressRepository, RankingRepository, HintRepository, ContentRepository, CodeRunRepository, CommunityRepository,
+    VisitRepository,
 } from './repositories/api-repositories.js';
+import { VisitService } from './services/visit-service.js';
 import { AuthService } from './services/auth-service.js';
 import { ProgressService } from './services/progress-service.js';
 import { JudgeService } from './services/judge-service.js';
@@ -46,6 +49,14 @@ const progress = new ProgressService(
 const contentRepository = new ContentRepository(new StaticContentDataSource(http));
 const codeRunRepository = new CodeRunRepository(new CodeRunApiDataSource(http));
 const currentSettings = () => progress.progress?.settings ?? DEFAULT_SETTINGS;
+// 탭 하나(이번 방문)만 기억하는 곳. 막힌 브라우저면 빈 가짜를 쓴다 (VisitService 가 실패를 견딤)
+const sessionStore = (() => {
+    try {
+        return window.sessionStorage;
+    } catch (e) {
+        return { getItem: () => null, setItem: () => {} };
+    }
+})();
 
 const app = {
     root: document.getElementById('app'),
@@ -63,6 +74,7 @@ const app = {
     hint: new HintService(new HintRepository(new HintApiDataSource(http)), FEATURES.aiHint, auth),
     sound: new SoundPlayer('/assets/sounds/', currentSettings),
     sky: Sky,
+    visits: new VisitService(new VisitRepository(new VisitApiDataSource(http)), sessionStore),
     content: null,
     contentRepository,
     router: null,

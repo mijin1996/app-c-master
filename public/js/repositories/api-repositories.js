@@ -5,6 +5,7 @@ import { AppError } from '../core/app-error.js';
 import { progressFromDto, progressToDto } from '../mappers/progress-mapper.js';
 import { contentFromDto } from '../mappers/content-mapper.js';
 import { oopLessonsFromDto } from '../mappers/oop-content-mapper.js';
+import { isDayKey } from '../domain/visit-rules.js';
 
 const ERROR_BY_STATUS = Object.freeze({ 401: AppError.UNAUTHORIZED, 403: AppError.FORBIDDEN, 404: AppError.NOT_FOUND, 413: AppError.PAYLOAD_TOO_LARGE, 503: AppError.FEATURE_DISABLED });
 
@@ -160,6 +161,25 @@ export class CodeRunRepository {
             message: b.result?.message,
             files: {},
         }));
+    }
+}
+
+/** 하루 접속 수: { day, count } 모양만 믿는다 */
+const visitFromDto = (b) => ({ day: isDayKey(b?.day) ? b.day : '', count: Math.max(0, Math.floor(Number(b?.count) || 0)) });
+
+export class VisitRepository {
+    #source;
+
+    constructor(source) {
+        this.#source = source;
+    }
+
+    recordAsync() {
+        return call(() => this.#source.recordAsync(), visitFromDto);
+    }
+
+    todayAsync() {
+        return call(() => this.#source.todayAsync(), visitFromDto);
     }
 }
 

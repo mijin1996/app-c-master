@@ -150,8 +150,13 @@ function renderHints({ app, problem }) {
         const realTries = app.progress.progress.realTries[problem.id] ?? 0;
         html += '<button class="btn" id="btn-hint" ' + (can ? '' : 'disabled') + '>' + (can ? '모범 답안 보기' : '모범 답안은 아직 잠겨 있어요') + '</button>';
         if (!can) {
-            html += '<div class="muted" style="font-size:13px">정답을 맞히거나, 제한 시간(' + limit / 60 + '분)이 지난 뒤 직접 쓴 코드로 ' + SOLUTION_MIN_REAL_TRIES + '번 이상 제출하면 열려요. ' +
-                '지금: 제출 ' + Math.min(realTries, SOLUTION_MIN_REAL_TRIES) + '/' + SOLUTION_MIN_REAL_TRIES + ', 시간 ' + fmtMS(Math.min(app.progress.spentOf(problem.id), limit)) + ' / ' + fmtMS(limit) + '</div>';
+            // "2번만 내면 열린다"로 오해하지 않게, 두 조건을 모두 채워야 한다는 것을 나눠서 보여 준다
+            const spent = Math.min(app.progress.spentOf(problem.id), limit);
+            const mark = (ok) => (ok ? '✔' : '○');
+            html += '<div class="sol-lock muted">모범 답안은 <b>정답을 맞히면</b> 바로 열려요. 아직 못 풀었다면 아래 <b>두 가지를 모두</b> 채워야 열려요.' +
+                '<ul><li>' + mark(spent >= limit) + ' 제한 시간 ' + limit / 60 + '분 동안 고민하기 (지금 ' + fmtMS(spent) + ' / ' + fmtMS(limit) + ')</li>' +
+                '<li>' + mark(realTries >= SOLUTION_MIN_REAL_TRIES) + ' 직접 고친 코드로 ' + SOLUTION_MIN_REAL_TRIES + '번 이상 제출하기 (지금 ' + Math.min(realTries, SOLUTION_MIN_REAL_TRIES) + ' / ' + SOLUTION_MIN_REAL_TRIES + '번)</li></ul>' +
+                '처음 틀 그대로 내거나 거의 안 고친 코드는 제출 횟수에 들어가지 않아요.</div>';
         }
     }
     box.innerHTML = html;

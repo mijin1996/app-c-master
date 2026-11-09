@@ -358,3 +358,5 @@ a.btn.primary { color: var(--accent-ink); }
   .tier-sec th:last-child, .tier-sec td:last-child { display: none; }
   .tier-sec td:nth-child(2) { overflow-wrap: anywhere; }
 }
+.sol-lock { font-size: 13px; line-height: 1.6; margin-top: 6px; }
+.sol-lock ul { margin: 4px 0; padding-left: 4px; list-style: none; }

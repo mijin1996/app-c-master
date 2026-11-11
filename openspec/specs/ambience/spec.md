@@ -16,7 +16,13 @@ The top bar SHALL show only the current time as HH:MM in 24-hour format (no sunr
 - **THEN** the clock shows 14:54
 
 ### Requirement: One look for every toggle (2026-11-12)
-Every choice list (language, country, background, problem filters, code language, Allman/K&R, community form choices) SHALL open as a button with white text and, on press, a card window that looks like the install guide: a panel with a title and ✕, one card per option, the current option highlighted, and cards stacking as they scroll when there are five or more. Arrow keys, Home/End and Esc SHALL work.
+Every choice list (language, country, background, problem filters, code language, Allman/K&R, community form choices) SHALL open as a button with white text and, on press, a card window that looks like the install guide: a panel with a title and ✕, one card per option, the current option highlighted, and cards stacking as they scroll when there are five or more. Arrow keys, Home/End and Esc SHALL work. The Allman/K&R picker SHALL show only the two option names: no visible "code style" label or title and no descriptions (the name stays for screen readers). The language toggle SHALL have no globe icon.
+
+### Requirement: One focus color and text color (2026-11-12)
+Every selected field, card and the solve panel SHALL pulse orange to yellow (site colors), not green. List rows and table links (records, community) SHALL use the same text color as other text, with orange on hover.
+
+### Requirement: Phone layout stays centered (2026-11-12)
+On touch devices inputs SHALL be at least 16px so iOS does not zoom, and long example code SHALL scroll inside its box instead of widening the page (grid columns `minmax(0, 1fr)`).
 
 ### Requirement: Pre-rendered piano sounds
 The system SHALL play pre-rendered original piano clips for correct, wrong, quiz right/wrong, clear and evolution, and an optional looping background piece that is off by default.

@@ -20,7 +20,7 @@ All learning content (C chapters, algorithm problems, OOP lessons) SHALL be avai
 Builds SHALL fail when any translatable field is missing, an array length differs from the Korean original, or Korean text remains in a translation that does not appear in that item's own code, tests or expected output.
 
 ### Requirement: Examples follow the chosen brace style (2026-11-12)
-Concept examples, chapter quiz code and model solutions in brace languages SHALL be shown in the learner's code style (Allman by default, K&R when chosen). Python code and OOP lessons (already Allman) SHALL be shown as written.
+Concept examples, chapter quiz code and model solutions in brace languages SHALL be shown in the learner's code style for that language (Allman by default, K&R when chosen). Code boxes in community posts and comments (``` with no tag, c, cpp, java) SHALL follow the same style. Python code and OOP lessons (already Allman) SHALL be shown as written.
 
 #### Scenario: Default learner opens chapter 5
 - **WHEN** a learner who never changed the style opens the chapter 5 concept

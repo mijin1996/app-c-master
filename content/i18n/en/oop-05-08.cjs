@@ -1,0 +1,120 @@
+// English translation · OOP lessons 5–8. Practice code stays as in the original, so Korean text the code prints is quoted as-is.
+module.exports = {
+    5: {
+        title: 'Abstract classes and interfaces',
+        tag: 'A half-finished blueprint vs a licence',
+        story: [
+            'An abstract class is a "half-finished blueprint". Every animal has a name and an age (shared fields) and breathes the same way (shared code), so those are written in advance, and only "how to cry" is left empty for the child to fill in.',
+            'An interface is a "licence". Having a "swimming licence" is a promise that you can Swim(). A duck, a person and a robot can each get a swimming licence separately. And you can hold several licences at the same time!',
+            'In short, an abstract class says "what something is (is-a)", and an interface says "what it can do (can-do)".',
+        ],
+        points: [
+            'Abstract class: can have fields (state) and shared code, cannot be created directly with new, only one parent (extends)',
+            'Interface: a promise of behaviour (a contract), a class can implement several (implements / in C# separated by commas after the colon)',
+            'Interfaces have no fields (state). Java 8+ and C# 8+ allow default method implementations',
+            'C# explicit interface implementation: void IPlayer.Attack() — implement them separately when names clash',
+            'C# interface names usually start with I (IRepository, IDisposable)',
+        ],
+        exampleTitle: 'C# — getting several licences',
+        exampleCode: 'interface ISwimmer { void Swim(); }\ninterface IFlyer   { void Fly(); }\n\nabstract class Animal\n{\n    public string Name { get; init; }      // shared state\n    public void Breathe() => Console.WriteLine("Whoo~");\n    public abstract void Cry();            // the child must fill this in\n}\n\nclass Duck : Animal, ISwimmer, IFlyer\n{\n    public override void Cry() => Console.WriteLine("Quack");\n    public void Swim() => Console.WriteLine("Splash");\n    public void Fly()  => Console.WriteLine("Flap");\n}',
+        quiz: [
+            { q: 'What is the best way to express "a duck, a person and a robot can all swim" in code?', options: ['Each of the three implements an ISwimmer interface', 'All three inherit from an abstract class called Swimmer', 'Merge the three into one class', 'Make one static Swim()'], explain: 'A duck, a person and a robot are not "the same kind (is-a)", but they share "can swim (can-do)". An interface (licence) is perfect for that.' },
+            { q: 'Which is true about abstract classes?', options: ['You can create one directly with new', 'One class can inherit from several', 'It can have fields and shared code', 'It cannot have any methods'], explain: 'An abstract class is a half-finished blueprint, so it can hold fields like name and age and shared code in advance. But you cannot new it directly, and there is only one parent.' },
+            { q: 'What can one class have several of at the same time?', options: ['Parent classes', 'Interfaces', 'Abstract parent classes', 'Sealed parent classes'], explain: 'You may get many licences (interfaces), as in class Duck : Animal, ISwimmer, IFlyer. There is only one parent class!' },
+            { q: 'When IPlayer and IMonster both have Attack(), how do you make the two Attacks separately in C#?', options: ['Make Attack static', 'Delete one of them', 'Switch to Java', 'Explicit interface implementation: void IPlayer.Attack() { } / void IMonster.Attack() { }'], explain: 'Make "attacking as a player" and "attacking as a monster" separately by putting name tags on them. When calling, choose which role you call it in, as in ((IPlayer)hc).Attack().' },
+            { q: 'In the table from the notes, which belongs to "is-a relationship, inheriting shared code"?', options: ['interface — implement', 'static class', 'enum', 'abstract class — extends'], explain: 'An abstract class gives "A is a B" and shared code through extends (inheritance), and an interface gives "the same promised ability to different classes" through implement.' },
+        ],
+        practice: [
+            { prompt: 'A duck that has both a half-finished blueprint (Animal) and a swimming licence (ISwimmer). Fill in the blanks.', blankHints: ['A "half-finished" class you cannot new directly', 'A method left empty without a body, saying "the child fills this in"', 'The name of the licence the duck got'], explain: 'Both abstract classes and abstract methods use abstract. After the single parent class, add licences (interfaces) separated by commas.' },
+            { prompt: 'Attacking as a player and attacking as a monster were made separately. Two lines appear.', hint: 'Look in order at which role (interface) each call uses (검 = sword, 발톱 = claws)', explain: 'First it is called in the monster role, so "발톱" (claws), then in the player role, so "검" (sword). Even with clashing names, explicit implementation makes them work separately.' },
+        ],
+    },
+    6: {
+        title: 'Generics, collections and data structures',
+        tag: 'Boxes with name tags',
+        story: [
+            'Generics are name tags on boxes. List<int> is "a box only for numbers", and List<string> is "a box only for text". With a name tag, the compiler catches it right away if you put in the wrong thing.',
+            'There are many kinds of boxes. A List (array) lets you take things out directly by their number tag. A Set cannot hold the same thing twice. A Map (Dictionary in C#) is a "name → item" locker, so knowing the name is enough to find it at once.',
+            'There are ways of lining up too. A Stack is a pile of plates (the last one placed comes out first, LIFO) — used for undo (Ctrl+Z). A Queue is a lunch line (first in line, first served, FIFO) — used to handle things in turn.',
+        ],
+        points: [
+            'Generics = name-tag boxes whose type is decided later. C# allows List<int> (no boxing); Java needs List<Integer> (the int → Integer wrapper)',
+            'Java erases type information after compiling (Type Erasure); C# remembers it while running (Reified)',
+            'List: lookup by number O(1), inserting or deleting in the middle O(N) / LinkedList: you must walk in order to find things, but insert and delete are fast once you know the position',
+            'HashSet: no duplicates, find O(1) / Dictionary (Map): find by key O(1) — use a Dictionary when you search often',
+            'Stack (LIFO): undo, recursion / Queue (FIFO): waiting lines / Heap: taking out the largest or smallest value quickly',
+            'Big O = how much slower things get as the data grows (time and space complexity)',
+        ],
+        exampleTitle: 'C# — use a Dictionary when you search often',
+        exampleCode: 'var items = new Dictionary<string, Item>();\nitems["sword"] = new Item("Sword", 10);\n\n// straight to it by name, without searching the list from start to end!\nif (items.TryGetValue("sword", out var sword))\n{\n    Console.WriteLine(sword.Name);\n}',
+        quiz: [
+            { q: 'Which data structure "takes out the most recent thing first", like undo (Ctrl+Z)?', options: ['Queue (FIFO)', 'Stack (LIFO)', 'HashSet', 'Dictionary'], explain: 'When you pile up plates, you take from the top (the one placed last). That is a Stack. A Queue is like a lunch line: whoever comes first goes first.' },
+            { q: 'A game needs to find items by item name very often. What fits best?', options: ['Put them in a Dictionary<string, Item> with the name as the key', 'Put them in a List and search from start to end every time', 'Put them in a Stack', 'Join them all into one string'], explain: 'Just like the pink note in the notes! "Use a Dictionary when you search a lot, avoid loops". The name tag (key) opens the locker directly, so it is O(1).' },
+            { q: 'How many items are in set after this code runs? (사과 = apple, 배 = pear)', options: ['1', '3', '2', 'Error'], explain: 'A Set never holds the same thing twice. "사과" stays only once, so there are 2: apple and pear.' },
+            { q: 'Why can Java not use List<int>, so you must use List<Integer>?', options: ['Because int is too big', 'Because Java erases generic types when compiling (Type Erasure), so it can only hold objects', 'Because Integer is faster', 'To copy C#'], explain: 'After compiling, Java removes the name tag and makes it "just a box of things (Object)". So an int must be wrapped in the Integer wrapper (a wrapper class). C# remembers the name tag to the end, so List<int> works.' },
+            { q: 'What is the Big O of "taking something out directly by its number (index)" from an array (List)?', options: ['O(N)', 'O(N²)', 'O(log N)', 'O(1)'], explain: 'An array\'s cells sit side by side, so "cell 5!" goes there directly. The time stays the same however much data there is, so it is O(1). But inserting in the middle means pushing everything behind it, so that is O(N).' },
+        ],
+        practice: [
+            { prompt: 'Make a locker that finds attack power directly by item name. Fill in the blanks.', blankHints: ['A "name → value" locker (Map in Java)', 'The method that says "give it to me if it is there, otherwise false"'], explain: 'A Dictionary finds by key directly, so O(1)! TryGetValue returns false instead of an error when the key is missing, so it is safe.' },
+            { prompt: '1, 2 and 3 were put in turn into a plate pile (Stack) and a lunch line (Queue), and one was taken out of each.', hint: 'A Stack gives the last one put in; a Queue gives the first one put in', explain: 'The Stack (LIFO) gives the top one, 3, first, and the Queue (FIFO) gives the front one, 1, first. So "3 1".' },
+        ],
+    },
+    7: {
+        title: 'Object rules, record and strings',
+        tag: 'Checking for twins',
+        story: [
+            'The grandparent of every object is Object. That is why everyone has ToString() (show as text), Equals() (compare for equality) and GetHashCode() (a locker number).',
+            'There is one rule: "If Equals says two things are equal, their locker numbers (hashCode) must be equal too." HashSet and Dictionary first find the slot by locker number and then check with Equals inside it. If the numbers differ, they search the wrong slot and cannot find it!',
+            'A string (String) cannot be changed once made (it is immutable). "Hello" + " World" does not fix the original text; it makes new text. Joining text over and over in a loop creates lots of garbage, so use StringBuilder.',
+        ],
+        points: [
+            'If you override Equals, you must override GetHashCode (hashCode) along with it',
+            'C# record: automatically makes Equals, GetHashCode and ToString that treat equal values as the same (perfect for immutable data)',
+            'Comparable (IComparable): my own default order (compareTo) / Comparator (IComparer): a special sorting rule given from outside',
+            'String is immutable → use StringBuilder when joining a lot',
+            'String methods: IsEmpty · Split · ToUpper/ToLower · Length · Substring · Replace · Trim · Contains · IndexOf · EndsWith',
+        ],
+        exampleTitle: 'C# — value comparison with a one-line record',
+        exampleCode: 'public record Point(int X, int Y);\n\nvar a = new Point(1, 2);\nvar b = new Point(1, 2);\nConsole.WriteLine(a == b);   // True  (equal values are equal)\nConsole.WriteLine(a);        // Point { X = 1, Y = 2 }\n\nvar c = a with { Y = 9 };    // a new value copied with only Y changed',
+        quiz: [
+            { q: 'What can happen if you override Equals but leave GetHashCode as it is?', options: ['Nothing goes wrong', 'The program gets faster', 'Objects with the same contents cannot be found in a HashSet or Dictionary, or get added twice', 'Strings change'], explain: 'A HashSet first finds the slot by locker number (hashCode). If the numbers differ it searches a different slot, so even twins are reported as "not there" or added again separately.' },
+            { q: 'In C#, what is the result of this code? (용 = dragon)', options: ['True', 'False', 'Compile error', 'null'], explain: 'A record compares by "equal values are equal". The name and power are the same, so True. If it were a plain class they would be different objects, so False.' },
+            { q: 'Why use StringBuilder when joining text ten thousand times in a loop?', options: ['Because only StringBuilder can use Korean', 'Because a String can only hold 10 characters', 'Because String is immutable, so every + makes a new string and wastes a lot of memory', 'No reason'], explain: 'A String is paper you cannot fix once written. Each time you add a letter you must write everything again on new paper. StringBuilder is a notebook with an eraser, so you can keep writing on.' },
+            { q: 'You want to sort a list of students "by number by default, but by height (tallest first) just today". What do you use for "tallest first"?', options: ['Make a separate Comparator (IComparer) and pass it when sorting', 'Change Comparable (compareTo)', 'Put them in a HashSet', 'Change ToString'], explain: 'The default order you already have is Comparable, and a special rule given from outside each time is Comparator. Keep the default order and swap in only today\'s rule.' },
+            { q: 'What is the value of s after this code runs?', options: ['CAT', 'Cat', 'Error', 'cat'], explain: 'Strings are immutable, so ToUpper() only returns new text "CAT" and does not change s. To change it, store it again, as in s = s.ToUpper();.' },
+        ],
+        practice: [
+            { prompt: 'Make in one line a Point that counts equal values as the same, then make a copy with only Y changed.', blankHints: ['The word that automatically makes Equals, GetHashCode and ToString', '"Copy it and change only this"'], explain: 'record automatically makes value comparison and a nice ToString. with keeps the original as it is and makes a new changed value (immutable!).' },
+            { prompt: 'Strings are immutable. Three lines appear.', hint: 'Does ToUpper change s, or give new text?', explain: 'ToUpper only returns the new text "HELLO", so s stays hello. ab + cd are written into the StringBuilder to make abcd, length 4.' },
+        ],
+    },
+    8: {
+        title: 'Delegates, lambdas, LINQ and events',
+        tag: 'Sending functions by parcel',
+        story: [
+            'A delegate is "a box that holds a function". Like numbers or text, a function can be stored in a variable and sent by parcel to another function. Things you can store in a variable like this are called first-class objects.',
+            'A lambda is a short function without a name. x => x * 2 means "take x and give back twice as much". LINQ takes lambdas like these to filter a list (Where), change it (Select) and combine it into one (Aggregate).',
+            'An event is a "doorbell". The button (the sender, Emit) only goes "ding-dong!" and does not know who is listening. People who want to listen (the receivers, onEvent) register with +=, and each does their job when it rings. When done, you must unregister with -= so memory does not leak.',
+        ],
+        points: [
+            'Action<T>: returns nothing / Func<T, TResult>: the last type is the return type / Predicate<T>: a check that returns bool',
+            'Lambda: (parameters) => expression. A nameless function made right on the spot',
+            'LINQ: Where (filter) · Select (change) · Any (at least one?) · Aggregate (combine into one) · ToList (run right now)',
+            'Where and Select use lazy evaluation (computed when needed); ToList and Count evaluate immediately',
+            'event: from outside only += / -= are allowed. Separating sending (Emit) and receiving (onEvent) makes changing, reusing and finding bugs easier (observer pattern, MVC)',
+        ],
+        exampleTitle: 'C# — a LINQ pipeline',
+        exampleCode: 'var numbers = new List<int> { 1, 2, 3, 4, 5, 6 };\n\nvar evenSquares = numbers\n    .Where(n => n % 2 == 0)   // 2, 4, 6\n    .Select(n => n * n)       // 4, 16, 36\n    .ToList();\n\nint sum = numbers.Aggregate(0, (acc, n) => acc + n); // 21\nbool hasBig = numbers.Any(n => n > 5);               // true',
+        quiz: [
+            { q: 'What is the result of this LINQ?', options: ['10,20', '30,40,50', '3,4,5', '10,20,30,40,50'], explain: 'Where keeps only 3, 4 and 5, which are bigger than 2, and Select multiplies each by 10 to give 30, 40, 50. Filter → change!' },
+            { q: 'Which C# delegate type holds "a function that takes one string, prints it and returns nothing"?', options: ['Action<string>', 'Func<string>', 'Predicate<string>', 'Task<string>'], explain: 'Action is a function that "only does something and returns nothing". Func returns its last type, and Predicate returns true/false.' },
+            { q: 'What is the result of this code?', options: ['4', '24', '10', '0'], explain: 'Aggregate rolls through them one by one and combines them. 0+1=1, 1+2=3, 3+3=6, 6+4=10. It grows like rolling a snowman.' },
+            { q: 'Which is true about events?', options: ['The sender (Emit) must know every receiver and call them directly', 'Receivers register with +=, and must unregister with -= when done so memory does not leak', 'Only one listener can hear an event', 'From outside you can freely clear it with event = null'], explain: 'A doorbell only has to go "ding-dong" without knowing who listens. Listeners register (+=), and if they do not unregister (-=) when moving away, they stay held and memory leaks (the yellow note in the notes!).' },
+            { q: 'If you only write Where and Select and never call ToList(), when is it computed?', options: ['Immediately on that line', 'When the program ends', 'It is never computed and gives an error', 'Later, when you take the results out one by one (lazy evaluation)'], explain: 'LINQ only writes down the "order slip", and starts cooking when you really take things out (foreach, ToList, Count). This is called lazy evaluation.' },
+        ],
+        practice: [
+            { prompt: 'A LINQ that filters only even numbers and changes them into squares. Fill in the blanks.', blankHints: ['Keep only what matches the condition (filter)', 'Change each one into a different shape'], explain: 'Filter with Where → change with Select → compute right now with ToList! Do not forget they start with a capital letter.' },
+            { prompt: 'Three LINQ methods were used on a list of numbers. Three lines appear.', hint: 'The order stays the same. Any is True if there is at least one', explain: 'Doubling 3, 8 and 6, which are bigger than 2 → 6,16,12. There is 8, which is bigger than 7, so True. Adding them all gives 3+8+1+6 = 18.' },
+        ],
+    },
+};

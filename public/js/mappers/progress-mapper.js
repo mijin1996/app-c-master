@@ -7,6 +7,7 @@ import { isOopLessonNo, OOP_QUIZ_SIZE } from '../domain/oop-rules.js';
 import { isPracticeKey } from '../domain/oop-practice-rules.js';
 import { isCodeStyle } from '../domain/brace-style.js';
 import { isTimeZoneKey } from '../domain/time-zones.js';
+import { isObject } from './mapper-utils.js';
 
 const PROBLEM_ID = /^\d{4}$/;
 const CODE_KEY = /^\d{4}(?::(?:python|cpp|java))?$/; // C는 번호만, 다른 언어는 "번호:언어"
@@ -16,7 +17,6 @@ const MAX_COUNT = 100000;
 const RESULTS = new Set(['AC', 'WA', 'CE', 'RE', 'TLE', 'OLE']);
 const SKY_MODES = new Set(['auto', 'day', 'night']);
 
-const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 
 function toCount(value) {

@@ -4,6 +4,7 @@
 // 새 AI 서비스를 붙이려면 getHintAsync(prompt) 를 가진 클래스를 하나 더 만들면 된다.
 import { Result } from '../../public/js/core/result.js';
 import { AppError } from '../../public/js/core/app-error.js';
+import { failedResponse, failedRequest } from '../http/outbound-failures.js';
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const ANTHROPIC_VERSION = '2023-06-01';
@@ -46,13 +47,13 @@ export class AnthropicHintProvider {
                 }),
             });
             if (!response.ok) {
-                return Result.failure(response.status >= 500 ? AppError.SERVER : AppError.NETWORK);
+                return failedResponse(response);
             }
             const body = await response.json();
             const text = (body.content ?? []).filter((c) => c.type === 'text').map((c) => c.text).join('').trim();
             return text ? Result.success(text) : Result.failure(AppError.SERVER);
         } catch (e) {
-            return Result.failure(e && e.name === 'AbortError' ? AppError.TIMEOUT : AppError.NETWORK);
+            return failedRequest(e);
         } finally {
             clearTimeout(timer);
         }

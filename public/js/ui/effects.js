@@ -2,12 +2,12 @@
 // 바닐라 자바스크립트로 새로 만들었다 (원본 코드를 옮기지 않음). 움직임 줄이기 설정을 켠 사람에게는 조용히 보여 준다.
 import { launchOf, burstParticles, springKeyframes } from './sling-math.js';
 import { t } from '../i18n/index.js';
+import { reduceMotion } from './dom.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 // 새총 효과를 받는 버튼들 (화면 클릭 불꽃은 이 위에서는 쉬어요)
 const BUTTON_SELECTOR = '.btn, .iconbtn, .tabs button, .credits-link, .opt, .lesson-card';
 
-const reduceMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
 // ---------- 1. 클릭 불꽃 (Click Spark) ----------
 const SPARK_COUNT = 8;

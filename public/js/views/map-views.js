@@ -4,8 +4,9 @@ import { cody, formName, codyNameOf, CHEER, pick } from '../ui/cody.js';
 import { highlight } from '../ui/editor.js';
 import { renderShell } from './shell.js';
 import { t } from '../i18n/index.js';
+import { statusChipHtml } from './view-helpers.js';
 import {
-    STAGES, XP_PER_LEVEL, QUIZ_PASS_SCORE, levelOf, isChapterCleared, isStageCleared, solvedCountIn, chapterState,
+    STAGES, XP_PER_LEVEL, QUIZ_PASS_SCORE, levelOf, isChapterCleared, isStageCleared, solvedCountIn, chapterState, problemStatusOf,
 } from '../domain/progress-rules.js';
 
 export const starStr = (n) => '★'.repeat(n) + '☆'.repeat(3 - n);
@@ -74,8 +75,7 @@ export function renderChapter(app, chapterNo) {
     const p = app.progress.progress;
     const c = app.progress.curriculum.find((x) => x.chapter === chapterNo);
     const rows = chapter.problems.map((problem) => {
-        const status = p.solved[problem.id] ? '<span class="chip good">' + esc(t('common.solved')) + '</span>'
-            : p.tries[problem.id] ? '<span class="chip bad">' + esc(t('common.trying')) + '</span>' : '<span class="chip">' + esc(t('common.notSubmitted')) + '</span>';
+        const status = statusChipHtml(problemStatusOf(p, problem.id));
         return '<a class="prow" href="#p' + problem.id + '"><span class="pid">' + problem.id + '</span><span>' + esc(problem.title) + '</span>' +
             '<span class="stars" aria-label="' + esc(t('common.difficulty', { n: problem.level })) + '">' + starStr(problem.level) + '</span>' + status + '</a>';
     }).join('');

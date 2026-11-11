@@ -75,6 +75,18 @@ test('styleSnippet: 설명 · 퀴즈의 예시 코드도 고른 스타일로 보
     assert.equal(allman.styleSnippet(''), '');
 });
 
+test('applyCodeStyle: 코드를 고른 스타일로 바꿔 돌려주고 설정만 기억한다 (저장할 문제가 없는 커뮤니티용)', async () => {
+    // Given
+    const service = await serviceWith({ settings: { codeStyle: 'knr' } });
+
+    // When
+    const styled = service.applyCodeStyle('int main() {\n    return 0;\n}', 'allman');
+
+    // Then
+    assert.equal(styled, 'int main()\n{\n    return 0;\n}');
+    assert.equal(service.progress.settings.codeStyle, 'allman');
+});
+
 test('restyleCode: 지금 코드를 고른 스타일로 바꿔 저장하고, 설정도 바꾼다', async () => {
     // Given
     const service = await serviceWith({ code: { 1001: 'int main() {\n    return 0;\n}' } });

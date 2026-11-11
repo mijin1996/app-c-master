@@ -11,10 +11,9 @@ import { COMMUNITY_LIMITS, DIFFICULTY_LEVELS } from '../domain/community-rules.j
 import { LANGUAGES, LanguageId, languageOf, isLanguageAvailable } from '../domain/languages.js';
 import { Verdict, normalizeOutput } from '../services/judge-service.js';
 import { judgeableOf } from '../services/learning-services.js';
-import { t, getLocale } from '../i18n/index.js';
-import { translateRunMessage } from '../i18n/run-messages.js';
-import { formatBraces } from '../domain/brace-style.js';
-import { styleToggleHtml, bindStyleToggle, usesBraces } from './style-toggle.js';
+import { t } from '../i18n/index.js';
+import { mountStyleToggle } from './style-toggle.js';
+import { lineNear, runText } from './view-helpers.js';
 import { likeHeartHtml, bindLikeHeart, likeBadgeHtml } from '../ui/like-heart.js';
 import { swipeRowHtml, bindSwipeRow } from '../ui/swipe-row.js';
 import { rowActions } from '../ui/swipe-row-rules.js';
@@ -29,8 +28,6 @@ const detailText = (result) => {
     return result.detail || messageOf(result.error);
 };
 const failText = (result) => esc(detailText(result));
-const lineNear = (line) => (line ? t('common.lineNear', { line }) : '');
-const runText = (message) => esc(translateRunMessage(message, getLocale()));
 
 function dateOf(ms) {
     const d = new Date(ms);
@@ -293,21 +290,15 @@ function mountSolveEditor(ctx) {
     ctx.editor = mountEditor($('#ed'), ctx.code[ctx.language] ?? ctx.app.progress.templateOf(ctx.language), (code) => {
         ctx.code[ctx.language] = code;
     }, () => $('#btn-submit').click(), lang.label);
-    const slot = $('#style-slot');
-    if (!slot) {
-        return;
-    }
-    if (!usesBraces(ctx.language)) {
-        slot.innerHTML = '';
-        return;
-    }
-    slot.innerHTML = styleToggleHtml(ctx.app.progress.progress.settings.codeStyle);
-    bindStyleToggle(slot, (style) => {
-        const styled = formatBraces(ctx.editor.get(), style);
-        ctx.app.progress.updateSettings({ codeStyle: style });
-        ctx.code[ctx.language] = styled;
-        ctx.editor.set(styled);
-        toast(t('style.changed', { style: t('style.' + style) }));
+    mountStyleToggle($('#style-slot'), {
+        language: ctx.language,
+        current: ctx.app.progress.progress.settings.codeStyle,
+        onPick: (style) => {
+            const styled = ctx.app.progress.applyCodeStyle(ctx.editor.get(), style);
+            ctx.code[ctx.language] = styled;
+            ctx.editor.set(styled);
+            toast(t('style.changed', { style: t('style.' + style) }));
+        },
     });
 }
 

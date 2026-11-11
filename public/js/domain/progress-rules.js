@@ -157,3 +157,13 @@ export function summarize(progress, curriculum, oopLessons = OOP_LESSONS) {
         wrong: { ...progress.wrong },
     };
 }
+
+// 문제 하나의 상태 (지도 · 문제 목록 · 알고리즘 화면이 같이 쓴다)
+export const ProblemStatus = Object.freeze({ SOLVED: 'ok', TRYING: 'try', NONE: 'none' });
+
+export function problemStatusOf(progress, problemId) {
+    if (progress.solved?.[problemId]) {
+        return ProblemStatus.SOLVED;
+    }
+    return progress.tries?.[problemId] > 0 ? ProblemStatus.TRYING : ProblemStatus.NONE;
+}

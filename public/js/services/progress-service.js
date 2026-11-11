@@ -289,10 +289,15 @@ export class ProgressService {
         return code ? formatBraces(code, this.#progress.settings.codeStyle) : '';
     }
 
+    /** 코드를 고른 스타일로 바꿔 돌려주고, 고른 스타일을 기억한다 (저장은 부르는 쪽이) */
+    applyCodeStyle(code, style) {
+        this.updateSettings({ codeStyle: style });
+        return formatBraces(code, style);
+    }
+
     /** 스타일 토글: 지금 코드를 그 스타일로 바꿔 저장하고, 고른 스타일을 기억한다 */
     restyleCode(problemId, code, style, languageId = LanguageId.C) {
-        const styled = formatBraces(code, style);
-        this.updateSettings({ codeStyle: style });
+        const styled = this.applyCodeStyle(code, style);
         this.saveCode(problemId, styled, languageId);
         return styled;
     }

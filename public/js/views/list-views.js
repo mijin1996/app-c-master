@@ -5,7 +5,8 @@ import { Failure } from '../core/result.js';
 import { messageOf } from '../core/app-error.js';
 import { renderShell } from './shell.js';
 import { starStr } from './map-views.js';
-import { chapterState, solvedCountIn } from '../domain/progress-rules.js';
+import { chapterState, solvedCountIn, problemStatusOf } from '../domain/progress-rules.js';
+import { statusChipHtml } from './view-helpers.js';
 import { t } from '../i18n/index.js';
 
 const filters = { chapter: 'all', status: 'all' };
@@ -15,12 +16,12 @@ const chapterTitle = (app, no) => app.content.byChapter.get(no)?.title ?? '';
 export function renderProblems(app) {
     const p = app.progress.progress;
     const all = app.content.problems;
-    const statusOf = (problem) => (p.solved[problem.id] ? 'ok' : p.tries[problem.id] ? 'try' : 'none');
+    const statusOf = (problem) => problemStatusOf(p, problem.id);
     const draw = () => {
         const rows = all
             .filter((problem) => (filters.chapter === 'all' || problem.ch === Number(filters.chapter)) && (filters.status === 'all' || statusOf(problem) === filters.status))
             .map((problem) => {
-                const status = { ok: chip('good', 'common.solved'), try: chip('bad', 'common.trying'), none: chip('', 'common.notSubmitted') }[statusOf(problem)];
+                const status = statusChipHtml(statusOf(problem));
                 return '<tr><td class="num code-text">' + problem.id + '</td><td><a href="#p' + problem.id + '">' + esc(problem.title) + '</a></td><td>' + problem.ch + '. ' + esc(chapterTitle(app, problem.ch)) + '</td>' +
                     '<td class="stars">' + starStr(problem.level) + '</td><td>' + status + '</td><td class="num">' + (p.tries[problem.id] ?? 0) + '</td></tr>';
             }).join('');

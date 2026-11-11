@@ -1,5 +1,6 @@
 // DTO → Model: oop.json 을 화면에서 쓰는 레슨 목록으로. 모양이 이상한 레슨 · 문항은 버린다.
-const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+import { isObject } from './mapper-utils.js';
+
 const texts = (raw) => (Array.isArray(raw) ? raw.filter((s) => typeof s === 'string' && s.trim()) : []);
 
 function questionFromDto(raw) {

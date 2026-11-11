@@ -3,6 +3,7 @@
 // - Judge0JudgeProvider: Judge0(오픈소스 채점 서버)를 VPS에 설치한 뒤 주소를 넣으면 켜진다.
 import { Result } from '../../public/js/core/result.js';
 import { AppError } from '../../public/js/core/app-error.js';
+import { failedResponse, failedRequest } from '../http/outbound-failures.js';
 
 const TIMEOUT_MS = 20000;
 const CPU_TIME_LIMIT_SEC = 3;
@@ -44,7 +45,7 @@ export class Judge0JudgeProvider {
                 body: JSON.stringify({ language_id: languageId, source_code: src, stdin: input, cpu_time_limit: CPU_TIME_LIMIT_SEC }),
             });
             if (!response.ok) {
-                return Result.failure(response.status >= 500 ? AppError.SERVER : AppError.NETWORK);
+                return failedResponse(response);
             }
             const body = await response.json();
             const statusId = body.status?.id;
@@ -55,7 +56,7 @@ export class Judge0JudgeProvider {
             const message = kind === 'compile' ? (body.compile_output ?? '컴파일 에러') : (body.stderr || body.status?.description || '실행 중 오류');
             return Result.success({ ok: false, kind, message: String(message).slice(0, 2000), output: body.stdout ?? '' });
         } catch (e) {
-            return Result.failure(e && e.name === 'AbortError' ? AppError.TIMEOUT : AppError.NETWORK);
+            return failedRequest(e);
         } finally {
             clearTimeout(timer);
         }

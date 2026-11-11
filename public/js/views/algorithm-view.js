@@ -1,7 +1,8 @@
 // 알고리즘 화면: USACO처럼 브론즈 → 실버 → 골드 → 플래티넘 단계별 섹션 (글자는 사전 · 지금 언어의 콘텐츠에서)
 import { esc } from '../ui/dom.js';
 import { renderShell } from './shell.js';
-import { XP_BY_LEVEL, SOLVE_LIMIT_SEC } from '../domain/progress-rules.js';
+import { XP_BY_LEVEL, SOLVE_LIMIT_SEC, problemStatusOf } from '../domain/progress-rules.js';
+import { statusChipHtml } from './view-helpers.js';
 import { t } from '../i18n/index.js';
 
 const SEC_PER_MIN = 60;
@@ -18,9 +19,7 @@ function trackSection(app, track, open) {
     const p = app.progress.progress;
     const state = trackProgress(p, track);
     const rows = track.problems.map((problem) => {
-        const status = p.solved[problem.id]
-            ? '<span class="chip good">' + esc(t('common.solved')) + '</span>'
-            : p.tries[problem.id] ? '<span class="chip bad">' + esc(t('common.trying')) + '</span>' : '<span class="chip">' + esc(t('common.notSubmitted')) + '</span>';
+        const status = statusChipHtml(problemStatusOf(p, problem.id));
         return '<tr><td class="code-text tier-no">' + problem.id + '</td><td><a href="#p' + problem.id + '">' + esc(problem.title) + '</a></td>' +
             '<td>' + status + '</td><td class="num">' + (p.tries[problem.id] ?? 0) + '</td></tr>';
     }).join('');

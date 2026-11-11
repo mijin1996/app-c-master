@@ -15,10 +15,16 @@ export function styleToggleHtml(current) {
         '</select></label>';
 }
 
-/** 고르면 onPick(style) */
-export function bindStyleToggle(root, onPick) {
-    const select = root.querySelector('[data-style-select]');
-    if (select) {
-        select.onchange = () => onPick(select.value);
+/** 에디터 막대의 자리(slot)에 토글을 그린다. Python 처럼 중괄호가 없는 언어면 비운다. 고르면 onPick(style) */
+export function mountStyleToggle(slot, { language, current, onPick }) {
+    if (!slot) {
+        return;
     }
+    if (!usesBraces(language)) {
+        slot.innerHTML = '';
+        return;
+    }
+    slot.innerHTML = styleToggleHtml(current);
+    const select = slot.querySelector('[data-style-select]');
+    select.onchange = () => onPick(select.value);
 }

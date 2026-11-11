@@ -28,6 +28,24 @@ export const reduceMotion = () => Boolean(window.matchMedia && matchMedia('(pref
 
 let toastTimer = null;
 
+/** 되돌리기 버튼이 있는 알림: ms 안에 누르면 true(되돌림), 아니면 false */
+export function undoToast(message, undoLabel, ms) {
+    return new Promise((resolve) => {
+        const el = document.createElement('div');
+        el.className = 'toast undo-toast';
+        el.setAttribute('role', 'status');
+        el.innerHTML = '<span>' + esc(message) + '</span> <button type="button" class="btn small">' + esc(undoLabel) + '</button>';
+        document.body.appendChild(el);
+        const finish = (undone) => {
+            clearTimeout(timer);
+            el.remove();
+            resolve(undone);
+        };
+        const timer = setTimeout(() => finish(false), ms);
+        el.querySelector('button').onclick = () => finish(true);
+    });
+}
+
 export function toast(message) {
     let el = $('.toast');
     if (!el) {

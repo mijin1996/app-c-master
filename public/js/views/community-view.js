@@ -1,6 +1,6 @@
 // 커뮤니티 화면: 회원이 낸 문제 목록, 문제 내기, 문제 풀기 + 토론(댓글 · 좋아요 · 채택 · 신고)
 // 글자는 사전에서, 지금 언어로. 회원이 쓴 문제 · 댓글은 쓴 언어 그대로 보여 준다.
-import { $, $$, esc, toast } from '../ui/dom.js';
+import { $, $$, esc, toast, undoToast } from '../ui/dom.js';
 import { mountEditor } from '../ui/editor.js';
 import { makeFuseUndoButton } from '../ui/effects.js';
 import { Failure } from '../core/result.js';
@@ -16,6 +16,8 @@ import { translateRunMessage } from '../i18n/run-messages.js';
 import { formatBraces } from '../domain/brace-style.js';
 import { styleToggleHtml, bindStyleToggle, usesBraces } from './style-toggle.js';
 import { likeHeartHtml, bindLikeHeart, likeBadgeHtml } from '../ui/like-heart.js';
+import { swipeRowHtml, bindSwipeRow } from '../ui/swipe-row.js';
+import { rowActions } from '../ui/swipe-row-rules.js';
 
 const listState = { sort: 'new', page: 0 };
 
@@ -92,12 +94,54 @@ export async function renderCommunityList(app) {
         box.innerHTML = '<div class="pad">' + esc(t(listState.page === 0 ? 'comm.emptyFirst' : 'comm.emptyMore')) + '</div>';
         return;
     }
-    box.innerHTML = '<div class="tbl-wrap"><table class="comm-table"><thead><tr><th>' + esc(t('comm.colTitle')) + '</th><th>' + esc(t('comm.colTier')) + '</th><th>' + esc(t('comm.colAuthor')) + '</th><th class="num">' + esc(t('comm.colLikes')) + '</th><th class="num">' + esc(t('comm.colComments')) + '</th><th>' + esc(t('comm.colDate')) + '</th></tr></thead><tbody>' +
-        listed.data.map((p) => '<tr class="' + (p.hidden ? 'is-hidden' : '') + '"><td><a href="#c' + p.id + '">' + esc(p.title) + '</a>' +
-            (p.hidden ? ' <span class="chip bad">' + esc(t('comm.hidden')) + '</span>' : '') + (p.mine ? ' <span class="chip accent">' + esc(t('comm.mine')) + '</span>' : '') + '</td>' +
-            '<td>' + levelBadge(p.difficulty) + '</td><td>' + esc(p.author) + '</td>' +
-            '<td class="num">' + likeBadgeHtml(p.liked, p.likes) + '</td><td class="num">' + p.comments + '</td><td class="muted">' + dateOf(p.createdAt) + '</td></tr>').join('') +
-        '</tbody></table></div>';
+    const actionsOf = (p) => rowActions({ mine: p.mine, canModerate: app.teacher.isTeacher, liked: p.liked, hidden: p.hidden });
+    box.innerHTML = '<p class="muted small swipe-hint">' + esc(t('comm.swipeHint')) + '</p><div class="swipe-list">' +
+        listed.data.map((p) => swipeRowHtml({ id: p.id, href: '#c' + p.id, actions: actionsOf(p), contentHtml: communityRowHtml(p) })).join('') + '</div>';
+    listed.data.forEach((p) => {
+        const row = box.querySelector('.swipe-row[data-id="' + p.id + '"]');
+        bindSwipeRow(row, { actions: actionsOf(p), onAction: (actionId) => runRowActionAsync(app, p, actionId, row) });
+    });
+}
+
+/** 한 줄 안의 글: 제목 · 표시, 난이도 · 쓴 사람 · 날짜, 좋아요(하트 하나 + 숫자) · 댓글 수 */
+function communityRowHtml(p) {
+    return '<span class="sr-main"><b class="sr-title">' + esc(p.title) + '</b>' +
+        (p.hidden ? ' <span class="chip bad">' + esc(t('comm.hidden')) + '</span>' : '') + (p.mine ? ' <span class="chip accent">' + esc(t('comm.mine')) + '</span>' : '') + '</span>' +
+        '<span class="sr-meta">' + levelBadge(p.difficulty) + '<span>' + esc(p.author) + '</span><span class="muted">' + dateOf(p.createdAt) + '</span></span>' +
+        '<span class="sr-stats" data-like-badge>' + likeBadgeHtml(p.liked, p.likes) + '<span class="sr-comments" aria-label="' + esc(t('comm.colComments')) + '">💬 ' + p.comments + '</span></span>';
+}
+
+const DELETE_UNDO_MS = 4000;
+
+async function runRowActionAsync(app, p, actionId, row) {
+    const reload = () => renderCommunityList(app);
+    if (actionId === 'like') {
+        const liked = await app.community.likeAsync('problem', p.id);
+        if (liked instanceof Failure) {
+            toast(detailText(liked));
+            return;
+        }
+        p.liked = liked.data.liked;
+        p.likes = liked.data.likes;
+        reload();
+        return;
+    }
+    if (actionId === 'hide') {
+        const hidden = await app.community.hideAsync('problem', p.id, !p.hidden);
+        toast(hidden instanceof Failure ? detailText(hidden) : t(p.hidden ? 'comm.shown' : 'comm.hiddenDone'));
+        reload();
+        return;
+    }
+    if (actionId === 'delete') {
+        // 밀어서 지우면 4초 동안 되돌릴 수 있다 (그 뒤에 진짜로 지운다)
+        if (await undoToast(t('comm.deleting'), t('fuse.undo'), DELETE_UNDO_MS)) {
+            reload();
+            return;
+        }
+        const deleted = await app.community.deleteAsync(p.id);
+        toast(deleted instanceof Failure ? detailText(deleted) : t('comm.deleted'));
+        reload();
+    }
 }
 
 // ---------- 문제 내기 ----------

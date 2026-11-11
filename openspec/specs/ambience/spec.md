@@ -5,12 +5,18 @@
 
 ## Requirements
 
-### Requirement: Sun-based sky
-The background SHALL follow the real sun altitude for the chosen Korean city: night below -6°, dawn/evening -6° to 0°, morning/sunset 0° to 10°, day above. Day phases SHALL use the light theme and night phases the dark theme. Settings SHALL allow always-day or always-night.
+### Requirement: Letter glitch background (2026-11-12)
+Every screen SHALL sit on a letter-glitch background (a grid of monospace characters where about 5% change letter and fade to a new colour every 50 ms) in the site palette — navy, blue and orange at night, pale blue-grey, blue and orange by day — with an outer vignette in the page colour so content stays readable. Reduced motion SHALL freeze it.
 
-#### Scenario: Winter evening
-- **WHEN** it is 18:00 in Seoul in December
-- **THEN** the night sky with stars, moon phase and lit windows is shown in dark mode
+### Requirement: 24-hour clock and country (2026-11-12)
+The top bar SHALL show only the current time as HH:MM in 24-hour format (no sunrise, sunset or phase text). The time zone SHALL follow this device by default; settings SHALL let the learner pick a country (names shown in the current language). Day/night theme SHALL follow the sun at that country's capital (or 06–18 local time when the device zone is not in the list). Settings SHALL still allow always-day or always-night.
+
+#### Scenario: Picking the US East
+- **WHEN** a learner in Seoul at 04:54 picks United States (New York)
+- **THEN** the clock shows 14:54
+
+### Requirement: One look for every toggle (2026-11-12)
+Every choice list (language, country, background, problem filters, code language, Allman/K&R, community form choices) SHALL open as a button with white text and, on press, a card window that looks like the install guide: a panel with a title and ✕, one card per option, the current option highlighted, and cards stacking as they scroll when there are five or more. Arrow keys, Home/End and Esc SHALL work.
 
 ### Requirement: Pre-rendered piano sounds
 The system SHALL play pre-rendered original piano clips for correct, wrong, quiz right/wrong, clear and evolution, and an optional looping background piece that is off by default.

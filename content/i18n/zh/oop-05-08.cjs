@@ -1,0 +1,120 @@
+// 中文翻译 · 面向对象第 5–8 课。练习代码保持原样，代码输出的韩文原样引用。
+module.exports = {
+    5: {
+        title: '抽象类和接口',
+        tag: '做了一半的设计图 vs 资格证',
+        story: [
+            '抽象类是“做了一半的设计图”。每种动物都有名字和年龄（公共字段），呼吸的方式（公共代码）也一样，所以提前写好，只把“怎么叫”留空，让子类一定要填上。',
+            '接口是“资格证”。有了“游泳资格证”，就是承诺能 Swim()。鸭子、人、机器人都可以各自考游泳资格证。而且可以同时拥有好几张资格证！',
+            '总结一下，抽象类说的是“是什么（is-a）”，接口说的是“能做什么（can-do）”。',
+        ],
+        points: [
+            '抽象类：可以有字段（状态）和公共代码，不能直接 new，父类只有一个（extends）',
+            '接口：行为的约定（契约），可以实现多个（implements / C# 在冒号后用逗号隔开）',
+            '接口没有字段（状态）。Java 8+、C# 8+ 可以有默认实现的方法',
+            'C# 显式接口实现：void IPlayer.Attack() — 名字冲突时分别实现',
+            'C# 的接口名通常以 I 开头（IRepository、IDisposable）',
+        ],
+        exampleTitle: 'C# — 考好几张资格证',
+        exampleCode: 'interface ISwimmer { void Swim(); }\ninterface IFlyer   { void Fly(); }\n\nabstract class Animal\n{\n    public string Name { get; init; }      // 公共状态\n    public void Breathe() => Console.WriteLine("呼~");\n    public abstract void Cry();            // 子类一定要填\n}\n\nclass Duck : Animal, ISwimmer, IFlyer\n{\n    public override void Cry() => Console.WriteLine("嘎");\n    public void Swim() => Console.WriteLine("扑通");\n    public void Fly()  => Console.WriteLine("扑棱");\n}',
+        quiz: [
+            { q: '用代码表示“鸭子、人、机器人都会游泳”，最合适的是？', options: ['三者各自实现 ISwimmer 接口', '三者都继承一个叫 Swimmer 的抽象类', '把三者合成一个类', '做一个 static Swim()'], explain: '鸭子、人、机器人不是“同一种类（is-a）”，但“会游泳（can-do）”是一样的。这时用接口（资格证）正合适。' },
+            { q: '关于抽象类，正确的是？', options: ['可以直接用 new 创建', '一个类可以继承多个', '可以有字段和公共代码', '一个方法都不能有'], explain: '抽象类是做了一半的设计图，可以提前放入名字、年龄这样的字段和公共代码。但不能直接 new，父类也只有一个。' },
+            { q: '一个类可以同时拥有多个的是？', options: ['父类', '接口', '抽象父类', 'sealed 父类'], explain: '资格证（接口）可以考很多张，比如 class Duck : Animal, ISwimmer, IFlyer。父类只有一个！' },
+            { q: 'IPlayer 和 IMonster 都有 Attack() 时，在 C# 中怎样分别实现两个 Attack？', options: ['把 Attack 设为 static', '删掉一个', '改用 Java', '显式接口实现：void IPlayer.Attack() { } / void IMonster.Attack() { }'], explain: '给“作为玩家的攻击”和“作为怪物的攻击”贴上名牌分别实现。调用时像 ((IPlayer)hc).Attack() 这样决定用哪种身份调用。' },
+            { q: '笔记的表格中，属于“is-a 关系、继承公共代码”的是？', options: ['interface — implement', 'static class', 'enum', 'abstract class — extends'], explain: '抽象类通过 extends（继承）给出“A 是 B”和公共代码，接口通过 implement 给出“对不同的类承诺相同的功能”。' },
+        ],
+        practice: [
+            { prompt: '一只同时拥有做了一半的设计图（Animal）和游泳资格证（ISwimmer）的鸭子。请填空。', blankHints: ['不能直接 new 的“做了一半”的类', '没有方法体、留空说“子类来填”的方法', '鸭子考到的资格证的名字'], explain: '抽象类和抽象方法都用 abstract。在唯一的父类后面用逗号加上资格证（接口）。' },
+            { prompt: '分别实现了作为玩家的攻击和作为怪物的攻击。输出两行。', hint: '按顺序看每次用哪种身份（接口）调用（검 = 剑，발톱 = 爪子）', explain: '先用怪物身份调用，所以是 "발톱"（爪子），然后用玩家身份调用，所以是 "검"（剑）。即使名字冲突，显式实现也能让它们分别工作。' },
+        ],
+    },
+    6: {
+        title: '泛型、集合和数据结构',
+        tag: '贴着名牌的盒子们',
+        story: [
+            '泛型就是贴在盒子上的名牌。List<int> 是“只放数字的盒子”，List<string> 是“只放文字的盒子”。有了名牌，放错东西时编译器会马上发现。',
+            '盒子也有很多种。List（数组）可以凭号码牌直接取出。Set 不能放两次同样的东西。Map（C# 中是 Dictionary）是“名字 → 物品”的储物柜，只要知道名字就能马上找到。',
+            '还有排队的方法。Stack 是叠盘子（最后放上的最先出来，LIFO）— 用于撤销（Ctrl+Z）。Queue 是打饭的队伍（先排的先打，FIFO）— 用于按顺序处理。',
+        ],
+        points: [
+            '泛型 = 之后再决定类型的名牌盒子。C# 可以用 List<int>（没有装箱），Java 要用 List<Integer>（int → Integer 包装类）',
+            'Java 编译后会擦除类型信息（Type Erasure），C# 运行时也会记住（Reified）',
+            'List：按号码查找 O(1)，中间插入·删除 O(N) / LinkedList：要按顺序一个个找，但知道位置后插入·删除很快',
+            'HashSet：不重复，查找 O(1) / Dictionary（Map）：按键查找 O(1) — 经常查找时用 Dictionary',
+            'Stack（LIFO）：撤销、递归 / Queue（FIFO）：等待队列 / Heap：快速取出最大·最小的值',
+            'Big O = 数据变多时会变慢多少（时间·空间复杂度）',
+        ],
+        exampleTitle: 'C# — 经常查找时用 Dictionary',
+        exampleCode: 'var items = new Dictionary<string, Item>();\nitems["sword"] = new Item("剑", 10);\n\n// 不用从头到尾翻列表，凭名字直接找到！\nif (items.TryGetValue("sword", out var sword))\n{\n    Console.WriteLine(sword.Name);\n}',
+        quiz: [
+            { q: '像撤销（Ctrl+Z）一样“最先取出最后做的事”的数据结构是？', options: ['Queue (FIFO)', 'Stack (LIFO)', 'HashSet', 'Dictionary'], explain: '叠盘子时会从最上面（最后放的）开始拿。那就是 Stack。Queue 像打饭的队伍，先来的先走。' },
+            { q: '游戏中需要非常频繁地按道具名查找道具。最合适的是？', options: ['把名字作为键放进 Dictionary<string, Item>', '放进 List，每次从头到尾循环查找', '放进 Stack', '全部拼接成一个字符串'], explain: '和笔记里的粉色便签一样！“查找多时用 Dictionary，避免循环”。用名牌（键）直接打开储物柜，所以是 O(1)。' },
+            { q: '运行下面的代码后，set 里有几个元素？（사과 = 苹果，배 = 梨）', options: ['1', '3', '2', '出错'], explain: 'Set 不会放两次同样的东西。"사과" 只留下一个，所以是苹果和梨 2 个。' },
+            { q: 'Java 为什么不能用 List<int>，而要用 List<Integer>？', options: ['因为 int 太大', '因为 Java 编译时会擦除泛型类型（Type Erasure），所以只能装对象', '因为 Integer 更快', '为了模仿 C#'], explain: 'Java 编译后会撕掉名牌，变成“只是装东西（Object）的盒子”。所以 int 要用 Integer 包装纸（包装类）包起来再放。C# 会一直记住名牌，所以 List<int> 可以用。' },
+            { q: '从数组（List）中“按号码（index）直接取出”的 Big O 是？', options: ['O(N)', 'O(N²)', 'O(log N)', 'O(1)'], explain: '数组的格子是挨着排的，说“5 号格！”就能直接过去。数据再多时间也不变，所以是 O(1)。但在中间插入要把后面的全部往后推，所以是 O(N)。' },
+        ],
+        practice: [
+            { prompt: '做一个按道具名直接查到攻击力的储物柜。请填空。', blankHints: ['“名字 → 值”的储物柜（Java 中是 Map）', '“有就给我，没有就 false”的方法'], explain: 'Dictionary 按键直接查找，O(1)！TryGetValue 在没有时不报错而是返回 false，所以很安全。' },
+            { prompt: '把 1、2、3 依次放进叠盘子（Stack）和打饭队伍（Queue），各取出一个。', hint: 'Stack 先出最后放的，Queue 先出最先放的', explain: 'Stack（LIFO）最上面的 3 先出来，Queue（FIFO）最前面的 1 先出来。所以是 "3 1"。' },
+        ],
+    },
+    7: {
+        title: 'Object 规约、record 和字符串',
+        tag: '确认是不是双胞胎',
+        story: [
+            '所有对象的爷爷都是 Object。所以谁都有 ToString()（用文字显示）、Equals()（比较是否相同）、GetHashCode()（储物柜号码）。',
+            '有一条规则：“如果 Equals 说相同，储物柜号码（hashCode）也一定要相同。”因为 HashSet 和 Dictionary 先用储物柜号码找到格子，再在里面用 Equals 确认。号码不同就会翻错格子，找不到！',
+            '字符串（String）一旦做出来就不能改（不可变）。"Hello" + " World" 不是修改原来的文字，而是又做出新的文字。在循环里不停拼接文字会产生一大堆垃圾，所以要用 StringBuilder。',
+        ],
+        points: [
+            '重写 Equals 时，一定要同时重写 GetHashCode（hashCode）',
+            'C# record：自动生成把值相同视为相同的 Equals、GetHashCode、ToString（最适合不可变数据）',
+            'Comparable（IComparable）：自己原有的默认顺序（compareTo）/ Comparator（IComparer）：从外面给出的特别排序标准',
+            'String 不可变 → 大量拼接时用 StringBuilder',
+            '字符串方法：IsEmpty · Split · ToUpper/ToLower · Length · Substring · Replace · Trim · Contains · IndexOf · EndsWith',
+        ],
+        exampleTitle: 'C# — 用一行 record 比较值',
+        exampleCode: 'public record Point(int X, int Y);\n\nvar a = new Point(1, 2);\nvar b = new Point(1, 2);\nConsole.WriteLine(a == b);   // True  （值相同就相同）\nConsole.WriteLine(a);        // Point { X = 1, Y = 2 }\n\nvar c = a with { Y = 9 };    // 复制后只改 Y 的新值',
+        quiz: [
+            { q: '重写了 Equals 却不改 GetHashCode，可能会发生什么？', options: ['没有任何问题', '程序变快', '内容相同的对象在 HashSet 或 Dictionary 中找不到，或者被放进去两次', '字符串会改变'], explain: 'HashSet 先用储物柜号码（hashCode）找格子。号码不同就会去翻别的格子，明明是双胞胎也会说“没有”，或者又另外放进去。' },
+            { q: '在 C# 中，下面代码的结果是？（용 = 龙）', options: ['True', 'False', '编译错误', 'null'], explain: 'record 按“值相同就相同”来比较。名字和力量都一样，所以是 True。如果只是普通 class，它们是不同的东西，所以是 False。' },
+            { q: '在循环里拼接一万次文字时，为什么要用 StringBuilder？', options: ['因为只有 StringBuilder 能用韩文', '因为 String 最多只能 10 个字', '因为 String 不可变，每次 + 都会产生新字符串，浪费大量内存', '没有理由'], explain: 'String 是写上去就不能改的纸。每加一个字都要在新纸上从头重写。StringBuilder 是带橡皮的本子，可以接着往下写。' },
+            { q: '想把学生名单“默认按学号，今天按身高从高到低”排序。“身高从高到低”用什么来做？', options: ['另外做一个 Comparator（IComparer），排序时传进去', '修改 Comparable（compareTo）', '放进 HashSet', '修改 ToString'], explain: '自己原有的默认顺序是 Comparable，每次从外面给的特别标准是 Comparator。保持默认顺序不变，只换上今天的标准。' },
+            { q: '运行下面的代码后，s 的值是？', options: ['CAT', 'Cat', '出错', 'cat'], explain: '字符串不可变，ToUpper() 只是返回新的文字 "CAT"，不会改变 s。要改的话，要像 s = s.ToUpper(); 这样重新赋值。' },
+        ],
+        practice: [
+            { prompt: '用一行做出值相同就视为相同的点（Point），再做一个只改了 Y 的副本。', blankHints: ['自动生成 Equals、GetHashCode、ToString 的词', '“复制一份，只改这个”'], explain: 'record 会自动生成值比较和漂亮的 ToString。with 保持原值不变，做出修改后的新值（不可变！）。' },
+            { prompt: '字符串是不可变的。输出三行。', hint: 'ToUpper 是修改 s，还是给出新的文字？', explain: 'ToUpper 只返回新的文字 "HELLO"，s 仍然是 hello。在 StringBuilder 里接着写 ab + cd 得到 abcd，长度是 4。' },
+        ],
+    },
+    8: {
+        title: '委托、Lambda、LINQ 和事件',
+        tag: '把函数当快递寄出去',
+        story: [
+            '委托是“装函数的盒子”。函数也可以像数字、文字一样装进变量，当快递寄给别的函数。像这样能装进变量的东西叫做一等对象。',
+            'Lambda 是没有名字的短小函数。x => x * 2 的意思是“接收 x，返回它的两倍”。LINQ 接收这样的 lambda 来筛选（Where）、变换（Select）、合并成一个（Aggregate）列表。',
+            '事件是“门铃”。按钮（发送方，Emit）只负责“叮咚！”，不知道谁在听。想听的人（接收方，onEvent）用 += 登记好，铃响时各自做事。用完一定要用 -= 取消，内存才不会泄漏。',
+        ],
+        points: [
+            'Action<T>：没有返回值 / Func<T, TResult>：最后一个是返回类型 / Predicate<T>：返回 bool 的检查',
+            'Lambda：(参数) => 表达式。当场做出的无名函数',
+            'LINQ：Where（筛选）· Select（变换）· Any（有没有一个？）· Aggregate（合并成一个）· ToList（马上执行）',
+            'Where 和 Select 是延迟求值（需要时才计算），ToList 和 Count 是立即求值',
+            'event：外部只能用 += / -=。把发送（Emit）和接收（onEvent）分开，修改、复用、找 bug 都更容易（观察者模式、MVC）',
+        ],
+        exampleTitle: 'C# — LINQ 流水线',
+        exampleCode: 'var numbers = new List<int> { 1, 2, 3, 4, 5, 6 };\n\nvar evenSquares = numbers\n    .Where(n => n % 2 == 0)   // 2, 4, 6\n    .Select(n => n * n)       // 4, 16, 36\n    .ToList();\n\nint sum = numbers.Aggregate(0, (acc, n) => acc + n); // 21\nbool hasBig = numbers.Any(n => n > 5);               // true',
+        quiz: [
+            { q: '下面 LINQ 的结果是？', options: ['10,20', '30,40,50', '3,4,5', '10,20,30,40,50'], explain: 'Where 只留下比 2 大的 3、4、5，Select 把每个乘以 10，得到 30、40、50。先筛选 → 再变换！' },
+            { q: '装“接收一个字符串并显示在屏幕上、没有返回值的函数”的 C# 委托类型是？', options: ['Action<string>', 'Func<string>', 'Predicate<string>', 'Task<string>'], explain: 'Action 是“只做事、不返回”的函数。Func 返回最后一个类型，Predicate 返回真/假。' },
+            { q: '下面代码的结果是？', options: ['4', '24', '10', '0'], explain: 'Aggregate 一个一个滚动着合并。0+1=1，1+2=3，3+3=6，6+4=10。像滚雪人一样越来越大。' },
+            { q: '关于事件，正确的是？', options: ['发送方（Emit）必须知道所有接收方并直接调用', '接收方用 += 登记，用完要用 -= 取消，内存才不会泄漏', '一个事件只能有一个人听', '外部可以用 event = null 随意清除'], explain: '门铃不用知道谁在听，只要“叮咚”就行。听的人要登记（+=），搬走时不取消（-=）就会一直被抓着，造成内存泄漏（笔记里的黄色便签！）。' },
+            { q: '只写了 Where 和 Select 却不调用 ToList()，什么时候才计算？', options: ['在写的那一行马上计算', '程序结束时', '不计算，而是报错', '之后一个个取出结果时（延迟求值）'], explain: 'LINQ 只是先写好“点菜单”，真正取出来时（foreach、ToList、Count）才开始做菜。这叫延迟求值。' },
+        ],
+        practice: [
+            { prompt: '只筛出偶数、再变成平方的 LINQ。请填空。', blankHints: ['只留下符合条件的（筛选）', '把每一个变成别的样子'], explain: '用 Where 筛选 → 用 Select 变换 → 用 ToList 马上计算！别忘了它们以大写字母开头。' },
+            { prompt: '对数字列表用了三种 LINQ。输出三行。', hint: '顺序保持不变。Any 只要有一个就是 True', explain: '把比 2 大的 3、8、6 翻倍 → 6,16,12。有比 7 大的 8，所以是 True。全部相加是 3+8+1+6 = 18。' },
+        ],
+    },
+};

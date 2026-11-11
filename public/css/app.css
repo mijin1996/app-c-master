@@ -249,7 +249,7 @@ tr.me td { background: var(--accent-soft); }
 .heat i { width: 12px; height: 16px; border-radius: 3px; background: var(--line); }
 .heat i.p { background: var(--warn); } .heat i.c { background: var(--good); }
 .filters { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px; border-bottom: 1px solid var(--line); }
-.filters select { width: auto; padding: 6px 10px; }
+.filters { align-items: center; }
 
 /* 모달, 토스트 */
 .modal-bg { position: fixed; inset: 0; background: rgba(10, 14, 30, .55); z-index: 50; display: grid; place-items: center; padding: 16px; }
@@ -381,7 +381,7 @@ a.btn.primary { color: var(--accent-ink); }
 
 /* 언어 고르기 */
 .lang-pick { display: inline-flex; align-items: center; gap: 6px; }
-.lang-pick select { font: inherit; font-size: 13px; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel-2); color: var(--fg); }
+.lang-pick .picker-trigger { font-family: var(--f-body); font-size: 12.5px; padding: 4px 11px; }
 
 /* 커뮤니티 */
 .comm-intro { margin-bottom: 14px; font-size: 14px; }
@@ -465,21 +465,29 @@ main:has(> .visit-bar) { padding-top: 0; }
 .visit-bar .visit-count { font-size: 12px; line-height: 16px; }
 .foot .wrap { display: flex; gap: 14px; justify-content: center; align-items: center; flex-wrap: wrap; }
 .login-foot { display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 12px; }
-/* 언어 버튼 (상단 · 첫 화면): 🌐 + 작은 고르기 칸 */
-.lang-switch { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px 2px 8px; background: var(--panel-2); }
-.lang-switch select { border: 0; background: transparent; color: var(--fg); font: inherit; font-size: 13px; font-weight: 600; padding: 4px 2px; cursor: pointer; }
-.lang-switch select:focus, .lang-switch select:focus-visible { outline: none; animation: none; }
-.lang-switch:focus-within { border-color: var(--focus); animation: bloom 2.4s ease-in-out infinite; }
-/* 코드 스타일 토글 (Allman | K&R) */
-.style-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--panel-2); }
-.style-toggle button { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 12.5px; font-weight: 700; padding: 5px 11px; cursor: pointer; }
-.style-toggle button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
-.style-toggle button:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+/* ---------- 모든 토글(고르기 목록): 버튼은 흰 글자, 목록은 "앱처럼 써 봐요" 카드 창 (ui/picker.js) ---------- */
+.lang-switch { display: inline-flex; align-items: center; gap: 6px; }
 .lang-globe { font-size: 14px; line-height: 1; }
 .login-lang { display: flex; justify-content: flex-end; padding-top: 10px; }
-@media (pointer: coarse) {
-  .lang-switch select { font-size: 16px; } /* 아이폰 확대 막기 */
-}
+/* 원래 select 는 값 보관용으로만 남기고 화면에서는 숨긴다 */
+.picker-native { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; margin: 0; padding: 0; border: 0; }
+.picker-trigger { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid rgba(255, 122, 79, .45); background: #1e2740; color: #ffffff; font: inherit; font-size: 13px; font-weight: 600; line-height: 1.3;
+  cursor: pointer; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06); transition: border-color .15s ease, transform .15s ease; }
+.picker-trigger:hover { border-color: var(--accent); }
+.picker-trigger:focus-visible { outline: none; border-color: var(--focus); animation: bloom 2.4s ease-in-out infinite; }
+.picker-value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.picker-caret { color: rgba(255, 255, 255, .7); font-size: 11px; }
+label.f .picker-trigger { display: flex; width: 100%; justify-content: space-between; border-radius: 10px; padding: 9px 12px; margin-top: 4px; }
+/* 고르기 창: 안내창과 같은 판, 카드가 적으면 높이를 글에 맞춘다 */
+.picker-bg { z-index: 80; }
+.install-guide.picker { height: auto; max-height: min(80vh, 600px); }
+.install-guide.picker.stacked { height: min(80vh, 600px); }
+.pick-card { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 10px; text-align: left; color: var(--fg); font: inherit; font-size: 16px; font-weight: 700; cursor: pointer; }
+.picker:not(.stacked) .pick-card { position: static; margin-bottom: 10px; }
+.pick-card:hover { border-color: var(--accent); }
+.pick-card.on { background: linear-gradient(160deg, var(--panel-2), var(--accent-soft)); border-color: var(--accent); }
+.pick-card:focus-visible { outline: none; border-color: var(--focus); animation: bloom 2.4s ease-in-out infinite; }
 
 /* 로그인 뒤 상단: 배경 · 테두리 없이 📲 만 */
 .install-icon { background: none; border: 0; padding: 4px 6px; margin: 0; font-size: 22px; line-height: 1; cursor: pointer; border-radius: 8px; }
@@ -566,7 +574,7 @@ main:has(> .visit-bar) { padding-top: 0; }
 @media (prefers-reduced-motion: reduce) {
   .fuse-rim rect, .lu-ch, .levelup-overlay { animation-duration: 1ms; }
   .editor-panel:focus-within { animation: none; box-shadow: 0 0 0 1px #2fd47a, 0 0 18px 4px rgba(47, 212, 122, .55); }
-  input:not([type=checkbox]):not([type=radio]):focus, textarea:focus, select:focus, .lang-switch:focus-within {
+  input:not([type=checkbox]):not([type=radio]):focus, textarea:focus, .picker-trigger:focus-visible, .pick-card:focus-visible {
     animation: none; box-shadow: 0 0 0 1px var(--focus), 0 0 14px 3px var(--focus-glow);
   }
 }

@@ -315,6 +315,7 @@ export const MESSAGES_ZH = Object.freeze({
     'prob.aiHint': '向 Cody 要 AI 提示',
     'prob.aiReading': 'Cody 正在阅读你的代码…',
     'editor.aria': '{lang} 代码输入',
+    'picker.title': '选择',
     'style.label': '代码风格',
     'style.allman': 'Allman',
     'style.knr': 'K&R',

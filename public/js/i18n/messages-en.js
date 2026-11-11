@@ -315,6 +315,7 @@ export const MESSAGES_EN = Object.freeze({
     'prob.aiHint': 'Get an AI hint from Cody',
     'prob.aiReading': 'Cody is reading your code…',
     'editor.aria': '{lang} code input',
+    'picker.title': 'Choose',
     'style.label': 'Code style',
     'style.allman': 'Allman',
     'style.knr': 'K&R',

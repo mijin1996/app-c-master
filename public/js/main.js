@@ -24,6 +24,7 @@ import { Sky } from './ui/sky.js';
 import { SoundPlayer } from './ui/sound.js';
 import { dayKey, yesterdayKey, esc, reduceMotion } from './ui/dom.js';
 import { LetterGlitch } from './ui/letter-glitch.js';
+import { installPickers } from './ui/picker.js';
 import { Router } from './router.js';
 import { installClickSpark, installSlingButtons } from './ui/effects.js';
 import { renderLogin } from './views/auth-views.js'; // renderRecover 는 아래에서 함께 가져온다
@@ -163,6 +164,7 @@ async function startAsync() {
     installClickSpark();
     installSlingButtons();
     showInstallGuideIfNeeded(); // 들어올 때마다 "앱처럼 쓰는 법" 안내 (홈 화면 앱으로 열었으면 안 뜸)
+    installPickers(); // 모든 토글을 같은 카드 창 모양으로
     Sky.init(currentSettings);
     new LetterGlitch(document.getElementById('sky'), () => document.documentElement.getAttribute('data-mode') ?? 'night', reduceMotion).start();
     const content = await contentRepository.loadAsync(getLocale());

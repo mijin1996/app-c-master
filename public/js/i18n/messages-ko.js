@@ -316,6 +316,7 @@ export const MESSAGES_KO = Object.freeze({
     'prob.aiHint': '코디에게 AI 힌트 받기',
     'prob.aiReading': '코디가 코드를 읽고 있어요…',
     'editor.aria': '{lang} 코드 입력',
+    'picker.title': '고르기',
     'style.label': '코드 스타일',
     'style.allman': 'Allman',
     'style.knr': 'K&R',

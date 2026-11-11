@@ -5,7 +5,8 @@
 import { esc } from '../ui/dom.js';
 import { cardOf } from '../ui/install-guide-cards.js';
 import { t } from '../i18n/index.js';
-import { platformOf, shouldShowInstallGuide, orderedCards, stackScale, endSpace, Platform, STACK_GAP_PX } from '../ui/install-guide-rules.js';
+import { platformOf, shouldShowInstallGuide, orderedCards, Platform, STACK_GAP_PX } from '../ui/install-guide-rules.js';
+import { bindScrollStack } from '../ui/scroll-stack.js';
 
 const CLOSED_KEY = 'cm-install-guide-closed';
 const STICKY_TOP_PX = 8;       // 첫 카드가 붙는 높이
@@ -43,44 +44,6 @@ function cardHtml(id, index, mine) {
     return '<section class="stack-card ' + id + '" style="top:' + (STICKY_TOP_PX + index * STICKY_STEP_PX) + 'px">' +
         '<div class="stack-head"><b>' + esc(card.title) + '</b>' + (mine ? '<span class="chip accent">' + esc(t('install.mine')) + '</span>' : '') + '</div>' +
         '<ol>' + card.steps.map((s) => '<li>' + s + '</li>').join('') + '</ol></section>';
-}
-
-/** 카드마다 뒤 카드가 얼마나 덮었는지 계산해 살짝 작게 만든다 */
-function bindStack(scroller) {
-    const cards = [...scroller.querySelectorAll('.stack-card')];
-    const update = () => {
-        const box = scroller.getBoundingClientRect();
-        cards.forEach((card, i) => {
-            const rect = card.getBoundingClientRect();
-            let covered = 0;
-            for (let j = i + 1; j < cards.length; j++) {
-                const next = cards[j].getBoundingClientRect();
-                covered += Math.min(1, Math.max(0, (rect.bottom - next.top) / rect.height));
-            }
-            const scale = stackScale(covered);
-            card.style.transform = 'scale(' + scale + ')';
-            card.style.filter = 'brightness(' + (1 - (1 - scale) * 1.5) + ')';
-            card.dataset.stuck = rect.top - box.top <= STICKY_TOP_PX + i * STICKY_STEP_PX + 1 ? '1' : '0';
-        });
-    };
-    // 마지막 카드도 위로 올라가 쌓이게, 끝에 빈 자리를 둔다 (화면 크기 · 글 길이에 맞게 저절로)
-    const spacer = scroller.querySelector('.stack-end');
-    const fitEnd = () => {
-        const last = cards[cards.length - 1];
-        const lastTop = STICKY_TOP_PX + (cards.length - 1) * STICKY_STEP_PX;
-        const padding = parseFloat(getComputedStyle(scroller).paddingBottom) || 0;
-        spacer.style.height = endSpace(scroller.clientHeight - padding, last.offsetHeight, lastTop) + 'px';
-        update();
-    };
-    scroller.addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
-    addEventListener('resize', fitEnd);
-    // 글꼴이 늦게 들어와 카드 높이가 바뀌어도 다시 잰다
-    if (typeof ResizeObserver === 'function') {
-        const watcher = new ResizeObserver(() => fitEnd());
-        cards.forEach((card) => watcher.observe(card));
-        watcher.observe(scroller);
-    }
-    fitEnd();
 }
 
 /** 상단 · 첫 화면의 "홈 화면 추가" 버튼: 이미 닫았어도 언제든 다시 연다 */
@@ -135,7 +98,7 @@ export function showInstallGuideIfNeeded({ force = false } = {}) {
         close();
     };
     const scroller = bg.querySelector('.stack-scroller');
-    bindStack(scroller);
+    bindScrollStack(scroller, (i) => STICKY_TOP_PX + i * STICKY_STEP_PX);
     scroller.scrollTop = 0; // 언제나 첫 카드(내 기기)부터
     bg.querySelector('#ig-close').focus();
     return bg;

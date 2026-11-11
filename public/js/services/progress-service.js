@@ -5,7 +5,7 @@ import { AppError } from '../core/app-error.js';
 import { OOP_LESSONS } from '../domain/oop-curriculum.js';
 import { oopGainedXp, OOP_QUIZ_SIZE } from '../domain/oop-rules.js';
 import { practiceKey, checkPractice, PRACTICE_XP } from '../domain/oop-practice-rules.js';
-import { formatBraces } from '../domain/brace-style.js';
+import { formatBraces, codeStyleFor } from '../domain/brace-style.js';
 import { progressFromDto } from '../mappers/progress-mapper.js';
 import { LanguageId, languageOf, codeKey } from '../domain/languages.js';
 import {
@@ -275,29 +275,39 @@ export class ProgressService {
     /** 저장한 코드, 없으면 처음 틀 (중괄호를 쓰는 언어는 고른 스타일로) */
     codeOf(problemId, languageId = LanguageId.C) {
         const saved = this.#progress.code[codeKey(problemId, languageId)];
-        return saved ?? this.templateOf(languageId);
+        const template = this.templateOf(languageId);
+        // 글자를 하나도 안 쓴 예전 틀(다른 중괄호 모양)이 저장돼 있으면 지금 스타일의 틀로 보여 준다
+        if (saved === undefined || squash(saved) === squash(template)) {
+            return template;
+        }
+        return saved;
     }
 
-    /** 처음 틀: 중괄호 언어(C · C++ · Java)는 설정한 스타일로, Python 은 그대로 */
+    /** 그 언어에 쓰는 스타일 (C · C++ Allman, Java K&R 이 기본, Python 은 PEP 8) */
+    styleOf(languageId = LanguageId.C) {
+        return codeStyleFor(this.#progress.settings.codeStyles, languageId);
+    }
+
+    /** 처음 틀: 그 언어의 스타일로 (PEP 8 은 중괄호를 건드리지 않음) */
     templateOf(languageId = LanguageId.C) {
         const template = languageId === LanguageId.C ? DEFAULT_CODE : languageOf(languageId).template;
-        return languageId === LanguageId.PYTHON ? template : formatBraces(template, this.#progress.settings.codeStyle);
+        return formatBraces(template, this.styleOf(languageId));
     }
 
-    /** 설명 · 퀴즈에 보여 주는 C 예시 코드도 고른 스타일로 (한 사이트 안에서 모양이 같도록) */
-    styleSnippet(code) {
-        return code ? formatBraces(code, this.#progress.settings.codeStyle) : '';
+    /** 설명 · 퀴즈 · 모범 답안 코드도 그 언어의 스타일로 (한 사이트 안에서 모양이 같도록) */
+    styleSnippet(code, languageId = LanguageId.C) {
+        return code ? formatBraces(code, this.styleOf(languageId)) : '';
     }
 
-    /** 코드를 고른 스타일로 바꿔 돌려주고, 고른 스타일을 기억한다 (저장은 부르는 쪽이) */
-    applyCodeStyle(code, style) {
-        this.updateSettings({ codeStyle: style });
-        return formatBraces(code, style);
+    /** 코드를 고른 스타일로 바꿔 돌려주고, 그 언어의 스타일로 기억한다 (저장은 부르는 쪽이) */
+    applyCodeStyle(code, style, languageId = LanguageId.C) {
+        this.updateSettings({ codeStyles: { ...this.#progress.settings.codeStyles, [languageId]: style } });
+        return formatBraces(code, this.styleOf(languageId));
     }
 
     /** 스타일 토글: 지금 코드를 그 스타일로 바꿔 저장하고, 고른 스타일을 기억한다 */
     restyleCode(problemId, code, style, languageId = LanguageId.C) {
-        const styled = this.applyCodeStyle(code, style);
+        const styled = this.applyCodeStyle(code, style, languageId);
         this.saveCode(problemId, styled, languageId);
         return styled;
     }

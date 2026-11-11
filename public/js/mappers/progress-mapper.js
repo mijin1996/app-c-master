@@ -124,6 +124,16 @@ function historyList(raw) {
         .map((h) => ({ id: Number(h.id), res: h.res, at: toCount(h.at) ?? 0 }));
 }
 
+const BRACE_LANGUAGES = ['c', 'cpp', 'java'];
+
+/** 언어별 중괄호 스타일. 예전에 한 가지(codeStyle)만 저장했으면 C · C++ 에 그대로 쓴다 */
+function codeStylesOf(s) {
+    if (isObject(s.codeStyles)) {
+        return Object.fromEntries(BRACE_LANGUAGES.filter((lang) => isCodeStyle(s.codeStyles[lang])).map((lang) => [lang, s.codeStyles[lang]]));
+    }
+    return isCodeStyle(s.codeStyle) ? { c: s.codeStyle, cpp: s.codeStyle } : {};
+}
+
 function settingsOf(raw) {
     const s = isObject(raw) ? raw : {};
     const codyName = typeof s.codyName === 'string' ? s.codyName.trim().slice(0, 8) : '';
@@ -134,7 +144,7 @@ function settingsOf(raw) {
         rankOptIn: typeof s.rankOptIn === 'boolean' ? s.rankOptIn : DEFAULT_SETTINGS.rankOptIn,
         codyName: codyName || DEFAULT_SETTINGS.codyName,
         algoLang: isLanguageId(s.algoLang) ? s.algoLang : DEFAULT_SETTINGS.algoLang,
-        codeStyle: isCodeStyle(s.codeStyle) ? s.codeStyle : DEFAULT_SETTINGS.codeStyle,
+        codeStyles: codeStylesOf(s),
     };
 }
 

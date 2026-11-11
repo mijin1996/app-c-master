@@ -13,6 +13,7 @@ import { Verdict, normalizeOutput } from '../services/judge-service.js';
 import { judgeableOf } from '../services/learning-services.js';
 import { t } from '../i18n/index.js';
 import { mountStyleToggle } from './style-toggle.js';
+import { fenceLanguageOf } from '../domain/brace-style.js';
 import { lineNear, runText } from './view-helpers.js';
 import { likeHeartHtml, bindLikeHeart, likeBadgeHtml } from '../ui/like-heart.js';
 import { swipeRowHtml, bindSwipeRow } from '../ui/swipe-row.js';
@@ -34,11 +35,18 @@ function dateOf(ms) {
     return (d.getMonth() + 1) + '/' + d.getDate();
 }
 
-/** 여러 줄 글을 안전하게 보여 준다. ``` 로 감싼 부분은 코드 상자로 */
-function richText(text) {
-    return String(text).split(/```/).map((part, i) => (i % 2 === 1
-        ? '<pre class="codeblock small">' + esc(part.replace(/^\w*\n/, '')) + '</pre>'
-        : '<p class="pre-wrap">' + esc(part.trim()) + '</p>')).join('');
+/** 여러 줄 글을 안전하게 보여 준다. ``` 로 감싼 부분은 코드 상자로 (C · C++ · Java 는 그 언어 스타일로 맞춰서) */
+function richText(text, progress) {
+    return String(text).split(/```/).map((part, i) => {
+        if (i % 2 === 0) {
+            return '<p class="pre-wrap">' + esc(part.trim()) + '</p>';
+        }
+        const tag = (part.match(/^([\w+]*)\n/) ?? ['', ''])[1];
+        const code = part.slice(tag.length).replace(/^\n/, '');
+        const language = fenceLanguageOf(tag);
+        const shown = progress && language ? progress.styleSnippet(code, language) : code;
+        return '<pre class="codeblock small">' + esc(shown) + '</pre>';
+    }).join('');
 }
 
 function languageOptions(app, selected, features) {
@@ -92,7 +100,7 @@ export async function renderCommunityList(app) {
         return;
     }
     const actionsOf = (p) => rowActions({ mine: p.mine, canModerate: app.teacher.isTeacher, liked: p.liked, hidden: p.hidden });
-    box.innerHTML = '<p class="muted small swipe-hint">' + esc(t('comm.swipeHint')) + '</p><div class="swipe-list">' +
+    box.innerHTML = '<div class="swipe-list">' +
         listed.data.map((p) => swipeRowHtml({ id: p.id, href: '#c' + p.id, actions: actionsOf(p), contentHtml: communityRowHtml(p) })).join('') + '</div>';
     listed.data.forEach((p) => {
         const row = box.querySelector('.swipe-row[data-id="' + p.id + '"]');
@@ -243,7 +251,7 @@ export async function renderCommunityProblem(app, id) {
         '<div class="chips">' + (problem.hidden ? '<span class="chip bad">' + esc(t('comm.hiddenState')) + '</span>' : '') +
         likeHeartHtml({ liked: problem.liked, count: problem.likes, disabled: problem.mine, id: 'like-problem' }) +
         '<span class="chip">' + esc(t('prob.judgeScreen')) + '</span></div></div>' +
-        '<div class="sec"><h3>' + esc(t('prob.statement')) + '</h3>' + richText(problem.body) + '</div>' +
+        '<div class="sec"><h3>' + esc(t('prob.statement')) + '</h3>' + richText(problem.body, app.progress) + '</div>' +
         '<div class="sec"><h3>' + esc(t('prob.input')) + '</h3>' + richText(problem.inputSpec || t('comm.noInputSpec')) + '</div>' +
         '<div class="sec"><h3>' + esc(t('prob.output')) + '</h3>' + richText(problem.outputSpec) + '</div>' +
         '<div class="sec">' + examples.map((test, i) => '<div class="sample"><div><div class="muted label">' + esc(t('prob.sampleInput', { n: i + 1 })) + '</div><pre>' + esc(test.input || t('common.noInput')) + '</pre></div>' +
@@ -260,7 +268,7 @@ export async function renderCommunityProblem(app, id) {
         '</aside></div>' +
         '<section class="panel pad discuss"><h2>' + esc(t('comm.discussion')) + ' <span class="muted small">' + esc(t('comm.countN', { n: problem.comments.length })) + '</span></h2>' +
         '<p class="muted small">' + esc(t('comm.discussNote')) + '</p>' +
-        '<div id="comments">' + commentsHtml(problem) + '</div>' +
+        '<div id="comments">' + commentsHtml(problem, app.progress) + '</div>' +
         '<form id="comment-form" class="comment-form"><textarea class="plain" id="comment-body" maxlength="' + COMMUNITY_LIMITS.commentMax + '" rows="3" placeholder="' + esc(t('comm.commentHint')) + '"></textarea>' +
         '<div class="err" id="c-err" role="alert"></div><button class="btn primary" type="submit">' + esc(t('comm.commentPost')) + '</button></form></section>');
 
@@ -289,12 +297,12 @@ function mountSolveEditor(ctx) {
     const lang = languageOf(ctx.language);
     ctx.editor = mountEditor($('#ed'), ctx.code[ctx.language] ?? ctx.app.progress.templateOf(ctx.language), (code) => {
         ctx.code[ctx.language] = code;
-    }, () => $('#btn-submit').click(), lang.label);
+    }, () => $('#btn-submit').click(), lang.label, () => ctx.app.progress.styleOf(ctx.language));
     mountStyleToggle($('#style-slot'), {
         language: ctx.language,
-        current: ctx.app.progress.progress.settings.codeStyle,
+        current: ctx.app.progress.styleOf(ctx.language),
         onPick: (style) => {
-            const styled = ctx.app.progress.applyCodeStyle(ctx.editor.get(), style);
+            const styled = ctx.app.progress.applyCodeStyle(ctx.editor.get(), style, ctx.language);
             ctx.code[ctx.language] = styled;
             ctx.editor.set(styled);
             toast(t('style.changed', { style: t('style.' + style) }));
@@ -347,14 +355,14 @@ async function submitCommunityAsync(ctx) {
     }
 }
 
-function commentsHtml(problem) {
+function commentsHtml(problem, progress) {
     if (problem.comments.length === 0) {
         return '<div class="muted pad">' + esc(t('comm.noComments')) + '</div>';
     }
     return problem.comments.map((c) => '<article class="comment' + (c.accepted ? ' accepted' : '') + (c.hidden ? ' is-hidden' : '') + '" data-id="' + c.id + '">' +
         '<div class="c-head"><b>' + esc(c.author) + '</b>' + (c.accepted ? ' <span class="chip good">' + esc(t('comm.accepted')) + '</span>' : '') +
         (c.hidden ? ' <span class="chip bad">' + esc(t('comm.hidden')) + '</span>' : '') + ' <span class="muted small">' + dateOf(c.createdAt) + '</span></div>' +
-        '<div class="c-body">' + richText(c.body) + '</div>' +
+        '<div class="c-body">' + richText(c.body, progress) + '</div>' +
         '<div class="c-actions">' + likeHeartHtml({ liked: c.liked, count: c.likes, disabled: c.mine, attr: 'data-like', size: 'small' }) +
         (problem.mine && !c.mine && !c.accepted ? '<button class="btn ghost small" data-accept>' + esc(t('comm.accept')) + '</button>' : '') +
         (!c.mine ? '<button class="btn ghost small" data-report>' + esc(t('comm.report')) + '</button>' : '') +

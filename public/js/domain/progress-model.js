@@ -8,7 +8,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
     rankOptIn: true,    // 친구 랭킹 참여
     codyName: '코디',   // 캐릭터 이름
     algoLang: 'c',      // 알고리즘 문제를 풀 때 고른 언어
-    codeStyle: 'allman', // 중괄호 스타일: allman(기본, { 를 다음 줄) | knr({ 를 같은 줄 끝)
+    codeStyles: Object.freeze({}), // 언어마다 고른 중괄호 스타일 { c, cpp, java }: allman | knr (비면 언어 기본, brace-style.js)
 });
 
 /**

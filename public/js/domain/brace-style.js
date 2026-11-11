@@ -4,11 +4,34 @@
 //           }                               ...
 //                                       }
 // 문자열 · 문자 · 주석 안의 { 와 배열/구조체 초기값({1, 2})은 옮기지 않는다. 기본은 Allman.
-export const CodeStyle = Object.freeze({ ALLMAN: 'allman', KNR: 'knr' });
+// PEP8 은 Python 용 (중괄호 없이 : 뒤 4칸 들여쓰기). 토글로 고를 수 있는 건 Allman · K&R 두 가지.
+export const CodeStyle = Object.freeze({ ALLMAN: 'allman', KNR: 'knr', PEP8: 'pep8' });
 export const DEFAULT_CODE_STYLE = CodeStyle.ALLMAN;
 
+/** 언어마다 많이 쓰는 기본 스타일: C · C++ 는 Allman(이 사이트의 기본), Java 는 K&R(자바 공식 관례), Python 은 PEP 8 */
+export const LANGUAGE_CODE_STYLES = Object.freeze({ c: CodeStyle.ALLMAN, cpp: CodeStyle.ALLMAN, java: CodeStyle.KNR, python: CodeStyle.PEP8 });
+
+/** 토글로 고를 수 있는 중괄호 스타일인지 */
 export function isCodeStyle(value) {
     return value === CodeStyle.ALLMAN || value === CodeStyle.KNR;
+}
+
+/** 그 언어에 쓸 스타일: Python 은 늘 PEP 8, 나머지는 고른 값 → 없으면 언어 기본 */
+export function codeStyleFor(chosen, languageId) {
+    const fallback = LANGUAGE_CODE_STYLES[languageId] ?? DEFAULT_CODE_STYLE;
+    if (fallback === CodeStyle.PEP8) {
+        return CodeStyle.PEP8;
+    }
+    const picked = chosen?.[languageId];
+    return isCodeStyle(picked) ? picked : fallback;
+}
+
+// 글 속 ``` 코드 상자 꼬리표 → 언어. 꼬리표가 없으면 이 사이트 기본인 C 로 본다
+const FENCE_LANGUAGES = Object.freeze({ '': 'c', c: 'c', h: 'c', cpp: 'cpp', 'c++': 'cpp', cc: 'cpp', java: 'java', python: 'python', py: 'python' });
+
+/** 모르는 꼬리표면 null (그 코드는 손대지 않는다) */
+export function fenceLanguageOf(tag) {
+    return FENCE_LANGUAGES[String(tag ?? '').trim().toLowerCase()] ?? null;
 }
 
 // 이 글자로 끝나면 { 는 블록이 아니라 초기값 · 식의 일부라서 옮기지 않는다

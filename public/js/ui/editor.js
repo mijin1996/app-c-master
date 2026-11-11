@@ -1,6 +1,8 @@
 import { t } from '../i18n/index.js';
 // 코드 에디터: 투명한 textarea 위에 색칠한 코드를 겹쳐 보여 준다(줄 번호, 자동 들여쓰기, 탭).
 import { $, esc } from './dom.js';
+import { smartEnter } from './editor-rules.js';
+import { CodeStyle } from '../domain/brace-style.js';
 const KWS = new Set(['if', 'else', 'while', 'do', 'for', 'return', 'break', 'continue', 'switch', 'case', 'default', 'sizeof', 'typedef', 'struct', 'const', 'static', 'enum', 'unsigned', 'signed', 'NULL', 'EOF', 'true', 'false']);
 const TYPES = new Set(['int', 'char', 'double', 'float', 'long', 'short', 'void', 'bool', 'FILE', 'size_t']);
 export function highlight(code) {
@@ -20,7 +22,8 @@ export function highlight(code) {
     }
     return out + esc(code.slice(last)) + '\n';
 }
-export function mountEditor(host, initial, onChange, onSubmit, languageLabel = 'C (C11)') {
+/** styleOf(): 지금 언어의 스타일 ('allman' | 'knr' | 'pep8') — 토글로 바꾸면 바로 따라간다 */
+export function mountEditor(host, initial, onChange, onSubmit, languageLabel = 'C (C11)', styleOf = () => CodeStyle.ALLMAN) {
     host.innerHTML = '<div class="editor"><div class="gutter" aria-hidden="true"></div><div class="edarea"><pre aria-hidden="true"><code></code></pre><textarea id="code-input" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="코드 입력"></textarea></div></div>';
     const ta = $('textarea', host), pre = $('pre', host), code = $('code', host), gut = $('.gutter', host);
     ta.value = initial;
@@ -46,14 +49,14 @@ export function mountEditor(host, initial, onChange, onSubmit, languageLabel = '
             } else if (!e.shiftKey) insert('    ', s, en);
             return;
         }
-        if (e.key === 'Enter' && !e.isComposing) {
+        if (e.key === 'Enter' && !e.isComposing && !(e.ctrlKey || e.metaKey)) {
+            // 언어 스타일대로 { 자리 · 들여쓰기 · 닫는 } 를 맞춘다 (editor-rules.js)
             e.preventDefault();
-            const ls = v.lastIndexOf('\n', s - 1) + 1; const line = v.slice(ls, s);
-            let ind = (line.match(/^[ \t]*/) || [''])[0];
-            const prevCh = v.slice(0, s).trimEnd().slice(-1);
-            if (prevCh === '{') ind += '    ';
-            if (prevCh === '{' && v[en] === '}') { insert('\n' + ind + '\n' + ind.slice(4), s, en); ta.selectionStart = ta.selectionEnd = s + 1 + ind.length; return; }
-            insert('\n' + ind, s, en); return;
+            const r = smartEnter(v, s, en, styleOf());
+            ta.setRangeText(r.text, r.from, r.to, 'end');
+            ta.selectionStart = ta.selectionEnd = r.caret;
+            ta.dispatchEvent(new Event('input'));
+            return;
         }
         if (e.key === '}' && s === en) {
             const ls = v.lastIndexOf('\n', s - 1) + 1; const line = v.slice(ls, s);

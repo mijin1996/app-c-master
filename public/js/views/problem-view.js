@@ -12,7 +12,7 @@ import { LANGUAGES, LanguageId, languageOf, isLanguageAvailable } from '../domai
 import { Verdict, normalizeOutput, testCaseOf } from '../services/judge-service.js';
 import { SOLVE_LIMIT_SEC, XP_BY_LEVEL, LATE_XP_RATE, xpForSolve, isAlgorithmLevel } from '../domain/progress-rules.js';
 import { t } from '../i18n/index.js';
-import { mountStyleToggle, usesBraces } from './style-toggle.js';
+import { mountStyleToggle } from './style-toggle.js';
 import { lineNear, runText } from './view-helpers.js';
 
 const MAX_SAMPLES = 2;
@@ -167,7 +167,7 @@ function renderHints(ctx) {
     if (opened > problem.hints.length) {
         const lang = ctx.language ?? LanguageId.C;
         const raw = problem.solutions?.[lang] ?? problem.solution;
-        const answer = usesBraces(problem.solutions?.[lang] ? lang : LanguageId.C) ? app.progress.styleSnippet(raw) : raw;
+        const answer = app.progress.styleSnippet(raw, problem.solutions?.[lang] ? lang : LanguageId.C);
         const shown = problem.solutions?.[lang] ? languageOf(lang).label : languageOf(LanguageId.C).label;
         html += '<div><div class="muted label">' + esc(t('prob.solutionLabel', { lang: shown })) + '</div><pre class="codeblock">' + highlight(answer) + '</pre></div>';
     } else if (opened < problem.hints.length) {
@@ -264,7 +264,7 @@ function mountCodeEditor(ctx) {
     const { app, problem } = ctx;
     const language = ctx.language;
     ctx.editor = mountEditor($('#ed'), app.progress.codeOf(problem.id, language),
-        (code) => app.progress.saveCode(problem.id, code, language), () => $('#btn-submit').click(), languageOf(language).label);
+        (code) => app.progress.saveCode(problem.id, code, language), () => $('#btn-submit').click(), languageOf(language).label, () => app.progress.styleOf(ctx.language));
     mountCodeStyle(ctx);
 }
 
@@ -272,7 +272,7 @@ function mountCodeEditor(ctx) {
 function mountCodeStyle(ctx) {
     mountStyleToggle($('#style-slot'), {
         language: ctx.language,
-        current: ctx.app.progress.progress.settings.codeStyle,
+        current: ctx.app.progress.styleOf(ctx.language),
         onPick: (style) => {
             ctx.editor.set(ctx.app.progress.restyleCode(ctx.problem.id, ctx.editor.get(), style, ctx.language));
             renderHints(ctx);

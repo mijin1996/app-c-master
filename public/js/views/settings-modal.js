@@ -1,11 +1,32 @@
-// 설정 창: 캐릭터 이름, 닉네임, 도시, 배경, 소리, 랭킹 참여, 복구 코드, 로그아웃 (글자는 사전에서, 지금 언어로)
+// 설정 창: 캐릭터 이름, 닉네임, 나라(시계), 배경, 소리, 랭킹 참여, 복구 코드, 로그아웃 (글자는 사전에서, 지금 언어로)
 import { $, $$, esc, toast } from '../ui/dom.js';
-import { CITIES } from '../ui/sky.js';
+import { AUTO_ZONE, TIME_ZONES } from '../domain/time-zones.js';
+import { getLocale } from '../i18n/index.js';
 import { codyNameOf } from '../ui/cody.js';
 import { Failure } from '../core/result.js';
 import { messageOf } from '../core/app-error.js';
 import { showRecoveryCodeAsync } from './auth-views.js';
 import { t } from '../i18n/index.js';
+
+/** 나라 이름은 브라우저가 지금 언어로 알려 준다 (사전에 나라 이름을 따로 적지 않아도 됨) */
+function zoneLabel(place, regionNames) {
+    const name = regionNames ? regionNames.of(place.region) : place.region;
+    return place.city ? name + ' (' + place.city + ')' : name;
+}
+
+function zoneOptionsHtml(selected) {
+    let regionNames = null;
+    try {
+        regionNames = new Intl.DisplayNames([getLocale()], { type: 'region' });
+    } catch {
+        regionNames = null;
+    }
+    const option = (key, label) => '<option value="' + key + '"' + (key === selected ? ' selected' : '') + '>' + esc(label) + '</option>';
+    const places = Object.entries(TIME_ZONES)
+        .map(([key, place]) => [key, zoneLabel(place, regionNames)])
+        .sort((a, b) => a[1].localeCompare(b[1], getLocale()));
+    return option(AUTO_ZONE, t('settings.timeZoneAuto')) + places.map(([key, label]) => option(key, label)).join('');
+}
 
 export function openSettings(app) {
     const s = app.progress.progress.settings;
@@ -14,8 +35,7 @@ export function openSettings(app) {
     bg.innerHTML = '<div class="panel modal" role="dialog" aria-modal="true" aria-labelledby="set-t"><h2 id="set-t">' + esc(t('settings.title')) + '</h2>' +
         '<div class="row2"><label class="f">' + esc(t('settings.codyName')) + '<input type="text" id="s-cody" maxlength="8" value="' + esc(codyNameOf(s)) + '"></label>' +
         '<label class="f">' + esc(t('settings.nickname')) + '<input type="text" id="s-nick" maxlength="12" value="' + esc(app.auth.user.nickname) + '"></label></div>' +
-        '<div class="row2"><label class="f">' + esc(t('settings.city')) + '<select id="s-city">' +
-        Object.keys(CITIES).map((key) => '<option value="' + key + '"' + (key === s.city ? ' selected' : '') + '>' + esc(t('city.' + key)) + '</option>').join('') + '</select></label>' +
+        '<div class="row2"><label class="f">' + esc(t('settings.timeZone')) + '<select id="s-zone">' + zoneOptionsHtml(s.timeZone) + '</select></label>' +
         '<label class="f">' + esc(t('settings.sky')) + '<select id="s-sky"><option value="auto">' + esc(t('settings.skyAuto')) + '</option><option value="day">' + esc(t('settings.skyDay')) + '</option><option value="night">' + esc(t('settings.skyNight')) + '</option></select></label></div>' +
         '<div class="switch"><span>' + esc(t('settings.sfx')) + '</span><input type="checkbox" id="s-sfx" ' + (s.sfx ? 'checked' : '') + '></div>' +
         '<div class="switch"><span>' + esc(t('settings.rank')) + '</span><input type="checkbox" id="s-rank" ' + (s.rankOptIn ? 'checked' : '') + '></div>' +
@@ -27,7 +47,7 @@ export function openSettings(app) {
     const apply = async () => {
         app.progress.updateSettings({
             codyName: $('#s-cody').value,
-            city: $('#s-city').value,
+            timeZone: $('#s-zone').value,
             sky: $('#s-sky').value,
             sfx: $('#s-sfx').checked,
             rankOptIn: $('#s-rank').checked,

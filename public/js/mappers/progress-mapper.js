@@ -6,6 +6,7 @@ import { isLanguageId } from '../domain/languages.js';
 import { isOopLessonNo, OOP_QUIZ_SIZE } from '../domain/oop-rules.js';
 import { isPracticeKey } from '../domain/oop-practice-rules.js';
 import { isCodeStyle } from '../domain/brace-style.js';
+import { isTimeZoneKey } from '../domain/time-zones.js';
 
 const PROBLEM_ID = /^\d{4}$/;
 const CODE_KEY = /^\d{4}(?::(?:python|cpp|java))?$/; // C는 번호만, 다른 언어는 "번호:언어"
@@ -128,7 +129,7 @@ function settingsOf(raw) {
     const codyName = typeof s.codyName === 'string' ? s.codyName.trim().slice(0, 8) : '';
     return {
         sfx: typeof s.sfx === 'boolean' ? s.sfx : DEFAULT_SETTINGS.sfx,
-        city: typeof s.city === 'string' && /^[a-z]{2,20}$/.test(s.city) ? s.city : DEFAULT_SETTINGS.city,
+        timeZone: isTimeZoneKey(s.timeZone) ? s.timeZone : DEFAULT_SETTINGS.timeZone,
         sky: SKY_MODES.has(s.sky) ? s.sky : DEFAULT_SETTINGS.sky,
         rankOptIn: typeof s.rankOptIn === 'boolean' ? s.rankOptIn : DEFAULT_SETTINGS.rankOptIn,
         codyName: codyName || DEFAULT_SETTINGS.codyName,

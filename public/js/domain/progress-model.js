@@ -3,7 +3,7 @@
 
 export const DEFAULT_SETTINGS = Object.freeze({
     sfx: true,          // 효과음
-    city: 'seoul',      // 해 뜨고 지는 시각 기준 도시
+    timeZone: 'auto',   // 위 시계 · 낮밤 기준 나라 (auto = 이 기기 시간대)
     sky: 'auto',        // auto | day | night
     rankOptIn: true,    // 친구 랭킹 참여
     codyName: '코디',   // 캐릭터 이름

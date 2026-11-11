@@ -54,7 +54,12 @@ body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font
 #app { position: relative; z-index: 1; min-height: 100%; display: flex; flex-direction: column; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
-:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+/* 선택(포커스) 표시는 어디서나 풀이 창과 같은 초록 빛으로 통일한다 */
+:root { --focus: #2fd47a; --focus-glow: rgba(47, 212, 122, .45); --focus-glow-strong: rgba(47, 212, 122, .7); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+input:not([type=checkbox]):not([type=radio]):focus, textarea:not(.edarea textarea):focus, select:focus {
+  outline: none; border-color: var(--focus); animation: bloom 2.4s ease-in-out infinite;
+}
 h1, h2, h3 { font-family: var(--f-display); font-weight: 700; line-height: 1.25; text-wrap: balance; margin: 0; }
 .wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
@@ -437,7 +442,7 @@ a.btn.primary { color: var(--accent-ink); }
 .practice-q { margin: 0; line-height: 1.6; }
 .practice-code input.blank { font: inherit; color: inherit; background: rgba(255, 255, 255, .12); border: 0; border-bottom: 2px solid var(--accent);
   border-radius: 4px 4px 0 0; padding: 0 4px; min-width: 4ch; max-width: 100%; }
-.practice-code input.blank:focus { outline: 2px solid var(--accent); background: rgba(255, 255, 255, .2); }
+.practice-code input.blank:focus { outline: none; border-bottom-color: var(--focus); background: rgba(255, 255, 255, .2); }
 .practice-code input.blank.ok { border-bottom-color: var(--good); }
 .practice-code input.blank.no { border-bottom-color: var(--bad); background: rgba(255, 80, 80, .18); }
 .output-answer { font-family: var(--f-code); font-size: 15px; width: 100%; resize: vertical; padding: 8px 10px; border-radius: 10px;
@@ -463,7 +468,13 @@ main:has(> .visit-bar) { padding-top: 0; }
 /* 언어 버튼 (상단 · 첫 화면): 🌐 + 작은 고르기 칸 */
 .lang-switch { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px 2px 8px; background: var(--panel-2); }
 .lang-switch select { border: 0; background: transparent; color: var(--fg); font: inherit; font-size: 13px; font-weight: 600; padding: 4px 2px; cursor: pointer; }
-.lang-switch select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.lang-switch select:focus, .lang-switch select:focus-visible { outline: none; animation: none; }
+.lang-switch:focus-within { border-color: var(--focus); animation: bloom 2.4s ease-in-out infinite; }
+/* 코드 스타일 토글 (Allman | K&R) */
+.style-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--panel-2); }
+.style-toggle button { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 12.5px; font-weight: 700; padding: 5px 11px; cursor: pointer; }
+.style-toggle button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.style-toggle button:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
 .lang-globe { font-size: 14px; line-height: 1; }
 .login-lang { display: flex; justify-content: flex-end; padding-top: 10px; }
 @media (pointer: coarse) {
@@ -473,7 +484,7 @@ main:has(> .visit-bar) { padding-top: 0; }
 /* 로그인 뒤 상단: 배경 · 테두리 없이 📲 만 */
 .install-icon { background: none; border: 0; padding: 4px 6px; margin: 0; font-size: 22px; line-height: 1; cursor: pointer; border-radius: 8px; }
 .install-icon:hover { transform: translateY(-1px); }
-.install-icon:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.install-icon:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
 /* ---------- 홈 화면 추가 안내창 (쌓이는 카드) ---------- */
 .install-bg { z-index: 70; animation: lu-in .2s ease both; }
@@ -555,4 +566,7 @@ main:has(> .visit-bar) { padding-top: 0; }
 @media (prefers-reduced-motion: reduce) {
   .fuse-rim rect, .lu-ch, .levelup-overlay { animation-duration: 1ms; }
   .editor-panel:focus-within { animation: none; box-shadow: 0 0 0 1px #2fd47a, 0 0 18px 4px rgba(47, 212, 122, .55); }
+  input:not([type=checkbox]):not([type=radio]):focus, textarea:focus, select:focus, .lang-switch:focus-within {
+    animation: none; box-shadow: 0 0 0 1px var(--focus), 0 0 14px 3px var(--focus-glow);
+  }
 }

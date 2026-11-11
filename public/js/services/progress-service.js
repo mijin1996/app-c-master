@@ -284,6 +284,11 @@ export class ProgressService {
         return languageId === LanguageId.PYTHON ? template : formatBraces(template, this.#progress.settings.codeStyle);
     }
 
+    /** 설명 · 퀴즈에 보여 주는 C 예시 코드도 고른 스타일로 (한 사이트 안에서 모양이 같도록) */
+    styleSnippet(code) {
+        return code ? formatBraces(code, this.#progress.settings.codeStyle) : '';
+    }
+
     /** 스타일 토글: 지금 코드를 그 스타일로 바꿔 저장하고, 고른 스타일을 기억한다 */
     restyleCode(problemId, code, style, languageId = LanguageId.C) {
         const styled = formatBraces(code, style);

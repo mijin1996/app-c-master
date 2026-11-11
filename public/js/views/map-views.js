@@ -85,7 +85,7 @@ export function renderChapter(app, chapterNo) {
         '<div class="crumbs"><a href="#map">' + esc(t('nav.map')) + '</a> › ' + esc(t('chapter.crumbStage', { n: chapter.stage + 1 })) + '</div>' +
         '<div class="view-title"><h1>' + esc(t('chapter.title', { n: chapterNo, title: chapter.title })) + '</h1>' + (chapterState(p, c) === 'cleared' ? '<span class="chip good">' + esc(t('common.cleared')) + '</span>' : '') + '</div>' +
         '<div class="ch-layout"><section class="panel concept"><h2 style="font-size:21px">' + esc(t('chapter.concept')) + '</h2><ul>' + chapter.concept.points.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>' +
-        '<div><div class="muted label">' + esc(t('chapter.example')) + '</div><pre class="codeblock">' + highlight(chapter.concept.example) + '</pre></div></section>' +
+        '<div><div class="muted label">' + esc(t('chapter.example')) + '</div><pre class="codeblock">' + highlight(app.progress.styleSnippet(chapter.concept.example)) + '</pre></div></section>' +
         '<div><section class="panel plist"><div style="padding:8px 12px 4px;font-weight:700">' + esc(t('chapter.problems', { solved: solvedCountIn(p, c), total: chapter.problems.length })) + '</div>' + rows + '</section>' +
         '<section class="panel quizbox"><div style="flex:1;min-width:180px"><div style="font-weight:700">' + esc(t('chapter.quiz')) + '</div>' +
         '<div class="muted" style="font-size:13.5px">' + esc(t('chapter.quizRule')) + (best !== undefined ? esc(t('chapter.best', { n: best })) : '') + '</div></div>' +

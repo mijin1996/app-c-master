@@ -36,7 +36,7 @@ export function renderQuiz(app, chapterNo) {
 
         renderShell(app, 'map', crumbs('quiz.crumb') +
             '<section class="panel quiz"><div class="qprog">' + progressBar + '</div><div class="muted" style="font-weight:600">' + esc(t('quiz.progress', { n: chapterNo, i: state.index + 1, total: chapter.quiz.length })) + '</div>' +
-            '<div class="qtext">' + esc(q.q) + '</div>' + (q.code ? '<pre class="codeblock">' + highlight(q.code) + '</pre>' : '') +
+            '<div class="qtext">' + esc(q.q) + '</div>' + (q.code ? '<pre class="codeblock">' + highlight(app.progress.styleSnippet(q.code)) + '</pre>' : '') +
             '<div class="opts">' + options + '</div>' + feedback + '</section>');
 
         $$('.opt').forEach((button) => {

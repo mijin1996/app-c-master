@@ -59,6 +59,22 @@ test('직접 쓴 코드는 스타일 설정과 상관없이 쓴 그대로 돌려
     assert.equal(service.codeOf(1001), 'int main() {\n    return 0;\n}');
 });
 
+test('styleSnippet: 설명 · 퀴즈의 예시 코드도 고른 스타일로 보여 준다', async () => {
+    // Given
+    const allman = await serviceWith();
+    const knr = await serviceWith({ settings: { codeStyle: 'knr' } });
+    const sample = 'int main() {\n    if (1) {\n        return 0;\n    }\n}';
+
+    // When
+    const a = allman.styleSnippet(sample);
+    const k = knr.styleSnippet(sample);
+
+    // Then
+    assert.equal(a, 'int main()\n{\n    if (1)\n    {\n        return 0;\n    }\n}');
+    assert.equal(k, sample);
+    assert.equal(allman.styleSnippet(''), '');
+});
+
 test('restyleCode: 지금 코드를 고른 스타일로 바꿔 저장하고, 설정도 바꾼다', async () => {
     // Given
     const service = await serviceWith({ code: { 1001: 'int main() {\n    return 0;\n}' } });

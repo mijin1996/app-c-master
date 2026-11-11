@@ -10,9 +10,10 @@ const STYLES = Object.freeze([CodeStyle.ALLMAN, CodeStyle.KNR]);
 export const usesBraces = (languageId) => languageId !== LanguageId.PYTHON;
 
 export function styleToggleHtml(current) {
-    return '<label class="lang-pick style-toggle">' + esc(t('style.label')) + ' <select data-style-select aria-label="' + esc(t('style.label')) + '">' +
-        STYLES.map((style) => '<option value="' + style + '"' + (style === current ? ' selected' : '') + ' title="' + esc(t('style.' + style + 'Title')) + '">' + esc(t('style.' + style)) + '</option>').join('') +
-        '</select></label>';
+    // 옆에도 고르기 창 제목에도 "코드 스타일" 글은 보이지 않는다 (Allman · K&R 글자만). 이름은 화면 읽기 프로그램용으로만
+    return '<span class="lang-pick style-toggle"><select data-style-select data-picker-quiet aria-label="' + esc(t('style.label')) + '">' +
+        STYLES.map((style) => '<option value="' + style + '"' + (style === current ? ' selected' : '') + '>' + esc(t('style.' + style)) + '</option>').join('') +
+        '</select></span>';
 }
 
 /** 에디터 막대의 자리(slot)에 토글을 그린다. Python 처럼 중괄호가 없는 언어면 비운다. 고르면 onPick(style) */

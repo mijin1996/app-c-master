@@ -319,8 +319,6 @@ export const MESSAGES_ZH = Object.freeze({
     'style.label': '代码风格',
     'style.allman': 'Allman',
     'style.knr': 'K&R',
-    'style.allmanTitle': 'Allman：左花括号 { 放在下一行',
-    'style.knrTitle': 'K&R：左花括号 { 放在行尾',
     'style.changed': '代码已切换为 {style} 风格。',
 
     // ---------- 算法 ----------
@@ -386,7 +384,6 @@ export const MESSAGES_ZH = Object.freeze({
     'comm.emptyFirst': '还没有题目。要不要出第一道？',
     'comm.emptyMore': '没有更多题目了。',
     'comm.colComments': '评论',
-    'comm.swipeHint': '把一行向左滑动会出现点赞 · 删除按钮。滑到底会直接执行。',
     'comm.hidden': '已隐藏',
     'comm.mine': '我的题',
     'comm.testN': '测试 {n}',

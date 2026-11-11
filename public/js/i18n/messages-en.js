@@ -319,8 +319,6 @@ export const MESSAGES_EN = Object.freeze({
     'style.label': 'Code style',
     'style.allman': 'Allman',
     'style.knr': 'K&R',
-    'style.allmanTitle': 'Allman: opening brace { on the next line',
-    'style.knrTitle': 'K&R: opening brace { at the end of the line',
     'style.changed': 'Code switched to {style} style.',
 
     // ---------- algorithms ----------
@@ -386,7 +384,6 @@ export const MESSAGES_EN = Object.freeze({
     'comm.emptyFirst': 'No problems yet. How about posting the first one?',
     'comm.emptyMore': 'No more problems.',
     'comm.colComments': 'Comments',
-    'comm.swipeHint': 'Swipe a row left for Like or Delete. Swipe all the way to do it right away.',
     'comm.hidden': 'Hidden',
     'comm.mine': 'Mine',
     'comm.testN': 'Test {n}',

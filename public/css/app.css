@@ -54,8 +54,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font
 #app { position: relative; z-index: 1; min-height: 100%; display: flex; flex-direction: column; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
-/* 선택(포커스) 표시는 어디서나 풀이 창과 같은 초록 빛으로 통일한다 */
-:root { --focus: #2fd47a; --focus-glow: rgba(47, 212, 122, .45); --focus-glow-strong: rgba(47, 212, 122, .7); }
+/* 선택(포커스) 표시는 어디서나 사이트 색(주황 → 노랑) 깜빡임으로 통일한다 */
+:root { --focus: #ff8a3d; --focus-2: #ffc94d; --focus-glow: rgba(255, 138, 61, .45); --focus-glow-strong: rgba(255, 201, 77, .7); } /* 고른 칸: 사이트 색(주황 → 노랑)으로 깜빡 */
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 input:not([type=checkbox]):not([type=radio]):focus, textarea:not(.edarea textarea):focus, select:focus {
   outline: none; border-color: var(--focus); animation: bloom 2.4s ease-in-out infinite;
@@ -307,6 +307,9 @@ body { margin: 0; }
 .bad-text { color: var(--bad); }
 .xp-head { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; }
 th.num { text-align: right; }
+/* 목록 · 표 안의 링크는 다른 글과 같은 색 (브라우저 기본 파랑 · 보라 대신). 누를 수 있다는 건 밑줄과 주황 hover 로 */
+td a, .crumbs a, .tbl-wrap a { color: var(--fg); text-decoration: none; }
+td a:hover, .crumbs a:hover, .tbl-wrap a:hover { color: var(--accent); text-decoration: underline; }
 a.btn { text-decoration: none; color: inherit; }
 a.btn.primary { color: var(--accent-ink); }
 
@@ -388,28 +391,27 @@ a.btn.primary { color: var(--accent-ink); }
 .comm-tabs { display: inline-flex; margin-bottom: 12px; }
 .comm-tabs button.on { background: var(--panel); }
 /* 커뮤니티 목록: 밀어서 고르는 줄 (Swipe Row 스타일, 보관함 없음) */
-.swipe-hint { margin: 4px 4px 10px; }
 .swipe-list { display: grid; gap: 10px; padding: 12px; }
-.swipe-row { position: relative; overflow: hidden; border-radius: 16px; min-height: 64px; background: #3f3f46; transition: height .2s ease, opacity .2s ease, margin .2s ease; }
+.swipe-row { position: relative; overflow: hidden; border-radius: 16px; min-height: 64px; background: var(--line); transition: height .2s ease, opacity .2s ease, margin .2s ease; }
 .swipe-row.collapsing { opacity: 0; margin-top: -10px; }
 .swipe-drawer { position: absolute; inset: 0 0 0 auto; display: flex; flex-direction: row-reverse; }
-.swipe-action { width: 80px; border: 0; display: grid; place-content: center; gap: 2px; color: #fff; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; background: #3f3f46; }
+.swipe-action { width: 80px; border: 0; display: grid; place-content: center; gap: 2px; color: #fff; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; background: var(--lock); }
 .swipe-action .swipe-icon { font-size: 18px; line-height: 1; }
 .swipe-action.danger { background: #e5484d; }
 .swipe-action.like { background: #ff4d73; }
 /* 끝까지 밀면 첫 버튼이 줄 전체로 커진다 */
 .swipe-row.committing .swipe-action.primary { width: var(--pulled); transition: width .12s ease; }
 .swipe-front { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr auto; grid-template-areas: "main stats" "meta stats"; gap: 2px 12px; align-items: center;
-  min-height: 64px; padding: 10px 16px; background: #27272a; color: #f5f5f5; text-decoration: none; touch-action: pan-y; user-select: none; -webkit-user-drag: none; border-radius: 16px; }
-.swipe-front:hover { background: #2f2f33; }
+  min-height: 64px; padding: 10px 16px; background: var(--panel-2); color: var(--fg); border: 1px solid var(--line); text-decoration: none; touch-action: pan-y; user-select: none; -webkit-user-drag: none; border-radius: 16px; }
+.swipe-front:hover { border-color: var(--accent); }
 .swipe-front:focus-visible { outline: none; animation: bloom 2.4s ease-in-out infinite; }
 .sr-main { grid-area: main; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sr-title { font-size: 15.5px; }
-.sr-meta { grid-area: meta; display: flex; gap: 10px; align-items: center; font-size: 12.5px; color: #b8b8c0; flex-wrap: wrap; }
+.sr-meta { grid-area: meta; display: flex; gap: 10px; align-items: center; font-size: 12.5px; color: var(--muted); flex-wrap: wrap; }
 .sr-stats { grid-area: stats; display: flex; gap: 12px; align-items: center; font-size: 13.5px; }
-.sr-stats .like-badge { color: #b8b8c0; }
+.sr-stats .like-badge { color: var(--muted); }
 .sr-stats .like-badge.on { color: #ff4d73; }
-.sr-comments { color: #b8b8c0; white-space: nowrap; }
+.sr-comments { color: var(--muted); white-space: nowrap; }
 .undo-toast { display: flex; gap: 10px; align-items: center; }
 @media (prefers-reduced-motion: reduce) { .swipe-row { transition: none; } }
 .pager { display: flex; gap: 10px; align-items: center; justify-content: center; margin: 14px 0; }
@@ -492,9 +494,15 @@ a.btn.primary { color: var(--accent-ink); }
 .output-answer.no { border-color: var(--bad); }
 .practice-card .codeblock { max-width: 100%; }
 /* 아이폰은 16px 보다 작은 입력칸을 누르면 화면을 확대해 버려서, 터치 기기에서는 16px 로 */
+/* 아이폰 사파리는 16px 보다 작은 입력칸을 누르면 화면을 확대하고, 로그인 뒤에도 확대된 채 한쪽으로 치우친다.
+   손가락으로 쓰는 기기에서는 모든 입력칸을 16px 로 두어 확대가 일어나지 않게 한다. */
 @media (pointer: coarse) {
-  .practice-code input.blank, .output-answer { font-size: 16px; }
+  input, textarea, select, .practice-code input.blank, .output-answer { font-size: 16px; }
+  /* 코드 칸은 글자 · 색칠 층 · 줄 번호가 같은 크기여야 줄이 맞는다 */
+  .edarea pre, .edarea textarea, .gutter { font-size: 16px; line-height: 24px; }
 }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { overflow-x: clip; }
 /* ---------- 홈 화면 추가 버튼 (상단 · 첫 화면) ---------- */
 .install-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 13.5px; white-space: nowrap; }
 .login-install { display: flex; justify-content: center; }
@@ -509,7 +517,6 @@ main:has(> .visit-bar) { padding-top: 0; }
 .login-foot { display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 12px; }
 /* ---------- 모든 토글(고르기 목록): 버튼은 흰 글자, 목록은 "앱처럼 써 봐요" 카드 창 (ui/picker.js) ---------- */
 .lang-switch { display: inline-flex; align-items: center; gap: 6px; }
-.lang-globe { font-size: 14px; line-height: 1; }
 .login-lang { display: flex; justify-content: flex-end; padding-top: 10px; }
 /* 원래 select 는 값 보관용으로만 남기고 화면에서는 숨긴다 */
 .picker-native { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; margin: 0; padding: 0; border: 0; }
@@ -605,17 +612,17 @@ label.f .picker-trigger { display: flex; width: 100%; justify-content: space-bet
 @keyframes lu-out { to { opacity: 0; } }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-/* ---------- 문제 풀이 창 초록 빛 (누르면 켜지고, 밖을 누르면 꺼짐) ---------- */
+/* ---------- 문제 풀이 창 주황 · 노랑 빛 (누르면 켜지고, 밖을 누르면 꺼짐) ---------- */
 .editor-panel { transition: border-color .25s ease, box-shadow .25s ease; }
-.editor-panel:focus-within { border-color: #2fd47a; animation: bloom 2.4s ease-in-out infinite; }
+.editor-panel:focus-within { border-color: var(--focus); animation: bloom 2.4s ease-in-out infinite; }
 @keyframes bloom {
-  0%, 100% { box-shadow: 0 0 0 1px #2fd47a, 0 0 14px 2px rgba(47, 212, 122, .45); }
-  50% { box-shadow: 0 0 0 1px #2fd47a, 0 0 26px 6px rgba(47, 212, 122, .7); }
+  0%, 100% { box-shadow: 0 0 0 1px var(--focus), 0 0 14px 2px var(--focus-glow); }
+  50% { box-shadow: 0 0 0 1px var(--focus-2), 0 0 26px 6px var(--focus-glow-strong); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .fuse-rim rect, .lu-ch, .levelup-overlay { animation-duration: 1ms; }
-  .editor-panel:focus-within { animation: none; box-shadow: 0 0 0 1px #2fd47a, 0 0 18px 4px rgba(47, 212, 122, .55); }
+  .editor-panel:focus-within { animation: none; box-shadow: 0 0 0 1px var(--focus), 0 0 18px 4px var(--focus-glow); }
   input:not([type=checkbox]):not([type=radio]):focus, textarea:focus, .picker-trigger:focus-visible, .pick-card:focus-visible {
     animation: none; box-shadow: 0 0 0 1px var(--focus), 0 0 14px 3px var(--focus-glow);
   }

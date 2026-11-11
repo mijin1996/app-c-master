@@ -320,8 +320,6 @@ export const MESSAGES_KO = Object.freeze({
     'style.label': '코드 스타일',
     'style.allman': 'Allman',
     'style.knr': 'K&R',
-    'style.allmanTitle': 'Allman: 여는 중괄호 { 를 다음 줄에',
-    'style.knrTitle': 'K&R: 여는 중괄호 { 를 같은 줄 끝에',
     'style.changed': '코드를 {style} 스타일로 바꿨어요.',
 
     // ---------- 알고리즘 ----------
@@ -387,7 +385,6 @@ export const MESSAGES_KO = Object.freeze({
     'comm.emptyFirst': '아직 올라온 문제가 없어요. 첫 문제를 내 볼까요?',
     'comm.emptyMore': '더 이상 문제가 없어요.',
     'comm.colComments': '댓글',
-    'comm.swipeHint': '줄을 왼쪽으로 밀면 좋아요 · 지우기 버튼이 나와요. 끝까지 밀면 바로 실행돼요.',
     'comm.hidden': '숨김',
     'comm.mine': '내 문제',
     'comm.testN': '테스트 {n}',

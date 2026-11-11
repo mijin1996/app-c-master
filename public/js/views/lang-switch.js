@@ -5,7 +5,7 @@ import { LOCALES, LOCALE_NAMES } from '../i18n/locale-rules.js';
 
 export function langSwitchHtml() {
     const current = getLocale();
-    return '<label class="lang-switch" title="' + esc(t('lang.label')) + '"><span class="lang-globe" aria-hidden="true">🌐</span>' +
+    return '<label class="lang-switch" title="' + esc(t('lang.label')) + '">' +
         '<select data-lang aria-label="' + esc(t('lang.label')) + '">' +
         LOCALES.map((locale) => '<option value="' + locale + '"' + (locale === current ? ' selected' : '') + ' lang="' + locale + '">' + esc(LOCALE_NAMES[locale]) + '</option>').join('') +
         '</select></label>';

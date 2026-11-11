@@ -39,7 +39,8 @@ function openPicker(select) {
     bg.className = 'modal-bg install-bg picker-bg';
     bg.innerHTML = '<div class="panel modal install-guide picker' + (stacked ? ' stacked' : '') + '" role="dialog" aria-modal="true" aria-labelledby="pk-title">' +
         '<button class="iconbtn ig-close" data-pk-close aria-label="' + esc(t('common.close')) + '">✕</button>' +
-        '<div class="ig-top"><h2 id="pk-title">' + esc(title) + '</h2></div>' +
+        // data-picker-quiet: 제목 글을 화면에 안 보이게 (화면 읽기 프로그램에는 그대로 읽힘)
+        '<div class="ig-top"><h2 id="pk-title"' + ('pickerQuiet' in select.dataset ? ' class="sr-only"' : '') + '>' + esc(title) + '</h2></div>' +
         '<div class="stack-scroller" role="listbox" aria-labelledby="pk-title">' +
         options.map((o, i) => '<button type="button" role="option" class="stack-card pick-card' + (o.selected ? ' on' : '') + '" aria-selected="' + o.selected + '" data-value="' + esc(o.value) + '"' +
             (o.lang ? ' lang="' + esc(o.lang) + '"' : '') + (stacked ? ' style="top:' + stickyTopOf(i) + 'px"' : '') + '>' +

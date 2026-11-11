@@ -1,6 +1,8 @@
 // 시간대 하늘: 실제 해의 높이(태양 고도)로 밤·새벽·아침·낮·노을·저녁을 정하고 캔버스에 그린다.
 // 해가 낮이면 화면을 낮 모드, 아니면 밤 모드로 바꾼다(data-mode).
 import { $, pad2, dayKey, reduceMotion } from './dom.js';
+import { t } from '../i18n/index.js';
+// 도시 이름은 사전(city.키)에서, 숫자는 위도 · 경도
 export const CITIES = {
     seoul: ['서울', 37.5665, 126.978], incheon: ['인천', 37.4563, 126.7052], daejeon: ['대전', 36.3504, 127.3845],
     daegu: ['대구', 35.8714, 128.6014], gwangju: ['광주', 35.1595, 126.8526], busan: ['부산', 35.1796, 129.0756],
@@ -52,10 +54,10 @@ function skyColors(alt) {
     const l = SKY_STOPS[SKY_STOPS.length - 1]; return [l[1], l[2]];
 }
 export function phaseName(alt, morning) {
-    if (alt < -6) return '밤';
-    if (alt < 0) return morning ? '새벽' : '저녁';
-    if (alt < 10) return morning ? '아침' : '노을';
-    return '낮';
+    if (alt < -6) return 'night';
+    if (alt < 0) return morning ? 'dawn' : 'evening';
+    if (alt < 10) return morning ? 'morning' : 'sunset';
+    return 'day';
 }
 export const Sky = {
     settings: () => ({ city: 'seoul', sky: 'auto' }),
@@ -95,11 +97,12 @@ export const Sky = {
         const phase = phaseName(alt, morning);
         const ref = new Date('2000-01-06T18:14:00Z').getTime();
         const moon = (((now.getTime() - ref) / 86400000) % 29.530588 + 29.530588) % 29.530588 / 29.530588;
-        this.info = { alt, az: st.sky === 'auto' ? p.az : 180, phase, city: c[0], times, moon, ha: p.ha };
-        const mode = (phase === '낮' || phase === '아침' || phase === '노을') ? 'day' : 'night';
+        const cityKey = CITIES[st.city] ? st.city : 'seoul';
+        this.info = { alt, az: st.sky === 'auto' ? p.az : 180, phase, city: t('city.' + cityKey), times, moon, ha: p.ha };
+        const mode = (phase === 'day' || phase === 'morning' || phase === 'sunset') ? 'day' : 'night';
         document.documentElement.setAttribute('data-mode', mode);
         const chip = $('.skychip');
-        if (chip) chip.textContent = c[0] + ' · ' + phase + ' · 일출 ' + fmtHM(times.rise) + ' / 일몰 ' + fmtHM(times.set);
+        if (chip) chip.textContent = t('sky.chip', { city: this.info.city, phase: t('sky.phase.' + phase), rise: fmtHM(times.rise), set: fmtHM(times.set) });
         this.draw(performance.now() / 1000);
     },
     draw(t) {

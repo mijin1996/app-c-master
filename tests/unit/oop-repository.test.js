@@ -55,6 +55,29 @@ test('인터넷이 끊기면 NETWORK, 파일이 없으면 NOT_FOUND 실패', asy
     assert.equal(b.error, AppError.NOT_FOUND);
 });
 
+test('언어별로 따로 받는다: en 파일을 부르고, en 파일이 없으면(404) 한국어 원본으로 대신한다', async () => {
+    // Given
+    const asked = [];
+    const source = {
+        async loadOopAsync(locale) {
+            asked.push(locale);
+            return locale === 'zh' ? { status: 404, body: null } : { status: 200, body: { lessons: [{ ...lessonDto, title: locale === 'en' ? 'Classes' : '클래스' }] } };
+        },
+    };
+    const repo = new ContentRepository(source);
+
+    // When
+    const en = await repo.loadOopAsync('en');
+    const zh = await repo.loadOopAsync('zh');
+    const enAgain = await repo.loadOopAsync('en');
+
+    // Then
+    assert.equal(en.data[0].title, 'Classes');
+    assert.equal(zh.data[0].title, '클래스');
+    assert.equal(enAgain.data, en.data);
+    assert.deepEqual(asked, ['en', 'zh', 'ko']);
+});
+
 test('실패했거나 비어 있으면 기억하지 않고, 다음에 다시 받아 온다', async () => {
     // Given
     const source = new FakeContentSource([new TypeError('x'), { status: 200, body: { lessons: [lessonDto] } }]);

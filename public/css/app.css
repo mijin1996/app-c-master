@@ -460,6 +460,16 @@ main:has(> .visit-bar) { padding-top: 0; }
 .visit-bar .visit-count { font-size: 12px; line-height: 16px; }
 .foot .wrap { display: flex; gap: 14px; justify-content: center; align-items: center; flex-wrap: wrap; }
 .login-foot { display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+/* 언어 버튼 (상단 · 첫 화면): 🌐 + 작은 고르기 칸 */
+.lang-switch { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px 2px 8px; background: var(--panel-2); }
+.lang-switch select { border: 0; background: transparent; color: var(--fg); font: inherit; font-size: 13px; font-weight: 600; padding: 4px 2px; cursor: pointer; }
+.lang-switch select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.lang-globe { font-size: 14px; line-height: 1; }
+.login-lang { display: flex; justify-content: flex-end; padding-top: 10px; }
+@media (pointer: coarse) {
+  .lang-switch select { font-size: 16px; } /* 아이폰 확대 막기 */
+}
+
 /* 로그인 뒤 상단: 배경 · 테두리 없이 📲 만 */
 .install-icon { background: none; border: 0; padding: 4px 6px; margin: 0; font-size: 22px; line-height: 1; cursor: pointer; border-radius: 8px; }
 .install-icon:hover { transform: translateY(-1px); }

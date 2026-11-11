@@ -1,6 +1,7 @@
 // 화면 효과 모음. Vue Bits의 Click Spark · Rotating Text · Sling Button · Fuse Button을 보고 느낌만 참고해
 // 바닐라 자바스크립트로 새로 만들었다 (원본 코드를 옮기지 않음). 움직임 줄이기 설정을 켠 사람에게는 조용히 보여 준다.
 import { launchOf, burstParticles, springKeyframes } from './sling-math.js';
+import { t } from '../i18n/index.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 // 새총 효과를 받는 버튼들 (화면 클릭 불꽃은 이 위에서는 쉬어요)
@@ -220,7 +221,7 @@ function burnFuse(button, durationMs, className = 'fuse-rim') {
  * @param {HTMLButtonElement} button
  * @param {{ undoMs?: number, armedLabel?: string, onCommitAsync: () => Promise<void> }} options
  */
-export function makeFuseUndoButton(button, { undoMs = 4000, armedLabel = '되돌리기', onCommitAsync }) {
+export function makeFuseUndoButton(button, { undoMs = 4000, armedLabel = t('fuse.undo'), onCommitAsync }) {
     const idleLabel = button.textContent;
     let timer = null;
     let svg = null;
@@ -268,14 +269,14 @@ const ROTATE_STEP_MS = 900;
 const LETTER_STAGGER_MS = 35;
 
 /** 화면 전체를 잠깐 덮고, 글자가 한 자씩 아래에서 올라오며 문구가 차례로 바뀐다 */
-export function showLevelUpOverlay(level, words = ['LEVEL UP!', '레벨 ' + level, '계속 가 볼까요?']) {
+export function showLevelUpOverlay(level, words = ['LEVEL UP!', t('levelup.level', { n: level }), t('levelup.keepGoing')]) {
     document.querySelector('.levelup-overlay')?.remove();
     const overlay = document.createElement('div');
     overlay.className = 'levelup-overlay';
     overlay.setAttribute('role', 'status');
     overlay.setAttribute('aria-live', 'polite');
-    overlay.innerHTML = '<div class="lu-box"><span class="lu-label">레벨 업</span><span class="lu-word" aria-hidden="true"></span>' +
-        '<span class="sr-only">레벨 ' + level + '이 되었어요</span></div>';
+    overlay.innerHTML = '<div class="lu-box"><span class="lu-label">' + t('levelup.label') + '</span><span class="lu-word" aria-hidden="true"></span>' +
+        '<span class="sr-only">' + t('levelup.sr', { n: level }) + '</span></div>';
     document.body.appendChild(overlay);
     const wordBox = overlay.querySelector('.lu-word');
     const calm = reduceMotion();

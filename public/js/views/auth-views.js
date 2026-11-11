@@ -1,32 +1,34 @@
-// 로그인 · 회원가입 · 계정 찾기 화면, 복구 코드 안내 창
+// 로그인 · 회원가입 · 계정 찾기 화면, 복구 코드 안내 창 (글자는 모두 사전에서, 지금 언어로)
 import { $, esc, toast } from '../ui/dom.js';
-import { cody } from '../ui/cody.js';
+import { cody, formName } from '../ui/cody.js';
 import { TechText } from '../ui/tech-text.js';
 import { CREDITS_BUTTON, bindCreditsButtons } from './credits-modal.js';
 import { INSTALL_BUTTON, bindInstallButtons } from './install-guide.js';
 import { VISIT_SLOT, bindVisits } from './visit-count.js';
+import { langSwitchHtml, bindLangSwitch } from './lang-switch.js';
 import { Failure } from '../core/result.js';
 import { messageOf } from '../core/app-error.js';
 import { FORM_NAMES } from '../domain/progress-rules.js';
+import { t } from '../i18n/index.js';
 
 export function showRecoveryCodeAsync(code, isNew) {
     return new Promise((resolve) => {
         const bg = document.createElement('div');
         bg.className = 'modal-bg';
-        bg.innerHTML = '<div class="panel modal" role="dialog" aria-modal="true" aria-labelledby="rec-t"><h2 id="rec-t">복구 코드를 적어 두세요</h2>' +
-            '<p style="margin:0">' + (isNew ? '가입을 축하해요! ' : '') + '아이디나 비밀번호를 잊었을 때 이 코드로 찾을 수 있어요. <b>지금 한 번만 보여요.</b></p>' +
+        bg.innerHTML = '<div class="panel modal" role="dialog" aria-modal="true" aria-labelledby="rec-t"><h2 id="rec-t">' + esc(t('auth.recoveryTitle')) + '</h2>' +
+            '<p style="margin:0">' + (isNew ? esc(t('auth.recoveryWelcome')) : '') + t('auth.recoveryDesc') + '</p>' +
             '<div class="rec-code" id="rec-code">' + esc(code) + '</div>' +
-            '<button class="btn" id="rec-copy">복사하기</button>' +
-            '<label class="check"><input type="checkbox" id="rec-ok"> 코드를 안전한 곳에 적어 두었어요</label>' +
-            '<button class="btn primary" id="rec-done" disabled>계속하기</button></div>';
+            '<button class="btn" id="rec-copy">' + esc(t('auth.recoveryCopy')) + '</button>' +
+            '<label class="check"><input type="checkbox" id="rec-ok"> ' + esc(t('auth.recoveryCheck')) + '</label>' +
+            '<button class="btn primary" id="rec-done" disabled>' + esc(t('auth.recoveryContinue')) + '</button></div>';
         document.body.appendChild(bg);
         $('#rec-copy').onclick = () => {
-            navigator.clipboard.writeText(code).then(() => toast('복구 코드를 복사했어요.'), () => {
+            navigator.clipboard.writeText(code).then(() => toast(t('auth.recoveryCopied')), () => {
                 const range = document.createRange();
                 range.selectNodeContents($('#rec-code'));
                 getSelection().removeAllRanges();
                 getSelection().addRange(range);
-                toast('코드를 선택했어요. Ctrl+C로 복사하세요.');
+                toast(t('auth.recoverySelected'));
             });
         };
         $('#rec-ok').onchange = (e) => {
@@ -40,33 +42,36 @@ export function showRecoveryCodeAsync(code, isNew) {
 }
 
 export function renderLogin(app, mode = 'login') {
-    document.title = 'c-master · C언어 학습';
+    document.title = t('app.title');
+    app.loginMode = mode; // 언어를 바꿔 다시 그릴 때 같은 탭으로
     const isJoin = mode === 'join';
     app.root.innerHTML =
         '<div class="wrap login">' +
+        '<div class="login-lang">' + langSwitchHtml() + '</div>' +
         '<section class="tech-hero"><div class="tech" id="tech"></div>' +
-        '<p class="tech-tag">C언어, 한 문제씩 풀다 보면 <b>C 마스터</b>까지</p></section>' +
+        '<p class="tech-tag">' + t('auth.heroTag') + '</p></section>' +
         '<div class="panel login-card">' +
-        '<div class="login-hero"><h1>코디와 <b>C언어</b></h1><p class="muted" style="margin:0">교재 18단원을 따라 문제를 풀고 퀴즈를 통과하며, 코딩 친구 코디와 함께 C언어 마스터가 되어 보세요.</p>' +
+        '<div class="login-hero"><h1>' + t('auth.heroTitle') + '</h1><p class="muted" style="margin:0">' + esc(t('auth.heroDesc')) + '</p>' +
         '<div class="cody-big">' + cody(0, 'happy') + '</div>' +
-        '<div class="muted" style="font-size:12.5px;font-weight:600">단계를 클리어할 때마다 코디가 자라요</div>' +
-        '<div class="evo-strip">' + FORM_NAMES.map((name, i) => '<div>' + cody(i, 'normal') + '<span>' + name + '</span></div>').join('') + '</div></div>' +
+        '<div class="muted" style="font-size:12.5px;font-weight:600">' + esc(t('auth.grows')) + '</div>' +
+        '<div class="evo-strip">' + FORM_NAMES.map((_, i) => '<div>' + cody(i, 'normal') + '<span>' + esc(formName(i)) + '</span></div>').join('') + '</div></div>' +
         '<form class="login-form" id="login-form" novalidate>' +
-        '<div class="tabs" role="tablist"><button type="button" role="tab" id="tab-login" class="' + (isJoin ? '' : 'on') + '" aria-selected="' + !isJoin + '">로그인</button>' +
-        '<button type="button" role="tab" id="tab-join" class="' + (isJoin ? 'on' : '') + '" aria-selected="' + isJoin + '">회원가입</button></div>' +
-        '<label class="f">아이디<input type="text" id="f-user" autocomplete="username" placeholder="영문 소문자·숫자 3~16자" maxlength="16"></label>' +
-        (isJoin ? '<label class="f">닉네임<input type="text" id="f-nick" placeholder="랭킹에 보일 이름 (비우면 아이디)" maxlength="12"></label>' : '') +
-        '<label class="f">비밀번호<input type="password" id="f-pw" autocomplete="' + (isJoin ? 'new-password' : 'current-password') + '" placeholder="4자 이상"></label>' +
+        '<div class="tabs" role="tablist"><button type="button" role="tab" id="tab-login" class="' + (isJoin ? '' : 'on') + '" aria-selected="' + !isJoin + '">' + esc(t('auth.login')) + '</button>' +
+        '<button type="button" role="tab" id="tab-join" class="' + (isJoin ? 'on' : '') + '" aria-selected="' + isJoin + '">' + esc(t('auth.join')) + '</button></div>' +
+        '<label class="f">' + esc(t('auth.username')) + '<input type="text" id="f-user" autocomplete="username" placeholder="' + esc(t('auth.usernameHint')) + '" maxlength="16"></label>' +
+        (isJoin ? '<label class="f">' + esc(t('auth.nickname')) + '<input type="text" id="f-nick" placeholder="' + esc(t('auth.nicknameHint')) + '" maxlength="12"></label>' : '') +
+        '<label class="f">' + esc(t('auth.password')) + '<input type="password" id="f-pw" autocomplete="' + (isJoin ? 'new-password' : 'current-password') + '" placeholder="' + esc(t('auth.passwordHint')) + '"></label>' +
         '<div class="err" id="f-err" role="alert"></div>' +
-        (isJoin ? '' : '<button type="button" class="btn ghost link-btn" id="f-forgot">아이디·비밀번호를 잊었어요</button>') +
-        '<button class="btn primary" id="f-submit" type="submit">' + (isJoin ? '가입하고 시작하기' : '로그인') + '</button>' +
-        (isJoin ? '' : '<div class="login-install">' + INSTALL_BUTTON + '</div>') + // 회원가입 탭에서는 안 보여 준다
-        '</form></div><div class="login-foot">' + CREDITS_BUTTON + VISIT_SLOT + '</div></div>';
+        (isJoin ? '' : '<button type="button" class="btn ghost link-btn" id="f-forgot">' + esc(t('auth.forgot')) + '</button>') +
+        '<button class="btn primary" id="f-submit" type="submit">' + esc(isJoin ? t('auth.joinSubmit') : t('auth.login')) + '</button>' +
+        (isJoin ? '' : '<div class="login-install">' + INSTALL_BUTTON() + '</div>') + // 회원가입 탭에서는 안 보여 준다
+        '</form></div><div class="login-foot">' + CREDITS_BUTTON() + VISIT_SLOT + '</div></div>';
 
     new TechText($('#tech'), { text: 'c-master' }).mountAsync();
     bindCreditsButtons(app.root);
     bindInstallButtons(app.root);
     bindVisits(app.visits, app.root);
+    bindLangSwitch(app, app.root);
 
     $('#tab-login').onclick = () => renderLogin(app, 'login');
     $('#tab-join').onclick = () => renderLogin(app, 'join');
@@ -97,18 +102,21 @@ export function renderLogin(app, mode = 'login') {
 
 export function renderRecover(app, mode, presetUser = '', presetCode = '') {
     const isReset = mode === 'pw';
-    app.root.innerHTML = '<div class="wrap login"><form class="panel login-form" id="rc-form" novalidate style="width:min(460px,100%)">' +
-        '<h1 style="font-size:28px">계정 찾기</h1>' +
-        '<div class="tabs" role="tablist"><button type="button" role="tab" id="rt-id" class="' + (isReset ? '' : 'on') + '" aria-selected="' + !isReset + '">아이디 찾기</button>' +
-        '<button type="button" role="tab" id="rt-pw" class="' + (isReset ? 'on' : '') + '" aria-selected="' + isReset + '">비밀번호 재설정</button></div>' +
-        (isReset ? '<label class="f">아이디<input type="text" id="r-user" autocomplete="username" maxlength="16" value="' + esc(presetUser) + '"></label>' : '') +
-        '<label class="f">복구 코드<input type="text" id="r-code" placeholder="예: K7Q2-9MXA" maxlength="12" autocomplete="off" class="code-input" value="' + esc(presetCode) + '"></label>' +
-        (isReset ? '<label class="f">새 비밀번호<input type="password" id="r-pw" autocomplete="new-password" placeholder="4자 이상"></label>' : '') +
+    app.loginMode = 'recover-' + mode;
+    app.root.innerHTML = '<div class="wrap login"><div class="login-lang">' + langSwitchHtml() + '</div>' +
+        '<form class="panel login-form" id="rc-form" novalidate style="width:min(460px,100%)">' +
+        '<h1 style="font-size:28px">' + esc(t('auth.findTitle')) + '</h1>' +
+        '<div class="tabs" role="tablist"><button type="button" role="tab" id="rt-id" class="' + (isReset ? '' : 'on') + '" aria-selected="' + !isReset + '">' + esc(t('auth.findId')) + '</button>' +
+        '<button type="button" role="tab" id="rt-pw" class="' + (isReset ? 'on' : '') + '" aria-selected="' + isReset + '">' + esc(t('auth.resetPw')) + '</button></div>' +
+        (isReset ? '<label class="f">' + esc(t('auth.username')) + '<input type="text" id="r-user" autocomplete="username" maxlength="16" value="' + esc(presetUser) + '"></label>' : '') +
+        '<label class="f">' + esc(t('auth.recoveryCode')) + '<input type="text" id="r-code" placeholder="' + esc(t('auth.recoveryCodeHint')) + '" maxlength="12" autocomplete="off" class="code-input" value="' + esc(presetCode) + '"></label>' +
+        (isReset ? '<label class="f">' + esc(t('auth.newPassword')) + '<input type="password" id="r-pw" autocomplete="new-password" placeholder="' + esc(t('auth.passwordHint')) + '"></label>' : '') +
         '<div class="err" id="r-err" role="alert"></div><div id="r-msg"></div>' +
-        '<button class="btn primary" type="submit" id="r-submit">' + (isReset ? '비밀번호 바꾸기' : '아이디 찾기') + '</button>' +
-        '<button type="button" class="btn ghost" id="r-back">로그인으로 돌아가기</button>' +
-        '<div class="notice">복구 코드는 가입할 때 받은 8자리 코드예요. 코드도 잃어버렸다면 새 아이디로 가입해야 해요.</div></form></div>';
+        '<button class="btn primary" type="submit" id="r-submit">' + esc(isReset ? t('auth.changePw') : t('auth.findId')) + '</button>' +
+        '<button type="button" class="btn ghost" id="r-back">' + esc(t('auth.backToLogin')) + '</button>' +
+        '<div class="notice">' + esc(t('auth.findNotice')) + '</div></form></div>';
 
+    bindLangSwitch(app, app.root);
     $('#rt-id').onclick = () => renderRecover(app, 'id');
     $('#rt-pw').onclick = () => renderRecover(app, 'pw');
     $('#r-back').onclick = () => renderLogin(app, 'login');
@@ -128,8 +136,8 @@ export function renderRecover(app, mode, presetUser = '', presetCode = '') {
                 return;
             }
             $('#r-err').textContent = '';
-            $('#r-msg').innerHTML = '<div class="result ac"><div>찾은 아이디: <b class="code-text">' + found.data.map(esc).join(', ') + '</b></div>' +
-                '<button type="button" class="btn" id="r-to-pw">이 아이디의 비밀번호 바꾸기</button></div>';
+            $('#r-msg').innerHTML = '<div class="result ac"><div>' + esc(t('auth.foundIds')) + '<b class="code-text">' + found.data.map(esc).join(', ') + '</b></div>' +
+                '<button type="button" class="btn" id="r-to-pw">' + esc(t('auth.changeThisPw')) + '</button></div>';
             $('#r-to-pw').onclick = () => renderRecover(app, 'pw', found.data[0], code);
             return;
         }
@@ -140,7 +148,7 @@ export function renderRecover(app, mode, presetUser = '', presetCode = '') {
             showError(reset.error);
             return;
         }
-        toast('비밀번호를 바꿨어요. 쓰던 복구 코드는 이제 쓸 수 없어요.');
+        toast(t('auth.pwChanged'));
         await showRecoveryCodeAsync(reset.data.recoveryCode, false);
         renderLogin(app, 'login');
         $('#f-user').value = username.trim().toLowerCase();

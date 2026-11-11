@@ -25,7 +25,7 @@ import { SoundPlayer } from './ui/sound.js';
 import { dayKey, yesterdayKey, esc } from './ui/dom.js';
 import { Router } from './router.js';
 import { installClickSpark, installSlingButtons } from './ui/effects.js';
-import { renderLogin } from './views/auth-views.js';
+import { renderLogin } from './views/auth-views.js'; // renderRecover 는 아래에서 함께 가져온다
 import { renderMap, renderChapter } from './views/map-views.js';
 import { renderProblem } from './views/problem-view.js';
 import { renderQuiz } from './views/quiz-view.js';
@@ -36,6 +36,11 @@ import { renderOopList, renderOopLesson } from './views/oop-view.js';
 import { showInstallGuideIfNeeded } from './views/install-guide.js';
 import { renderCommunityList, renderCommunityNew, renderCommunityProblem } from './views/community-view.js';
 import { indexContent } from './mappers/content-mapper.js';
+import { renderRecover } from './views/auth-views.js';
+import { t, initLocale, changeLocale, getLocale } from './i18n/index.js';
+
+// 언어는 화면을 그리기 전에 정한다 (저장한 언어 → 브라우저 언어 → 한국어)
+initLocale();
 
 // ---------- 조립 ----------
 const http = new FetchHttpClient();
@@ -111,6 +116,28 @@ app.afterLoginAsync = async () => {
     app.router.refresh();
 };
 
+/** 언어 버튼: 그 언어의 콘텐츠를 받고(한 번만), 지금 화면을 그 자리에서 다시 그린다. 진도 · 코드는 그대로 */
+app.setLocaleAsync = async (locale) => {
+    if (!changeLocale(locale)) {
+        return;
+    }
+    const content = await contentRepository.loadAsync(getLocale());
+    if (!(content instanceof Failure)) {
+        app.content = indexContent(content.data);
+    }
+    app.sky.compute();
+    if (auth.user && progress.progress) {
+        app.router.refresh();
+        return;
+    }
+    const mode = app.loginMode ?? 'login';
+    if (mode.startsWith('recover-')) {
+        renderRecover(app, mode.slice('recover-'.length));
+    } else {
+        renderLogin(app, mode);
+    }
+};
+
 app.logoutAsync = async () => {
     await auth.logoutAsync();
     progress.clear();
@@ -136,9 +163,9 @@ async function startAsync() {
     installSlingButtons();
     showInstallGuideIfNeeded(); // 들어올 때마다 "앱처럼 쓰는 법" 안내 (홈 화면 앱으로 열었으면 안 뜸)
     Sky.init(document.getElementById('sky'), currentSettings);
-    const content = await contentRepository.loadAsync();
+    const content = await contentRepository.loadAsync(getLocale());
     if (content instanceof Failure) {
-        app.root.innerHTML = '<div class="wrap login"><div class="panel pad">문제를 불러오지 못했어요. ' + esc(messageOf(content.error)) + ' 새로고침해 주세요.</div></div>';
+        app.root.innerHTML = '<div class="wrap login"><div class="panel pad">' + esc(t('app.loadFailed', { msg: messageOf(content.error) })) + '</div></div>';
         return;
     }
     app.content = indexContent(content.data);

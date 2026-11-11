@@ -1,6 +1,6 @@
 // Repository(화면 쪽): DataSource의 응답을 Result로 바꾸고, DTO를 Model로 바꾼다.
 // 통신 실패(예외)는 여기서 NETWORK / TIMEOUT 실패로 바꿔서 위로 예외가 새지 않게 한다.
-import { Result, Success } from '../core/result.js';
+import { Result, Success, Failure } from '../core/result.js';
 import { AppError } from '../core/app-error.js';
 import { progressFromDto, progressToDto } from '../mappers/progress-mapper.js';
 import { contentFromDto } from '../mappers/content-mapper.js';
@@ -183,36 +183,39 @@ export class VisitRepository {
     }
 }
 
+const BASE_LOCALE = 'ko';
+
 export class ContentRepository {
     #source;
-    #cache = null;
-    #oopCache = null;
+    #cache = new Map();     // 언어 → 단원 · 알고리즘
+    #oopCache = new Map();  // 언어 → 객체지향 레슨
 
     constructor(source) {
         this.#source = source;
     }
 
-    /** 단원과 알고리즘 단계. 한 번 불러오면 기억해 둔다 */
-    async loadAsync() {
-        if (this.#cache) {
-            return Result.success(this.#cache);
+    /** 그 언어 파일을 받고, 없으면(404) 한국어 원본으로 대신한다. 성공한 것은 언어별로 기억 */
+    async #loadAsync(cache, locale, fetchAsync, pick, accept) {
+        if (cache.has(locale)) {
+            return Result.success(cache.get(locale));
         }
-        const loaded = await call(() => this.#source.loadAsync(), contentFromDto);
-        if (loaded instanceof Success) {
-            this.#cache = loaded.data;
+        let loaded = await call(() => fetchAsync(locale), pick);
+        if (loaded instanceof Failure && loaded.error === AppError.NOT_FOUND && locale !== BASE_LOCALE) {
+            loaded = await this.#loadAsync(cache, BASE_LOCALE, fetchAsync, pick, accept);
+        }
+        if (loaded instanceof Success && accept(loaded.data)) {
+            cache.set(locale, loaded.data);
         }
         return loaded;
     }
 
-    /** 객체지향 레슨 목록. 처음 객체지향 화면을 열 때 한 번만 받는다 */
-    async loadOopAsync() {
-        if (this.#oopCache) {
-            return Result.success(this.#oopCache);
-        }
-        const loaded = await call(() => this.#source.loadOopAsync(), oopLessonsFromDto);
-        if (loaded instanceof Success && loaded.data.length > 0) {
-            this.#oopCache = loaded.data;
-        }
-        return loaded;
+    /** 단원과 알고리즘 단계 (지금 언어) */
+    loadAsync(locale = BASE_LOCALE) {
+        return this.#loadAsync(this.#cache, locale, (l) => this.#source.loadAsync(l), contentFromDto, () => true);
+    }
+
+    /** 객체지향 레슨 목록 (지금 언어). 처음 객체지향 화면을 열 때 받는다 */
+    loadOopAsync(locale = BASE_LOCALE) {
+        return this.#loadAsync(this.#oopCache, locale, (l) => this.#source.loadOopAsync(l), oopLessonsFromDto, (lessons) => lessons.length > 0);
     }
 }

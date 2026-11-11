@@ -1,4 +1,5 @@
 // 커뮤니티 규칙: 글자 수 제한, 문제 형식 검사, 자동 숨김 기준. 화면(미리 검사)과 서버(진짜 검사)가 함께 쓴다.
+// 실패 message 는 문장이 아니라 사전 키(rule.*)라서, 받는 화면이 그 사람의 언어로 바꿔 보여 준다 ({자리}는 COMMUNITY_LIMITS).
 
 export const COMMUNITY_LIMITS = Object.freeze({
     titleMax: 40,
@@ -32,27 +33,27 @@ export function validateProblemDraft(draft) {
     const inputSpec = textOf(draft?.inputSpec).trim();
     const outputSpec = textOf(draft?.outputSpec).trim();
     if (title.length < 2 || title.length > L.titleMax) {
-        return { ok: false, field: 'title', message: '제목은 2~' + L.titleMax + '자로 써 주세요.' };
+        return { ok: false, field: 'title', message: 'rule.title' };
     }
     if (body.length < 10 || body.length > L.bodyMax) {
-        return { ok: false, field: 'body', message: '문제 설명은 10~' + L.bodyMax + '자로 써 주세요.' };
+        return { ok: false, field: 'body', message: 'rule.body' };
     }
     if (inputSpec.length > L.specMax || outputSpec.length < 1 || outputSpec.length > L.specMax) {
-        return { ok: false, field: 'spec', message: '입력·출력 설명을 ' + L.specMax + '자 안으로 써 주세요. 출력 설명은 꼭 필요해요.' };
+        return { ok: false, field: 'spec', message: 'rule.spec' };
     }
     const rawTests = Array.isArray(draft?.tests) ? draft.tests : [];
     if (rawTests.length < L.testsMin || rawTests.length > L.testsMax) {
-        return { ok: false, field: 'tests', message: '테스트는 ' + L.testsMin + '~' + L.testsMax + '개 넣어 주세요.' };
+        return { ok: false, field: 'tests', message: 'rule.testsCount' };
     }
     const tests = [];
     for (const raw of rawTests) {
         const input = textOf(raw?.input);
         const output = textOf(raw?.output);
         if (input.length > L.testInputMax || output.length > L.testOutputMax) {
-            return { ok: false, field: 'tests', message: '테스트 하나의 입력·출력은 ' + L.testInputMax + '자까지예요.' };
+            return { ok: false, field: 'tests', message: 'rule.testSize' };
         }
         if (output.trim() === '') {
-            return { ok: false, field: 'tests', message: '모든 테스트에 정답 출력을 넣어 주세요.' };
+            return { ok: false, field: 'tests', message: 'rule.testOutput' };
         }
         tests.push({ input, output });
     }
@@ -64,7 +65,7 @@ export function validateProblemDraft(draft) {
 export function validateComment(text) {
     const body = textOf(text).trim();
     if (body.length < 1 || body.length > COMMUNITY_LIMITS.commentMax) {
-        return { ok: false, message: '댓글은 1~' + COMMUNITY_LIMITS.commentMax + '자로 써 주세요.' };
+        return { ok: false, message: 'rule.comment' };
     }
     return { ok: true, body };
 }

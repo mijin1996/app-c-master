@@ -1,3 +1,5 @@
+import { t } from '../i18n/index.js';
+
 // 앱에서 생길 수 있는 실패 종류 (enum 역할)
 // 데이터 실패는 Repository가, 규칙 실패는 Service가 만든다.
 export const AppError = Object.freeze({
@@ -52,6 +54,9 @@ export const AppErrorMessage = Object.freeze({
     TOO_MANY_POSTS: '너무 많이 올렸어요. 잠시 뒤에 다시 올려 주세요.',
 });
 
+/** 지금 고른 언어의 쉬운 문장 (서버에서는 언어를 고르지 않으니 늘 한국어) */
 export function messageOf(error) {
-    return AppErrorMessage[error] ?? '알 수 없는 문제가 생겼어요.';
+    const key = 'error.' + error;
+    const text = t(key);
+    return text === key ? t('error.unknown') : text;
 }

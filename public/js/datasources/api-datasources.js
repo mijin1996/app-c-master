@@ -139,6 +139,9 @@ export class CodeRunApiDataSource {
 }
 
 /** 문제·퀴즈 콘텐츠 (정적 파일) */
+// 파일 이름에 붙는 언어 꼬리표 (모르는 값이면 한국어 원본)
+const suffixOf = (locale) => (locale === 'en' || locale === 'zh' ? '.' + locale : '');
+
 export class StaticContentDataSource {
     #http;
 
@@ -146,12 +149,13 @@ export class StaticContentDataSource {
         this.#http = http;
     }
 
-    loadAsync() {
-        return this.#http.requestAsync('GET', '/data/content.json');
+    /** 한국어는 content.json, 다른 언어는 content.en.json 처럼 (tools/build-i18n.mjs 가 만든 파일) */
+    loadAsync(locale = 'ko') {
+        return this.#http.requestAsync('GET', '/data/content' + suffixOf(locale) + '.json');
     }
 
-    /** 객체지향 레슨 · 퀴즈 (tools/build-oop.mjs 가 만든 파일) */
-    loadOopAsync() {
-        return this.#http.requestAsync('GET', '/data/oop.json');
+    /** 객체지향 레슨 · 퀴즈 (tools/build-oop.mjs · build-i18n.mjs 가 만든 파일) */
+    loadOopAsync(locale = 'ko') {
+        return this.#http.requestAsync('GET', '/data/oop' + suffixOf(locale) + '.json');
     }
 }

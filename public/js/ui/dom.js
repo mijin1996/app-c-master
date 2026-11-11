@@ -1,4 +1,5 @@
 // 화면 공용 도우미: DOM 찾기, HTML 이스케이프, 토스트, 날짜
+import { t } from '../i18n/index.js';
 export const $ = (selector, root = document) => root.querySelector(selector);
 export const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
@@ -44,7 +45,7 @@ export function toast(message) {
 }
 
 export function copyText(text) {
-    return navigator.clipboard.writeText(text).then(() => toast('복사했어요.'), () => toast('복사가 안 돼요. 직접 선택해서 복사하세요.'));
+    return navigator.clipboard.writeText(text).then(() => toast(t('common.copied')), () => toast(t('common.copyFailed')));
 }
 
 export const ICON = {

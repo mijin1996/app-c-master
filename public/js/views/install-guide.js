@@ -3,7 +3,8 @@
 // ✕ 버튼을 눌러야만 닫힌다 (실수로 바깥을 눌러 놓치지 않게). 닫으면 이번 방문(탭)에서는 다시 안 뜨고,
 // 홈 화면 앱으로 열었으면 처음부터 안 뜬다. "📲 홈 화면 추가" 버튼(openInstallGuide)으로는 언제든 다시 연다.
 import { esc } from '../ui/dom.js';
-import { INSTALL_CARDS } from '../ui/install-guide-cards.js';
+import { cardOf } from '../ui/install-guide-cards.js';
+import { t } from '../i18n/index.js';
 import { platformOf, shouldShowInstallGuide, orderedCards, stackScale, endSpace, Platform, STACK_GAP_PX } from '../ui/install-guide-rules.js';
 
 const CLOSED_KEY = 'cm-install-guide-closed';
@@ -38,9 +39,9 @@ addEventListener('beforeinstallprompt', (event) => {
 });
 
 function cardHtml(id, index, mine) {
-    const card = INSTALL_CARDS[id];
+    const card = cardOf(id, t);
     return '<section class="stack-card ' + id + '" style="top:' + (STICKY_TOP_PX + index * STICKY_STEP_PX) + 'px">' +
-        '<div class="stack-head"><b>' + esc(card.title) + '</b>' + (mine ? '<span class="chip accent">내 기기</span>' : '') + '</div>' +
+        '<div class="stack-head"><b>' + esc(card.title) + '</b>' + (mine ? '<span class="chip accent">' + esc(t('install.mine')) + '</span>' : '') + '</div>' +
         '<ol>' + card.steps.map((s) => '<li>' + s + '</li>').join('') + '</ol></section>';
 }
 
@@ -87,9 +88,10 @@ export function openInstallGuide() {
     return showInstallGuideIfNeeded({ force: true });
 }
 
-export const INSTALL_BUTTON = '<button type="button" class="btn install-btn" data-install aria-label="홈 화면 추가 방법 보기"><span aria-hidden="true">📲</span><span class="install-label">홈 화면 추가</span></button>';
+// 버튼은 그릴 때마다 지금 언어로 만든다 (함수)
+export const INSTALL_BUTTON = () => '<button type="button" class="btn install-btn" data-install aria-label="' + esc(t('install.buttonAria')) + '"><span aria-hidden="true">📲</span><span class="install-label">' + esc(t('install.button')) + '</span></button>';
 // 로그인한 뒤 상단에는 배경 없이 📲 만 (이름은 화면 읽기 프로그램 · 마우스 올리면 보임)
-export const INSTALL_ICON_BUTTON = '<button type="button" class="install-icon" data-install aria-label="홈 화면 추가 방법 보기" title="홈 화면 추가">📲</button>';
+export const INSTALL_ICON_BUTTON = () => '<button type="button" class="install-icon" data-install aria-label="' + esc(t('install.buttonAria')) + '" title="' + esc(t('install.button')) + '">📲</button>';
 
 export function bindInstallButtons(root = document) {
     root.querySelectorAll('[data-install]').forEach((button) => {
@@ -110,11 +112,11 @@ export function showInstallGuideIfNeeded({ force = false } = {}) {
     const bg = document.createElement('div');
     bg.className = 'modal-bg install-bg';
     bg.innerHTML = '<div class="panel modal install-guide" role="dialog" aria-modal="true" aria-labelledby="ig-title">' +
-        '<button class="iconbtn ig-close" id="ig-close" aria-label="닫기">✕</button>' +
-        '<div class="ig-top"><h2 id="ig-title">c-master 를 앱처럼 써 봐요</h2></div>' +
-        '<div class="stack-scroller" tabindex="0" aria-label="설치 안내" style="--stack-gap:' + STACK_GAP_PX + 'px">' + ids.map((id, i) => cardHtml(id, i, mineOf(id))).join('') +
+        '<button class="iconbtn ig-close" id="ig-close" aria-label="' + esc(t('install.close')) + '">✕</button>' +
+        '<div class="ig-top"><h2 id="ig-title">' + esc(t('install.title')) + '</h2></div>' +
+        '<div class="stack-scroller" tabindex="0" aria-label="' + esc(t('install.title')) + '" style="--stack-gap:' + STACK_GAP_PX + 'px">' + ids.map((id, i) => cardHtml(id, i, mineOf(id))).join('') +
         '<div class="stack-end" aria-hidden="true"></div></div>' +
-        '<div class="row-buttons"' + (deferredPrompt ? '' : ' hidden') + ' id="ig-install-row"><button class="btn primary" id="ig-install">지금 바로 설치하기</button></div></div>';
+        '<div class="row-buttons"' + (deferredPrompt ? '' : ' hidden') + ' id="ig-install-row"><button class="btn primary" id="ig-install">' + esc(t('install.now')) + '</button></div></div>';
     document.body.appendChild(bg);
 
     const close = () => {

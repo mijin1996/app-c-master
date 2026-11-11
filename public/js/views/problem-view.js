@@ -1,6 +1,6 @@
-// 문제 풀이 화면: 문제(정올·백준 형식) + 풀이 타임라인 + 에디터 + 채점 결과
+// 문제 풀이 화면: 문제(정올·백준 형식) + 풀이 타임라인 + 에디터 + 채점 결과 (글자는 사전 · 지금 언어의 콘텐츠에서)
 import { $, $$, esc, fmtMS, copyText, toast } from '../ui/dom.js';
-import { cody, CHEER, pick } from '../ui/cody.js';
+import { cody, codyNameOf, CHEER, pick } from '../ui/cody.js';
 import { mountEditor, highlight } from '../ui/editor.js';
 import { Failure } from '../core/result.js';
 import { messageOf } from '../core/app-error.js';
@@ -10,11 +10,22 @@ import { starStr } from './map-views.js';
 import { SOLUTION_MIN_REAL_TRIES } from '../services/progress-service.js';
 import { LANGUAGES, LanguageId, languageOf, isLanguageAvailable } from '../domain/languages.js';
 import { Verdict, normalizeOutput, testCaseOf } from '../services/judge-service.js';
-import { SOLVE_LIMIT_SEC, XP_BY_LEVEL, LATE_XP_RATE, xpForSolve, isAlgorithmLevel, TIER_NAMES } from '../domain/progress-rules.js';
+import { SOLVE_LIMIT_SEC, XP_BY_LEVEL, LATE_XP_RATE, xpForSolve, isAlgorithmLevel } from '../domain/progress-rules.js';
+import { t, getLocale } from '../i18n/index.js';
+import { translateRunMessage } from '../i18n/run-messages.js';
 
 const MAX_SAMPLES = 2;
 const WARN_RATIO = 0.8;
-const ERROR_TITLE = Object.freeze({ compile: '컴파일 에러', runtime: '런타임 에러', tle: '시간 초과', ole: '출력 초과' });
+const SEC_PER_MIN = 60;
+const ERROR_KINDS = new Set(['compile', 'runtime', 'tle', 'ole']);
+
+const runText = (message) => esc(translateRunMessage(message, getLocale()));
+const lineNear = (line) => (line ? t('common.lineNear', { line }) : '');
+const verdictLabel = (verdict) => esc(t('verdict.' + verdict));
+
+function copyButton(text) {
+    return '<button class="copy" data-copy="' + esc(text) + '">' + esc(t('common.copy')) + '</button>';
+}
 
 function sampleBlocks(problem) {
     let html = '';
@@ -24,12 +35,13 @@ function sampleBlocks(problem) {
         const fileIn = Object.keys(testCase.files)[0];
         const inText = fileIn ? testCase.files[fileIn] : testCase.input;
         const hasInput = Boolean(fileIn) || testCase.input !== '';
+        const inLabel = fileIn ? t('prob.sampleFile', { file: fileIn, n: i + 1 }) : t('prob.sampleInput', { n: i + 1 });
         const inBlock = hasInput
-            ? '<div class="sample"><div class="lab">' + (fileIn ? '예제 ' + fileIn + ' ' : '예제 입력 ') + (i + 1) + '<button class="copy" data-copy="' + esc(inText) + '">복사</button></div><pre>' + esc(inText) + '</pre></div>'
-            : '<div class="sample"><div class="lab">예제 입력 ' + (i + 1) + '</div><pre class="muted">(입력 없음)</pre></div>';
-        const outLabel = problem.judge ? '예제 ' + problem.judge + ' ' + (i + 1) : '예제 출력 ' + (i + 1);
+            ? '<div class="sample"><div class="lab">' + esc(inLabel) + copyButton(inText) + '</div><pre>' + esc(inText) + '</pre></div>'
+            : '<div class="sample"><div class="lab">' + esc(t('prob.sampleInput', { n: i + 1 })) + '</div><pre class="muted">' + esc(t('common.noInput')) + '</pre></div>';
+        const outLabel = problem.judge ? t('prob.sampleFile', { file: problem.judge, n: i + 1 }) : t('prob.sampleOutput', { n: i + 1 });
         html += '<div class="samples">' + inBlock +
-            '<div class="sample"><div class="lab">' + outLabel + '<button class="copy" data-copy="' + esc(expected.out) + '">복사</button></div><pre>' + esc(expected.out) + '</pre></div></div>';
+            '<div class="sample"><div class="lab">' + esc(outLabel) + copyButton(expected.out) + '</div><pre>' + esc(expected.out) + '</pre></div></div>';
         if (!hasInput) {
             break; // 입력이 없는 문제는 예제가 하나뿐
         }
@@ -55,25 +67,25 @@ export function renderProblem(app, problemId) {
         crumbsOf(app, problem) +
         '<div class="prob"><article class="panel statement">' +
         '<div><div class="muted code-text" style="font-size:13px">#' + problem.id + ' · ' + levelBadge(problem.level) + '</div><h1>' + esc(problem.title) + '</h1>' +
-        '<div class="chips">' + (solved ? '<span class="chip good">정답</span>' : '') +
-        '<span class="chip" title="제출한 프로그램이 한 번 실행될 때 3초 안에 끝나야 해요">실행 시간 3초</span>' +
-        '<span class="chip">' + (problem.judge ? '채점: ' + problem.judge : '채점: 화면 출력') + '</span></div></div>' +
+        '<div class="chips">' + (solved ? '<span class="chip good">' + esc(t('common.solved')) + '</span>' : '') +
+        '<span class="chip" title="' + esc(t('prob.timeLimitTitle')) + '">' + esc(t('prob.timeLimit')) + '</span>' +
+        '<span class="chip">' + esc(problem.judge ? t('prob.judgeFile', { file: problem.judge }) : t('prob.judgeScreen')) + '</span></div></div>' +
         '<div class="timeline" id="timeline"></div>' +
-        '<div class="sec"><h3>문제</h3><p>' + esc(problem.desc) + '</p></div>' +
-        '<div class="sec"><h3>입력</h3><p>' + esc(problem.input) + '</p></div>' +
-        '<div class="sec"><h3>출력</h3><p>' + esc(problem.output) + '</p></div>' +
+        '<div class="sec"><h3>' + esc(t('prob.statement')) + '</h3><p>' + esc(problem.desc) + '</p></div>' +
+        '<div class="sec"><h3>' + esc(t('prob.input')) + '</h3><p>' + esc(problem.input) + '</p></div>' +
+        '<div class="sec"><h3>' + esc(t('prob.output')) + '</h3><p>' + esc(problem.output) + '</p></div>' +
         '<div class="sec">' + sampleBlocks(problem) + '</div>' +
-        '<div class="sec"><h3>힌트</h3><div class="hints" id="hints"></div></div>' +
+        '<div class="sec"><h3>' + esc(t('prob.hints')) + '</h3><div class="hints" id="hints"></div></div>' +
         '</article><aside class="side">' +
         '<section class="panel editor-panel"><div class="ed-bar">' + languagePicker(problem, language, features) +
-        '<button class="btn ghost" id="btn-reset" title="처음 코드로 되돌리기">초기화</button>' +
-        '<button class="btn" id="btn-run">예제 실행</button>' +
-        '<button class="btn primary" id="btn-submit" title="Ctrl+Enter">제출</button></div>' +
+        '<button class="btn ghost" id="btn-reset" title="' + esc(t('prob.resetTitle')) + '">' + esc(t('prob.reset')) + '</button>' +
+        '<button class="btn" id="btn-run">' + esc(t('prob.runSample')) + '</button>' +
+        '<button class="btn primary" id="btn-submit" title="Ctrl+Enter">' + esc(t('prob.submit')) + '</button></div>' +
         '<div id="ed"></div></section>' +
-        '<section class="panel run-panel"><details class="custom"><summary>직접 입력해서 실행해 보기</summary>' +
-        '<label class="f" style="margin-top:8px">키보드 입력<textarea class="plain" id="custom-in"></textarea></label>' +
-        (fileName ? '<label class="f" style="margin-top:8px">' + fileName + ' 내용<textarea class="plain" id="custom-file">' + esc(firstCase.files[fileName]) + '</textarea></label>' : '') +
-        '<button class="btn" id="btn-custom" style="margin-top:8px">이 입력으로 실행</button></details>' +
+        '<section class="panel run-panel"><details class="custom"><summary>' + esc(t('prob.customSummary')) + '</summary>' +
+        '<label class="f" style="margin-top:8px">' + esc(t('prob.customInput')) + '<textarea class="plain" id="custom-in"></textarea></label>' +
+        (fileName ? '<label class="f" style="margin-top:8px">' + esc(t('prob.customFile', { file: fileName })) + '<textarea class="plain" id="custom-file">' + esc(firstCase.files[fileName]) + '</textarea></label>' : '') +
+        '<button class="btn" id="btn-custom" style="margin-top:8px">' + esc(t('prob.customRun')) + '</button></details>' +
         '<div id="result" aria-live="polite"></div></section></aside></div>');
 
     const ctx = { app, problem, editor: null, fileName, language };
@@ -92,7 +104,7 @@ export function renderProblem(app, problemId) {
     });
     $('#btn-reset').onclick = () => {
         ctx.editor.set(languageOf(ctx.language).template);
-        toast('처음 코드로 되돌렸어요.');
+        toast(t('prob.resetDone'));
     };
     $('#btn-run').onclick = () => runSampleAsync(ctx);
     $('#btn-custom').onclick = () => runCustomAsync(ctx);
@@ -121,24 +133,25 @@ function renderTimeline({ app, problem }) {
         return;
     }
     const limit = SOLVE_LIMIT_SEC[problem.level];
+    const min = limit / SEC_PER_MIN;
     const spent = app.progress.spentOf(problem.id);
     const solved = app.progress.progress.solved[problem.id];
     const full = XP_BY_LEVEL[problem.level];
     const lateXp = xpForSolve(problem.level, Infinity);
     if (solved) {
         el.className = 'timeline done';
-        el.innerHTML = '<div class="tl-head"><span>풀이 시간</span><b>' + fmtMS(solved.time) + '</b></div>' +
-            '<div class="tl-note">' + (solved.late ? '제한 시간(' + limit / 60 + '분)을 넘겨 풀었어요.' : '제한 시간(' + limit / 60 + '분) 안에 풀었어요!') + '</div>';
+        el.innerHTML = '<div class="tl-head"><span>' + esc(t('prob.solveTime')) + '</span><b>' + fmtMS(solved.time) + '</b></div>' +
+            '<div class="tl-note">' + esc(t(solved.late ? 'prob.solvedLate' : 'prob.solvedInTime', { min })) + '</div>';
         return;
     }
     const over = spent > limit;
     const ratio = Math.min(1, spent / limit);
     el.className = 'timeline ' + (over ? 'over' : ratio >= WARN_RATIO ? 'warn' : 'ok');
-    el.innerHTML = '<div class="tl-head"><span>풀이 시간 · 제한 ' + limit / 60 + '분</span><b>' + (over ? '+' + fmtMS(spent - limit) + ' 초과' : fmtMS(limit - spent) + ' 남음') + '</b></div>' +
-        '<div class="tl-bar" role="progressbar" aria-label="풀이 시간" aria-valuemin="0" aria-valuemax="' + limit + '" aria-valuenow="' + Math.min(spent, limit) + '"><i style="width:' + (ratio * 100) + '%"></i><span class="tl-mark" style="left:' + WARN_RATIO * 100 + '%"></span></div>' +
+    el.innerHTML = '<div class="tl-head"><span>' + esc(t('prob.timeHead', { min })) + '</span><b>' + esc(over ? t('prob.over', { t: fmtMS(spent - limit) }) : t('prob.left', { t: fmtMS(limit - spent) })) + '</b></div>' +
+        '<div class="tl-bar" role="progressbar" aria-label="' + esc(t('prob.solveTime')) + '" aria-valuemin="0" aria-valuemax="' + limit + '" aria-valuenow="' + Math.min(spent, limit) + '"><i style="width:' + (ratio * 100) + '%"></i><span class="tl-mark" style="left:' + WARN_RATIO * 100 + '%"></span></div>' +
         '<div class="tl-note">' + (over
-            ? '시간이 지나도 계속 풀 수 있어요. 지금 맞히면 <b>+' + lateXp + ' XP</b> (원래 ' + full + ' XP)'
-            : '시간 안에 맞히면 <b>+' + full + ' XP</b>, 넘기면 +' + lateXp + ' XP (' + Math.round(LATE_XP_RATE * 100) + '%)') + '</div>';
+            ? t('prob.lateNote', { late: lateXp, full })
+            : t('prob.inTimeNote', { full, late: lateXp, rate: Math.round(LATE_XP_RATE * 100) })) + '</div>';
 }
 
 function renderHints(ctx) {
@@ -150,28 +163,28 @@ function renderHints(ctx) {
     const opened = app.progress.hintLevel(problem.id);
     let html = '';
     for (let i = 0; i < Math.min(opened, problem.hints.length); i++) {
-        html += '<div class="hint"><b>힌트 ' + (i + 1) + '</b> ' + esc(problem.hints[i]) + '</div>';
+        html += '<div class="hint"><b>' + esc(t('prob.hintN', { n: i + 1 })) + '</b> ' + esc(problem.hints[i]) + '</div>';
     }
     if (opened > problem.hints.length) {
         const lang = ctx.language ?? LanguageId.C;
         const answer = problem.solutions?.[lang] ?? problem.solution;
         const shown = problem.solutions?.[lang] ? languageOf(lang).label : languageOf(LanguageId.C).label;
-        html += '<div><div class="muted label">모범 답안 · ' + esc(shown) + ' (먼저 스스로 고쳐 본 다음 비교해 보세요)</div><pre class="codeblock">' + highlight(answer) + '</pre></div>';
+        html += '<div><div class="muted label">' + esc(t('prob.solutionLabel', { lang: shown })) + '</div><pre class="codeblock">' + highlight(answer) + '</pre></div>';
     } else if (opened < problem.hints.length) {
-        html += '<button class="btn" id="btn-hint">힌트 ' + (opened + 1) + ' 보기</button>';
+        html += '<button class="btn" id="btn-hint">' + esc(t('prob.showHint', { n: opened + 1 })) + '</button>';
     } else {
         const can = app.progress.canSeeSolution(problem.id);
         const limit = SOLVE_LIMIT_SEC[problem.level];
         const realTries = app.progress.progress.realTries[problem.id] ?? 0;
-        html += '<button class="btn" id="btn-hint" ' + (can ? '' : 'disabled') + '>' + (can ? '모범 답안 보기' : '모범 답안은 아직 잠겨 있어요') + '</button>';
+        html += '<button class="btn" id="btn-hint" ' + (can ? '' : 'disabled') + '>' + esc(t(can ? 'prob.showSolution' : 'prob.solutionLocked')) + '</button>';
         if (!can) {
             // "2번만 내면 열린다"로 오해하지 않게, 두 조건을 모두 채워야 한다는 것을 나눠서 보여 준다
             const spent = Math.min(app.progress.spentOf(problem.id), limit);
             const mark = (ok) => (ok ? '✔' : '○');
-            html += '<div class="sol-lock muted">모범 답안은 <b>정답을 맞히면</b> 바로 열려요. 아직 못 풀었다면 아래 <b>두 가지를 모두</b> 채워야 열려요.' +
-                '<ul><li>' + mark(spent >= limit) + ' 제한 시간 ' + limit / 60 + '분 동안 고민하기 (지금 ' + fmtMS(spent) + ' / ' + fmtMS(limit) + ')</li>' +
-                '<li>' + mark(realTries >= SOLUTION_MIN_REAL_TRIES) + ' 직접 고친 코드로 ' + SOLUTION_MIN_REAL_TRIES + '번 이상 제출하기 (지금 ' + Math.min(realTries, SOLUTION_MIN_REAL_TRIES) + ' / ' + SOLUTION_MIN_REAL_TRIES + '번)</li></ul>' +
-                '처음 틀 그대로 내거나 거의 안 고친 코드는 제출 횟수에 들어가지 않아요.</div>';
+            html += '<div class="sol-lock muted">' + t('prob.lockIntro') +
+                '<ul><li>' + mark(spent >= limit) + ' ' + esc(t('prob.lockTime', { min: limit / SEC_PER_MIN, spent: fmtMS(spent), limit: fmtMS(limit) })) + '</li>' +
+                '<li>' + mark(realTries >= SOLUTION_MIN_REAL_TRIES) + ' ' + esc(t('prob.lockTries', { need: SOLUTION_MIN_REAL_TRIES, now: Math.min(realTries, SOLUTION_MIN_REAL_TRIES) })) + '</li></ul>' +
+                esc(t('prob.lockNote')) + '</div>';
         }
     }
     box.innerHTML = html;
@@ -194,12 +207,13 @@ function showResult(html) {
 function codyLine(app, mood, text) {
     const settings = app.progress.progress.settings;
     const motion = mood === 'happy' ? 'bounce' : mood === 'think' ? 'shake' : '';
-    return '<div class="cody-react"><div class="c ' + motion + '">' + cody(app.progress.currentForm(), mood, { name: settings.codyName }) + '</div><div class="bubble">' + esc(text) + '</div></div>';
+    return '<div class="cody-react"><div class="c ' + motion + '">' + cody(app.progress.currentForm(), mood, { name: codyNameOf(settings) }) + '</div><div class="bubble">' + esc(text) + '</div></div>';
 }
 
 function errorBox(run) {
-    return '<div class="result wa"><div class="head">' + (ERROR_TITLE[run.kind] ?? '실행 오류') + '</div><div>' + (run.line ? '<b>' + run.line + '번째 줄</b> 근처: ' : '') + esc(run.message) + '</div>' +
-        (run.output ? '<div class="muted label">멈추기 전까지의 출력</div><pre class="outbox">' + esc(run.output) + '</pre>' : '') + '</div>';
+    const title = t('runError.' + (ERROR_KINDS.has(run.kind) ? run.kind : 'other'));
+    return '<div class="result wa"><div class="head">' + esc(title) + '</div><div>' + lineNear(run.line) + runText(run.message) + '</div>' +
+        (run.output ? '<div class="muted label">' + esc(t('prob.outputBeforeStop')) + '</div><pre class="outbox">' + esc(run.output) + '</pre>' : '') + '</div>';
 }
 
 function showRun({ problem }, run, expected) {
@@ -207,18 +221,18 @@ function showRun({ problem }, run, expected) {
         showResult(errorBox(run));
         return;
     }
-    const out = problem.judge ? (run.files[problem.judge] ?? '(파일이 만들어지지 않았어요)') : run.output;
+    const out = problem.judge ? (run.files[problem.judge] ?? t('prob.noFile')) : run.output;
     const same = expected
-        ? (normalizeOutput(out) === normalizeOutput(expected.out) ? '<span class="chip good">예제 출력과 같아요</span>' : '<span class="chip bad">예제 출력과 달라요</span>')
+        ? (normalizeOutput(out) === normalizeOutput(expected.out) ? '<span class="chip good">' + esc(t('prob.sameAsSample')) + '</span>' : '<span class="chip bad">' + esc(t('prob.diffFromSample')) + '</span>')
         : '';
-    showResult('<div class="result info"><div class="head">실행 결과 ' + same + '</div>' +
-        (problem.judge ? '<div class="muted label">' + problem.judge + ' 내용</div>' : '') + '<pre class="outbox">' + esc(out || '(출력 없음)') + '</pre>' +
-        (problem.judge && run.output ? '<div class="muted label">화면 출력</div><pre class="outbox">' + esc(run.output) + '</pre>' : '') +
-        '<div class="muted" style="font-size:12.5px">예제 실행은 기록되지 않아요. 다 됐으면 제출하세요.</div></div>');
+    showResult('<div class="result info"><div class="head">' + esc(t('prob.runResult')) + same + '</div>' +
+        (problem.judge ? '<div class="muted label">' + esc(t('prob.fileContent', { file: problem.judge })) + '</div>' : '') + '<pre class="outbox">' + esc(out || t('common.noOutput')) + '</pre>' +
+        (problem.judge && run.output ? '<div class="muted label">' + esc(t('prob.screenOutput')) + '</div><pre class="outbox">' + esc(run.output) + '</pre>' : '') +
+        '<div class="muted" style="font-size:12.5px">' + esc(t('prob.runNotRecorded')) + '</div></div>');
 }
 
 async function runSampleAsync(ctx) {
-    showResult('<div class="result info"><div class="head">예제 실행 중…</div></div>');
+    showResult('<div class="result info"><div class="head">' + esc(t('prob.runningSample')) + '</div></div>');
     const testCase = testCaseOf(ctx.problem.tests[0]);
     const run = await ctx.app.judge.runAsync(ctx.editor.get(), testCase.input, testCase.files, ctx.language);
     showRun(ctx, run, ctx.problem.expected[0]);
@@ -229,21 +243,21 @@ async function runCustomAsync(ctx) {
     if (ctx.fileName) {
         files[ctx.fileName] = $('#custom-file').value;
     }
-    showResult('<div class="result info"><div class="head">실행 중…</div></div>');
+    showResult('<div class="result info"><div class="head">' + esc(t('prob.running')) + '</div></div>');
     const run = await ctx.app.judge.runAsync(ctx.editor.get(), $('#custom-in').value, files, ctx.language);
     showRun(ctx, run, null);
 }
 
 function languagePicker(problem, language, features) {
     if (!problem.track) {
-        return '<span class="lang" title="단원 문제는 C 학습용이라 C11로 채점해요">언어: C (C11)</span>';
+        return '<span class="lang" title="' + esc(t('prob.langFixedTitle')) + '">' + esc(t('prob.langFixed')) + '</span>';
     }
     const options = LANGUAGES.map((lang) => {
         const available = isLanguageAvailable(lang.id, features);
-        const note = lang.paid ? (available ? ' · 유료' : ' · 유료 준비 중') : '';
+        const note = lang.paid ? t(available ? 'prob.paid' : 'prob.paidSoon') : '';
         return '<option value="' + lang.id + '"' + (lang.id === language ? ' selected' : '') + (available ? '' : ' disabled') + '>' + esc(lang.label + note) + '</option>';
     }).join('');
-    return '<label class="lang lang-pick">언어 <select id="lang-select" aria-label="풀이 언어">' + options + '</select></label>';
+    return '<label class="lang lang-pick">' + esc(t('lang.label')) + ' <select id="lang-select" aria-label="' + esc(t('prob.langAria')) + '">' + options + '</select></label>';
 }
 
 function mountCodeEditor(ctx) {
@@ -274,14 +288,14 @@ async function prepareLanguageAsync(ctx) {
     buttons.forEach((b) => {
         b.disabled = true;
     });
-    showResult('<div class="result info"><div class="head">Python 실행기를 준비하고 있어요…</div><div class="muted" style="font-size:13px">처음 한 번만 약 10MB를 받아요. 다음부터는 바로 실행돼요.</div></div>');
+    showResult('<div class="result info"><div class="head">' + esc(t('prob.pyPreparing')) + '</div><div class="muted" style="font-size:13px">' + esc(t('prob.pyFirst')) + '</div></div>');
     try {
         await ctx.app.judge.prepareAsync(language);
         if (ctx.language === language) {
-            showResult('<div class="result info"><div class="head">Python 준비 완료</div><div class="muted" style="font-size:13px">input() 이나 sys.stdin 으로 입력을 읽고, print() 로 출력하세요.</div></div>');
+            showResult('<div class="result info"><div class="head">' + esc(t('prob.pyReady')) + '</div><div class="muted" style="font-size:13px">' + esc(t('prob.pyReadyNote')) + '</div></div>');
         }
     } catch (e) {
-        showResult('<div class="result wa"><div class="head">Python 실행기를 받아 오지 못했어요</div><div>인터넷 연결을 확인하고 언어를 다시 골라 주세요.</div></div>');
+        showResult('<div class="result wa"><div class="head">' + esc(t('prob.pyFailed')) + '</div><div>' + esc(t('prob.pyFailedNote')) + '</div></div>');
     } finally {
         buttons.forEach((b) => {
             b.disabled = false;
@@ -292,16 +306,16 @@ async function prepareLanguageAsync(ctx) {
 function crumbsOf(app, problem) {
     if (problem.track) {
         const track = app.content.byTrack.get(problem.track);
-        return '<div class="crumbs"><a href="#algo">알고리즘</a> › <a href="#algo-' + track.track + '">' + esc(track.name) + '</a> › ' + problem.id + '</div>';
+        return '<div class="crumbs"><a href="#algo">' + esc(t('nav.algo')) + '</a> › <a href="#algo-' + track.track + '">' + esc(track.name) + '</a> › ' + problem.id + '</div>';
     }
     const chapter = app.content.byChapter.get(problem.ch);
-    return '<div class="crumbs"><a href="#map">학습 지도</a> › <a href="#ch' + problem.ch + '">' + problem.ch + '단원 ' + esc(chapter.title) + '</a> › ' + problem.id + '</div>';
+    return '<div class="crumbs"><a href="#map">' + esc(t('nav.map')) + '</a> › <a href="#ch' + problem.ch + '">' + esc(t('prob.crumbChapter', { n: problem.ch, title: chapter.title })) + '</a> › ' + problem.id + '</div>';
 }
 
 /** 단원 문제는 별, 알고리즘 문제는 단계 배지 */
 export function levelBadge(level) {
     if (isAlgorithmLevel(level)) {
-        return '<span class="tier t' + level + '">' + TIER_NAMES[level] + '</span>';
+        return '<span class="tier t' + level + '">' + esc(t('tier.' + level)) + '</span>';
     }
     return '<span class="stars">' + starStr(level) + '</span>';
 }
@@ -312,15 +326,15 @@ function nextButtons(app, problem) {
         const p = app.progress.progress;
         const index = track.problems.indexOf(problem);
         const next = track.problems.slice(index + 1).find((x) => !p.solved[x.id]) ?? track.problems.find((x) => !p.solved[x.id]);
-        return (next ? '<a class="btn primary" href="#p' + next.id + '">다음 문제 ' + next.id + '</a>' : '') +
-            '<a class="btn" href="#algo-' + track.track + '">' + esc(track.name) + ' 목록으로</a>';
+        return (next ? '<a class="btn primary" href="#p' + next.id + '">' + esc(t('prob.nextProblem', { id: next.id })) + '</a>' : '') +
+            '<a class="btn" href="#algo-' + track.track + '">' + esc(t('prob.toTrack', { track: track.name })) + '</a>';
     }
     const chapter = app.content.byChapter.get(problem.ch);
     const p = app.progress.progress;
     const index = chapter.problems.indexOf(problem);
     const next = chapter.problems.slice(index + 1).find((x) => !p.solved[x.id]) ?? chapter.problems.find((x) => !p.solved[x.id]);
-    return (next ? '<a class="btn primary" href="#p' + next.id + '">다음 문제 ' + next.id + '</a>' : '<a class="btn primary" href="#quiz' + problem.ch + '">' + problem.ch + '단원 퀴즈 풀기</a>') +
-        '<a class="btn" href="#ch' + problem.ch + '">단원으로</a>';
+    return (next ? '<a class="btn primary" href="#p' + next.id + '">' + esc(t('prob.nextProblem', { id: next.id })) + '</a>' : '<a class="btn primary" href="#quiz' + problem.ch + '">' + esc(t('prob.chapterQuiz', { n: problem.ch })) + '</a>') +
+        '<a class="btn" href="#ch' + problem.ch + '">' + esc(t('prob.toChapter')) + '</a>';
 }
 
 async function submitAsync(ctx) {
@@ -328,12 +342,12 @@ async function submitAsync(ctx) {
     const code = editor.get();
     const button = $('#btn-submit');
     button.disabled = true;
-    showResult('<div class="result info"><div class="head">채점 중…</div></div>');
+    showResult('<div class="result info"><div class="head">' + esc(t('prob.judging')) + '</div></div>');
     let judged;
     try {
         judged = await app.judge.judgeAsync(problem, code, language);
     } catch (e) {
-        showResult('<div class="result wa"><div class="head">채점 중 문제가 생겼어요</div><div>잠시 뒤 다시 제출해 주세요.</div></div>');
+        showResult('<div class="result wa"><div class="head">' + esc(t('prob.judgeFailed')) + '</div><div>' + esc(t('prob.judgeFailedNote')) + '</div></div>');
         return;
     } finally {
         button.disabled = false;
@@ -344,10 +358,10 @@ async function submitAsync(ctx) {
         app.sound.play('correct');
         const spent = app.progress.spentOf(problem.id);
         const note = recorded.gainedXp
-            ? (recorded.late ? '제한 시간을 넘겨서 XP를 ' + Math.round(LATE_XP_RATE * 100) + '%만 받았어요. 다음 문제는 시간 안에 도전해 봐요!' : '제한 시간 안에 풀어서 XP를 모두 받았어요! (' + fmtMS(spent) + ' 걸림)')
+            ? (recorded.late ? t('prob.lateXp', { rate: Math.round(LATE_XP_RATE * 100) }) : t('prob.fullXp', { t: fmtMS(spent) }))
             : '';
-        showResult('<div class="result ac"><div class="head">' + judged.label + (recorded.gainedXp ? ' <span class="chip accent">+' + recorded.gainedXp + ' XP</span>' : '') + '</div>' +
-            (note ? '<div style="font-size:13.5px">' + note + '</div>' : '') + codyLine(app, 'happy', pick(CHEER.ac)) +
+        showResult('<div class="result ac"><div class="head">' + verdictLabel(judged.verdict) + (recorded.gainedXp ? ' <span class="chip accent">+' + recorded.gainedXp + ' XP</span>' : '') + '</div>' +
+            (note ? '<div style="font-size:13.5px">' + esc(note) + '</div>' : '') + codyLine(app, 'happy', pick(CHEER.ac)) +
             '<div class="row-buttons">' + nextButtons(app, problem) + '</div></div>');
         renderTimeline(ctx);
     } else {
@@ -356,16 +370,16 @@ async function submitAsync(ctx) {
         if (judged.verdict === Verdict.WA) {
             const files = judged.testCase.files;
             const input = Object.keys(files).length ? Object.entries(files).map(([k, v]) => k + ':\n' + v).join('\n') : judged.testCase.input;
-            body = '<div>' + (judged.testIndex + 1) + '번째 테스트에서 틀렸어요.' + (judged.missingFile ? ' ' + problem.judge + ' 파일이 만들어지지 않았어요. fopen 과 fclose 를 확인하세요.' : '') + '</div>' +
-                '<div class="muted label">입력</div><pre class="outbox">' + esc(input || '(없음)') + '</pre>' +
-                '<div class="diff"><div><div class="muted label">내 출력</div><pre>' + esc(judged.got || '(출력 없음)') + '</pre></div>' +
-                '<div><div class="muted label">기대 출력</div><pre>' + esc(judged.expected) + '</pre></div></div>';
+            body = '<div>' + esc(t('prob.wrongAt', { n: judged.testIndex + 1 }) + (judged.missingFile ? t('prob.missingFile', { file: problem.judge }) : '')) + '</div>' +
+                '<div class="muted label">' + esc(t('prob.inputLabel')) + '</div><pre class="outbox">' + esc(input || t('common.none')) + '</pre>' +
+                '<div class="diff"><div><div class="muted label">' + esc(t('prob.myOutput')) + '</div><pre>' + esc(judged.got || t('common.noOutput')) + '</pre></div>' +
+                '<div><div class="muted label">' + esc(t('prob.expectedOutput')) + '</div><pre>' + esc(judged.expected) + '</pre></div></div>';
         } else {
-            body = '<div>' + (judged.line ? '<b>' + judged.line + '번째 줄</b> 근처: ' : '') + esc(judged.message) + '</div>';
+            body = '<div>' + lineNear(judged.line) + runText(judged.message) + '</div>';
         }
         // AI 힌트 버튼: 기능이 켜졌을 때만 보인다 (지금은 숨김)
-        const hintButton = app.hint.enabled ? '<button class="btn" id="btn-ai">코디에게 AI 힌트 받기</button><div id="ai-out"></div>' : '';
-        showResult('<div class="result wa"><div class="head">' + judged.label + '</div>' + body + codyLine(app, 'think', pick(CHEER.wa)) + hintButton + '</div>');
+        const hintButton = app.hint.enabled ? '<button class="btn" id="btn-ai">' + esc(t('prob.aiHint')) + '</button><div id="ai-out"></div>' : '';
+        showResult('<div class="result wa"><div class="head">' + verdictLabel(judged.verdict) + '</div>' + body + codyLine(app, 'think', pick(CHEER.wa)) + hintButton + '</div>');
         if ($('#btn-ai')) {
             $('#btn-ai').onclick = () => requestAiHintAsync(ctx, code, judged);
         }
@@ -378,7 +392,8 @@ async function requestAiHintAsync({ app, problem }, code, judged) {
     const out = $('#ai-out');
     const button = $('#btn-ai');
     button.disabled = true;
-    out.innerHTML = '<div class="ai-box">코디가 코드를 읽고 있어요…</div>';
+    out.innerHTML = '<div class="ai-box">' + esc(t('prob.aiReading')) + '</div>';
+    // AI 에게 보내는 설명은 한국어 그대로 (서버 쪽 힌트 규칙이 한국어 기준)
     const judgeText = judged.verdict === Verdict.WA
         ? '틀린 테스트 입력:\n' + judged.testCase.input + '\n학생 출력:\n' + judged.got + '\n기대 출력:\n' + judged.expected
         : judged.label + ': ' + (judged.line ? judged.line + '번째 줄 근처, ' : '') + judged.message;

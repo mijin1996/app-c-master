@@ -151,8 +151,8 @@ main { flex: 1; padding-block: 22px 40px; }
 .pips i.q { background: var(--blue); }
 
 /* 단원 */
-.ch-layout { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; align-items: start; }
-.concept { padding: 20px; display: grid; gap: 12px; }
+.ch-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.concept { padding: 20px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; } /* 긴 예시 코드는 상자 안에서만 옆으로 */
 .concept ul { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
 .codeblock { background: var(--code-bg); color: var(--code-fg); font-family: var(--f-code); font-weight: 700; font-size: 13.5px; line-height: 1.6; border-radius: 10px; padding: 14px 16px; overflow-x: auto; white-space: pre; margin: 0; }
 .plist { padding: 8px; }
@@ -271,9 +271,10 @@ tr.me td { background: var(--accent-soft); }
 @media (prefers-reduced-motion: reduce) { .bounce, .shake, .evo .glow { animation: none; } .xpbar i { transition: none; } }
 
 @media (max-width: 900px) {
-  .map-grid, .ch-layout, .prob { grid-template-columns: 1fr; }
+  /* minmax(0, 1fr): 긴 코드 줄이 칸을 밀어 화면이 옆으로 치우치지 않게 (코드 상자 안에서만 옆으로 밀림) */
+  .map-grid, .ch-layout, .prob { grid-template-columns: minmax(0, 1fr); }
+  .login-card { grid-template-columns: minmax(0, 1fr); }
   .profile, .side { position: static; }
-  .login-card { grid-template-columns: 1fr; }
   .login-hero { border-right: 0; border-bottom: 1px solid var(--line); }
   .editor { height: 340px; }
 }

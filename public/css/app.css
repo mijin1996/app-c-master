@@ -397,9 +397,27 @@ a.btn.primary { color: var(--accent-ink); }
 .btn.small { padding: 4px 10px; font-size: 12.5px; }
 .pre-wrap { white-space: pre-wrap; margin: 0 0 8px; }
 .codeblock.small { font-size: 12.5px; margin: 6px 0; }
-.like-btn { cursor: pointer; font: inherit; font-size: 12.5px; }
-.like-btn.on { color: var(--bad); border-color: var(--bad); }
-.like-btn:disabled { cursor: default; opacity: .7; }
+/* 좋아요 하트 (Peek Rating 스타일): 올리면 떠오르며 커지고 말풍선, 누르면 톡 */
+.like-heart { display: inline-flex; align-items: center; gap: 6px; vertical-align: middle; }
+.like-heart-btn { position: relative; display: grid; place-items: center; width: 40px; height: 40px; margin: -4px; padding: 0; border: 0; background: none; cursor: pointer;
+  color: var(--muted); transition: transform .32s cubic-bezier(.2, .9, .3, 1), color .32s ease; }
+.like-heart-btn svg { width: 28px; height: 28px; }
+.like-heart.small .like-heart-btn { width: 32px; height: 32px; }
+.like-heart.small .like-heart-btn svg { width: 20px; height: 20px; }
+.like-heart-btn:hover:not(:disabled), .like-heart-btn:focus-visible { transform: translateY(-6px) scale(1.15); color: #ff6b8a; outline: none; }
+.like-heart.on .like-heart-btn { color: #ff4d73; }
+.like-heart-btn:disabled { opacity: .5; cursor: default; }
+.like-tip { position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translate(-50%, 4px); padding: 3px 8px; border-radius: 999px; background: #10162a; color: #fff;
+  font-size: 11.5px; font-weight: 700; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; }
+.like-heart-btn:hover .like-tip, .like-heart-btn:focus-visible .like-tip { opacity: 1; transform: translate(-50%, 0); }
+.like-heart.pop .like-heart-btn svg { animation: like-pop .3s ease; }
+@keyframes like-pop { 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
+.like-count { font-size: 14px; min-width: 1ch; }
+.like-badge { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); }
+.like-badge svg { width: 15px; height: 15px; }
+.like-badge.on { color: #ff4d73; }
+@media (pointer: coarse) { .like-heart-btn { width: 44px; height: 44px; } }
+@media (prefers-reduced-motion: reduce) { .like-heart-btn:hover:not(:disabled) { transform: none; } .like-heart.pop .like-heart-btn svg { animation: none; } }
 .mod-row { margin-top: 6px; }
 .discuss { margin-top: 16px; display: grid; gap: 12px; }
 .discuss h2 { font-size: 22px; }
@@ -536,7 +554,7 @@ label.f .picker-trigger { display: flex; width: 100%; justify-content: space-bet
 }
 
 /* ---------- 효과: 새총 버튼 (누른 채 끌면 고무줄처럼 끌려가고, 놓으면 튕기며 입자 발사) ---------- */
-.btn, .iconbtn, .like-btn, .tabs button, .credits-link, .opt, .lesson-card { position: relative; }
+.btn, .iconbtn, .tabs button, .credits-link, .opt, .lesson-card { position: relative; }
 .sling-pull { transition: translate .06s linear, box-shadow .15s ease; box-shadow: inset 0 2px 6px rgba(0, 0, 0, .18); }
 .sling-armed { box-shadow: 0 0 0 2px var(--accent), inset 0 2px 6px rgba(0, 0, 0, .18); }
 .sling-layer { position: fixed; inset: 0; pointer-events: none; z-index: 91; overflow: hidden; }

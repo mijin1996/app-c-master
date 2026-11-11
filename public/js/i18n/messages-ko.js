@@ -416,6 +416,7 @@ export const MESSAGES_KO = Object.freeze({
     'comm.hiddenState': '숨김 상태',
     'comm.cantLikeOwn': '내 문제에는 누를 수 없어요',
     'comm.like': '좋아요',
+    'comm.unlike': '좋아요 취소',
     'comm.noInputSpec': '입력은 없습니다.',
     'comm.report': '신고',
     'comm.show': '다시 보이기',

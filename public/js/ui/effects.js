@@ -5,7 +5,7 @@ import { t } from '../i18n/index.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 // 새총 효과를 받는 버튼들 (화면 클릭 불꽃은 이 위에서는 쉬어요)
-const BUTTON_SELECTOR = '.btn, .iconbtn, .like-btn, .tabs button, .credits-link, .opt, .lesson-card';
+const BUTTON_SELECTOR = '.btn, .iconbtn, .tabs button, .credits-link, .opt, .lesson-card';
 
 const reduceMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 

@@ -415,6 +415,7 @@ export const MESSAGES_EN = Object.freeze({
     'comm.hiddenState': 'Hidden',
     'comm.cantLikeOwn': "You can't like your own problem",
     'comm.like': 'Like',
+    'comm.unlike': 'Unlike',
     'comm.noInputSpec': 'There is no input.',
     'comm.report': 'Report',
     'comm.show': 'Show again',

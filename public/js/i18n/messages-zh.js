@@ -415,6 +415,7 @@ export const MESSAGES_ZH = Object.freeze({
     'comm.hiddenState': '隐藏状态',
     'comm.cantLikeOwn': '不能给自己的题点赞',
     'comm.like': '点赞',
+    'comm.unlike': '取消点赞',
     'comm.noInputSpec': '没有输入。',
     'comm.report': '举报',
     'comm.show': '重新显示',

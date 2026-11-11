@@ -15,6 +15,7 @@ import { t, getLocale } from '../i18n/index.js';
 import { translateRunMessage } from '../i18n/run-messages.js';
 import { formatBraces } from '../domain/brace-style.js';
 import { styleToggleHtml, bindStyleToggle, usesBraces } from './style-toggle.js';
+import { likeHeartHtml, bindLikeHeart, likeBadgeHtml } from '../ui/like-heart.js';
 
 const listState = { sort: 'new', page: 0 };
 
@@ -95,7 +96,7 @@ export async function renderCommunityList(app) {
         listed.data.map((p) => '<tr class="' + (p.hidden ? 'is-hidden' : '') + '"><td><a href="#c' + p.id + '">' + esc(p.title) + '</a>' +
             (p.hidden ? ' <span class="chip bad">' + esc(t('comm.hidden')) + '</span>' : '') + (p.mine ? ' <span class="chip accent">' + esc(t('comm.mine')) + '</span>' : '') + '</td>' +
             '<td>' + levelBadge(p.difficulty) + '</td><td>' + esc(p.author) + '</td>' +
-            '<td class="num">' + (p.liked ? '♥ ' : '♡ ') + p.likes + '</td><td class="num">' + p.comments + '</td><td class="muted">' + dateOf(p.createdAt) + '</td></tr>').join('') +
+            '<td class="num">' + likeBadgeHtml(p.liked, p.likes) + '</td><td class="num">' + p.comments + '</td><td class="muted">' + dateOf(p.createdAt) + '</td></tr>').join('') +
         '</tbody></table></div>';
 }
 
@@ -199,7 +200,7 @@ export async function renderCommunityProblem(app, id) {
         '<div><div class="muted code-text" style="font-size:13px">#' + problem.id + ' · ' + levelBadge(problem.difficulty) + ' · ' + esc(problem.author) + ' · ' + dateOf(problem.createdAt) + '</div>' +
         '<h1>' + esc(problem.title) + '</h1>' +
         '<div class="chips">' + (problem.hidden ? '<span class="chip bad">' + esc(t('comm.hiddenState')) + '</span>' : '') +
-        '<button class="chip like-btn' + (problem.liked ? ' on' : '') + '" id="like-problem" ' + (problem.mine ? 'disabled title="' + esc(t('comm.cantLikeOwn')) + '"' : '') + '>' + (problem.liked ? '♥' : '♡') + ' ' + esc(t('comm.like')) + ' <b>' + problem.likes + '</b></button>' +
+        likeHeartHtml({ liked: problem.liked, count: problem.likes, disabled: problem.mine, id: 'like-problem' }) +
         '<span class="chip">' + esc(t('prob.judgeScreen')) + '</span></div></div>' +
         '<div class="sec"><h3>' + esc(t('prob.statement')) + '</h3>' + richText(problem.body) + '</div>' +
         '<div class="sec"><h3>' + esc(t('prob.input')) + '</h3>' + richText(problem.inputSpec || t('comm.noInputSpec')) + '</div>' +
@@ -319,7 +320,7 @@ function commentsHtml(problem) {
         '<div class="c-head"><b>' + esc(c.author) + '</b>' + (c.accepted ? ' <span class="chip good">' + esc(t('comm.accepted')) + '</span>' : '') +
         (c.hidden ? ' <span class="chip bad">' + esc(t('comm.hidden')) + '</span>' : '') + ' <span class="muted small">' + dateOf(c.createdAt) + '</span></div>' +
         '<div class="c-body">' + richText(c.body) + '</div>' +
-        '<div class="c-actions"><button class="chip like-btn' + (c.liked ? ' on' : '') + '" data-like ' + (c.mine ? 'disabled' : '') + '>' + (c.liked ? '♥' : '♡') + ' <b>' + c.likes + '</b></button>' +
+        '<div class="c-actions">' + likeHeartHtml({ liked: c.liked, count: c.likes, disabled: c.mine, attr: 'data-like', size: 'small' }) +
         (problem.mine && !c.mine && !c.accepted ? '<button class="btn ghost small" data-accept>' + esc(t('comm.accept')) + '</button>' : '') +
         (!c.mine ? '<button class="btn ghost small" data-report>' + esc(t('comm.report')) + '</button>' : '') +
         (problem.canModerate ? '<button class="btn ghost small" data-hide="' + (c.hidden ? '0' : '1') + '">' + esc(t(c.hidden ? 'comm.showC' : 'comm.hide')) + '</button>' : '') +
@@ -362,11 +363,12 @@ function bindDiscussion(ctx) {
         }
         return true;
     };
-    $('#like-problem').onclick = async () => {
-        if (afterAct(await app.community.likeAsync('problem', problem.id))) {
-            reload();
-        }
+    // 좋아요는 화면을 다시 그리지 않고 하트 · 숫자만 바꾼다 (쓰던 코드가 그대로 남게)
+    const toggleLike = (targetType, targetId) => async () => {
+        const liked = await app.community.likeAsync(targetType, targetId);
+        return afterAct(liked) ? liked.data : null;
     };
+    bindLikeHeart($('#like-problem'), toggleLike('problem', problem.id));
     $('#report-problem').onclick = async () => {
         const reason = await askReason();
         if (reason && afterAct(await app.community.reportAsync('problem', problem.id, reason), 'comm.reported')) {
@@ -393,14 +395,7 @@ function bindDiscussion(ctx) {
     }
     $$('.comment').forEach((node) => {
         const commentId = Number(node.dataset.id);
-        const like = $('[data-like]', node);
-        if (like) {
-            like.onclick = async () => {
-                if (afterAct(await app.community.likeAsync('comment', commentId))) {
-                    reload();
-                }
-            };
-        }
+        bindLikeHeart($('[data-like]', node), toggleLike('comment', commentId));
         const accept = $('[data-accept]', node);
         if (accept) {
             accept.onclick = async () => {

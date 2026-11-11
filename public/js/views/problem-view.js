@@ -13,6 +13,8 @@ import { Verdict, normalizeOutput, testCaseOf } from '../services/judge-service.
 import { SOLVE_LIMIT_SEC, XP_BY_LEVEL, LATE_XP_RATE, xpForSolve, isAlgorithmLevel } from '../domain/progress-rules.js';
 import { t, getLocale } from '../i18n/index.js';
 import { translateRunMessage } from '../i18n/run-messages.js';
+import { formatBraces } from '../domain/brace-style.js';
+import { styleToggleHtml, bindStyleToggle, usesBraces } from './style-toggle.js';
 
 const MAX_SAMPLES = 2;
 const WARN_RATIO = 0.8;
@@ -77,7 +79,7 @@ export function renderProblem(app, problemId) {
         '<div class="sec">' + sampleBlocks(problem) + '</div>' +
         '<div class="sec"><h3>' + esc(t('prob.hints')) + '</h3><div class="hints" id="hints"></div></div>' +
         '</article><aside class="side">' +
-        '<section class="panel editor-panel"><div class="ed-bar">' + languagePicker(problem, language, features) +
+        '<section class="panel editor-panel"><div class="ed-bar">' + languagePicker(problem, language, features) + '<span id="style-slot"></span>' +
         '<button class="btn ghost" id="btn-reset" title="' + esc(t('prob.resetTitle')) + '">' + esc(t('prob.reset')) + '</button>' +
         '<button class="btn" id="btn-run">' + esc(t('prob.runSample')) + '</button>' +
         '<button class="btn primary" id="btn-submit" title="Ctrl+Enter">' + esc(t('prob.submit')) + '</button></div>' +
@@ -103,7 +105,7 @@ export function renderProblem(app, problemId) {
         button.onclick = () => copyText(button.dataset.copy);
     });
     $('#btn-reset').onclick = () => {
-        ctx.editor.set(languageOf(ctx.language).template);
+        ctx.editor.set(app.progress.templateOf(ctx.language));
         toast(t('prob.resetDone'));
     };
     $('#btn-run').onclick = () => runSampleAsync(ctx);
@@ -167,7 +169,8 @@ function renderHints(ctx) {
     }
     if (opened > problem.hints.length) {
         const lang = ctx.language ?? LanguageId.C;
-        const answer = problem.solutions?.[lang] ?? problem.solution;
+        const raw = problem.solutions?.[lang] ?? problem.solution;
+        const answer = usesBraces(problem.solutions?.[lang] ? lang : LanguageId.C) ? formatBraces(raw, app.progress.progress.settings.codeStyle) : raw;
         const shown = problem.solutions?.[lang] ? languageOf(lang).label : languageOf(LanguageId.C).label;
         html += '<div><div class="muted label">' + esc(t('prob.solutionLabel', { lang: shown })) + '</div><pre class="codeblock">' + highlight(answer) + '</pre></div>';
     } else if (opened < problem.hints.length) {
@@ -265,6 +268,25 @@ function mountCodeEditor(ctx) {
     const language = ctx.language;
     ctx.editor = mountEditor($('#ed'), app.progress.codeOf(problem.id, language),
         (code) => app.progress.saveCode(problem.id, code, language), () => $('#btn-submit').click(), languageOf(language).label);
+    mountStyleToggle(ctx);
+}
+
+/** 코드 스타일 토글: 누르면 지금 코드를 그 스타일로 바꾸고, 모범 답안 보기도 같은 스타일로 */
+function mountStyleToggle(ctx) {
+    const slot = $('#style-slot');
+    if (!slot) {
+        return;
+    }
+    if (!usesBraces(ctx.language)) {
+        slot.innerHTML = '';
+        return;
+    }
+    slot.innerHTML = styleToggleHtml(ctx.app.progress.progress.settings.codeStyle);
+    bindStyleToggle(slot, (style) => {
+        ctx.editor.set(ctx.app.progress.restyleCode(ctx.problem.id, ctx.editor.get(), style, ctx.language));
+        renderHints(ctx);
+        toast(t('style.changed', { style: t('style.' + style) }));
+    });
 }
 
 function switchLanguage(ctx, language) {

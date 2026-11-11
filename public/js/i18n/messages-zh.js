@@ -331,6 +331,12 @@ export const MESSAGES_ZH = Object.freeze({
     'prob.aiHint': '向 Cody 要 AI 提示',
     'prob.aiReading': 'Cody 正在阅读你的代码…',
     'editor.aria': '{lang} 代码输入',
+    'style.label': '代码风格',
+    'style.allman': 'Allman',
+    'style.knr': 'K&R',
+    'style.allmanTitle': 'Allman：左花括号 { 放在下一行',
+    'style.knrTitle': 'K&R：左花括号 { 放在行尾',
+    'style.changed': '代码已切换为 {style} 风格。',
 
     // ---------- 算法 ----------
     'algo.title': '算法',

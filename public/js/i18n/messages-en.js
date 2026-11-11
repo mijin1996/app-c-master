@@ -331,6 +331,12 @@ export const MESSAGES_EN = Object.freeze({
     'prob.aiHint': 'Get an AI hint from Cody',
     'prob.aiReading': 'Cody is reading your code…',
     'editor.aria': '{lang} code input',
+    'style.label': 'Code style',
+    'style.allman': 'Allman',
+    'style.knr': 'K&R',
+    'style.allmanTitle': 'Allman: opening brace { on the next line',
+    'style.knrTitle': 'K&R: opening brace { at the end of the line',
+    'style.changed': 'Code switched to {style} style.',
 
     // ---------- algorithms ----------
     'algo.title': 'Algorithms',

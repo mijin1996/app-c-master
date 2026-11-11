@@ -332,6 +332,12 @@ export const MESSAGES_KO = Object.freeze({
     'prob.aiHint': '코디에게 AI 힌트 받기',
     'prob.aiReading': '코디가 코드를 읽고 있어요…',
     'editor.aria': '{lang} 코드 입력',
+    'style.label': '코드 스타일',
+    'style.allman': 'Allman',
+    'style.knr': 'K&R',
+    'style.allmanTitle': 'Allman: 여는 중괄호 { 를 다음 줄에',
+    'style.knrTitle': 'K&R: 여는 중괄호 { 를 같은 줄 끝에',
+    'style.changed': '코드를 {style} 스타일로 바꿨어요.',
 
     // ---------- 알고리즘 ----------
     'algo.title': '알고리즘',

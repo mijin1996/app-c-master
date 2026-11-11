@@ -13,6 +13,8 @@ import { Verdict, normalizeOutput } from '../services/judge-service.js';
 import { judgeableOf } from '../services/learning-services.js';
 import { t, getLocale } from '../i18n/index.js';
 import { translateRunMessage } from '../i18n/run-messages.js';
+import { formatBraces } from '../domain/brace-style.js';
+import { styleToggleHtml, bindStyleToggle, usesBraces } from './style-toggle.js';
 
 const listState = { sort: 'new', page: 0 };
 
@@ -210,7 +212,7 @@ export async function renderCommunityProblem(app, id) {
         (problem.mine || problem.canModerate ? '<button class="btn ghost small" id="delete-problem">' + esc(t('comm.deleteProblem')) + '</button>' : '') + '</div>' +
         '</article><aside class="side">' +
         '<section class="panel editor-panel"><div class="ed-bar"><label class="lang lang-pick">' + esc(t('lang.label')) + ' <select id="lang-select" aria-label="' + esc(t('prob.langAria')) + '">' +
-        languageOptions(app, ctx.language, features) + '</select></label>' +
+        languageOptions(app, ctx.language, features) + '</select></label><span id="style-slot"></span>' +
         '<button class="btn" id="btn-run">' + esc(t('prob.runSample')) + '</button><button class="btn primary" id="btn-submit">' + esc(t('prob.submit')) + '</button></div><div id="ed"></div></section>' +
         '<section class="panel run-panel"><div id="result" aria-live="polite"><div class="muted small">' + esc(t('comm.judgeByTests')) + '</div></div></section>' +
         '</aside></div>' +
@@ -243,9 +245,25 @@ export async function renderCommunityProblem(app, id) {
 
 function mountSolveEditor(ctx) {
     const lang = languageOf(ctx.language);
-    ctx.editor = mountEditor($('#ed'), ctx.code[ctx.language] ?? lang.template, (code) => {
+    ctx.editor = mountEditor($('#ed'), ctx.code[ctx.language] ?? ctx.app.progress.templateOf(ctx.language), (code) => {
         ctx.code[ctx.language] = code;
     }, () => $('#btn-submit').click(), lang.label);
+    const slot = $('#style-slot');
+    if (!slot) {
+        return;
+    }
+    if (!usesBraces(ctx.language)) {
+        slot.innerHTML = '';
+        return;
+    }
+    slot.innerHTML = styleToggleHtml(ctx.app.progress.progress.settings.codeStyle);
+    bindStyleToggle(slot, (style) => {
+        const styled = formatBraces(ctx.editor.get(), style);
+        ctx.app.progress.updateSettings({ codeStyle: style });
+        ctx.code[ctx.language] = styled;
+        ctx.editor.set(styled);
+        toast(t('style.changed', { style: t('style.' + style) }));
+    });
 }
 
 function showSolve(html) {

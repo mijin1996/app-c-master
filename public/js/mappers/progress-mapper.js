@@ -5,6 +5,7 @@ import { QUIZ_SIZE, HISTORY_LIMIT, FORM_NAMES } from '../domain/progress-rules.j
 import { isLanguageId } from '../domain/languages.js';
 import { isOopLessonNo, OOP_QUIZ_SIZE } from '../domain/oop-rules.js';
 import { isPracticeKey } from '../domain/oop-practice-rules.js';
+import { isCodeStyle } from '../domain/brace-style.js';
 
 const PROBLEM_ID = /^\d{4}$/;
 const CODE_KEY = /^\d{4}(?::(?:python|cpp|java))?$/; // C는 번호만, 다른 언어는 "번호:언어"
@@ -132,6 +133,7 @@ function settingsOf(raw) {
         rankOptIn: typeof s.rankOptIn === 'boolean' ? s.rankOptIn : DEFAULT_SETTINGS.rankOptIn,
         codyName: codyName || DEFAULT_SETTINGS.codyName,
         algoLang: isLanguageId(s.algoLang) ? s.algoLang : DEFAULT_SETTINGS.algoLang,
+        codeStyle: isCodeStyle(s.codeStyle) ? s.codeStyle : DEFAULT_SETTINGS.codeStyle,
     };
 }
 

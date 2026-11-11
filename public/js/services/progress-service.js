@@ -5,6 +5,7 @@ import { AppError } from '../core/app-error.js';
 import { OOP_LESSONS } from '../domain/oop-curriculum.js';
 import { oopGainedXp, OOP_QUIZ_SIZE } from '../domain/oop-rules.js';
 import { practiceKey, checkPractice, PRACTICE_XP } from '../domain/oop-practice-rules.js';
+import { formatBraces } from '../domain/brace-style.js';
 import { progressFromDto } from '../mappers/progress-mapper.js';
 import { LanguageId, languageOf, codeKey } from '../domain/languages.js';
 import {
@@ -271,9 +272,24 @@ export class ProgressService {
         return this.#progress.hintsOpen[id];
     }
 
+    /** 저장한 코드, 없으면 처음 틀 (중괄호를 쓰는 언어는 고른 스타일로) */
     codeOf(problemId, languageId = LanguageId.C) {
         const saved = this.#progress.code[codeKey(problemId, languageId)];
-        return saved ?? (languageId === LanguageId.C ? DEFAULT_CODE : languageOf(languageId).template);
+        return saved ?? this.templateOf(languageId);
+    }
+
+    /** 처음 틀: 중괄호 언어(C · C++ · Java)는 설정한 스타일로, Python 은 그대로 */
+    templateOf(languageId = LanguageId.C) {
+        const template = languageId === LanguageId.C ? DEFAULT_CODE : languageOf(languageId).template;
+        return languageId === LanguageId.PYTHON ? template : formatBraces(template, this.#progress.settings.codeStyle);
+    }
+
+    /** 스타일 토글: 지금 코드를 그 스타일로 바꿔 저장하고, 고른 스타일을 기억한다 */
+    restyleCode(problemId, code, style, languageId = LanguageId.C) {
+        const styled = formatBraces(code, style);
+        this.updateSettings({ codeStyle: style });
+        this.saveCode(problemId, styled, languageId);
+        return styled;
     }
 
     saveCode(problemId, code, languageId = LanguageId.C) {

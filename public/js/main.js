@@ -37,6 +37,7 @@ import { renderAlgorithm } from './views/algorithm-view.js';
 import { renderOopList, renderOopLesson } from './views/oop-view.js';
 import { showInstallGuideIfNeeded } from './views/install-guide.js';
 import { renderCommunityList, renderCommunityNew, renderCommunityProblem } from './views/community-view.js';
+import { readGuestSky, saveGuestSky } from './views/sky-switch.js';
 import { indexContent } from './mappers/content-mapper.js';
 import { renderRecover } from './views/auth-views.js';
 import { t, initLocale, changeLocale, getLocale } from './i18n/index.js';
@@ -55,7 +56,8 @@ const progress = new ProgressService(
 );
 const contentRepository = new ContentRepository(new StaticContentDataSource(http));
 const codeRunRepository = new CodeRunRepository(new CodeRunApiDataSource(http));
-const currentSettings = () => progress.progress?.settings ?? DEFAULT_SETTINGS;
+// 로그인 전에는 진도가 없으니, 로그인 화면에서 고른 배경(이 기기에 기억)을 쓴다
+const currentSettings = () => progress.progress?.settings ?? { ...DEFAULT_SETTINGS, sky: readGuestSky() };
 // 탭 하나(이번 방문)만 기억하는 곳. 막힌 브라우저면 빈 가짜를 쓴다 (VisitService 가 실패를 견딤)
 const sessionStore = (() => {
     try {
@@ -140,9 +142,17 @@ app.setLocaleAsync = async (locale) => {
     }
 };
 
+/** 로그인 화면의 배경 밝기 버튼: 이 기기에 기억하고 바로 다시 칠한다 */
+app.setGuestSky = (value) => {
+    saveGuestSky(value);
+    app.sky.compute();
+};
+
 app.logoutAsync = async () => {
     await auth.logoutAsync();
+    saveGuestSky(progress.progress?.settings?.sky); // 로그아웃해도 쓰던 배경 그대로
     progress.clear();
+    app.sky.compute();
     history.replaceState(null, '', location.pathname);
     renderLogin(app);
 };

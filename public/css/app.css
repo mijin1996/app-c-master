@@ -50,7 +50,7 @@
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.6; }
-#sky { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; }
+#sky { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; opacity: .4;}
 #app { position: relative; z-index: 1; min-height: 100%; display: flex; flex-direction: column; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
@@ -518,7 +518,7 @@ main:has(> .visit-bar) { padding-top: 0; }
 .login-foot { display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 12px; }
 /* ---------- 모든 토글(고르기 목록): 버튼은 흰 글자, 목록은 "앱처럼 써 봐요" 카드 창 (ui/picker.js) ---------- */
 .lang-switch { display: inline-flex; align-items: center; gap: 6px; }
-.login-lang { display: flex; justify-content: flex-end; padding-top: 10px; }
+.login-lang { display: flex; justify-content: flex-end; gap: 8px; padding-top: 10px; }
 /* 원래 select 는 값 보관용으로만 남기고 화면에서는 숨긴다 */
 .picker-native { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; margin: 0; padding: 0; border: 0; }
 .picker-trigger { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 6px 12px; border-radius: 999px;

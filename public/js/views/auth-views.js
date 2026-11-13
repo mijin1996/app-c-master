@@ -6,6 +6,7 @@ import { CREDITS_BUTTON, bindCreditsButtons } from './credits-modal.js';
 import { INSTALL_BUTTON, bindInstallButtons } from './install-guide.js';
 import { VISIT_SLOT, bindVisits } from './visit-count.js';
 import { langSwitchHtml, bindLangSwitch } from './lang-switch.js';
+import { skySwitchHtml, bindSkySwitch } from './sky-switch.js';
 import { Failure } from '../core/result.js';
 import { messageOf } from '../core/app-error.js';
 import { FORM_NAMES } from '../domain/progress-rules.js';
@@ -47,7 +48,7 @@ export function renderLogin(app, mode = 'login') {
     const isJoin = mode === 'join';
     app.root.innerHTML =
         '<div class="wrap login">' +
-        '<div class="login-lang">' + langSwitchHtml() + '</div>' +
+        '<div class="login-lang">' + skySwitchHtml() + langSwitchHtml() + '</div>' +
         '<section class="tech-hero"><div class="tech" id="tech"></div>' +
         '<p class="tech-tag">' + t('auth.heroTag') + '</p></section>' +
         '<div class="panel login-card">' +
@@ -72,6 +73,7 @@ export function renderLogin(app, mode = 'login') {
     bindInstallButtons(app.root);
     bindVisits(app.visits, app.root);
     bindLangSwitch(app, app.root);
+    bindSkySwitch(app, app.root);
 
     $('#tab-login').onclick = () => renderLogin(app, 'login');
     $('#tab-join').onclick = () => renderLogin(app, 'join');
@@ -103,7 +105,7 @@ export function renderLogin(app, mode = 'login') {
 export function renderRecover(app, mode, presetUser = '', presetCode = '') {
     const isReset = mode === 'pw';
     app.loginMode = 'recover-' + mode;
-    app.root.innerHTML = '<div class="wrap login"><div class="login-lang">' + langSwitchHtml() + '</div>' +
+    app.root.innerHTML = '<div class="wrap login"><div class="login-lang">' + skySwitchHtml() + langSwitchHtml() + '</div>' +
         '<form class="panel login-form" id="rc-form" novalidate style="width:min(460px,100%)">' +
         '<h1 style="font-size:28px">' + esc(t('auth.findTitle')) + '</h1>' +
         '<div class="tabs" role="tablist"><button type="button" role="tab" id="rt-id" class="' + (isReset ? '' : 'on') + '" aria-selected="' + !isReset + '">' + esc(t('auth.findId')) + '</button>' +
@@ -117,6 +119,7 @@ export function renderRecover(app, mode, presetUser = '', presetCode = '') {
         '<div class="notice">' + esc(t('auth.findNotice')) + '</div></form></div>';
 
     bindLangSwitch(app, app.root);
+    bindSkySwitch(app, app.root);
     $('#rt-id').onclick = () => renderRecover(app, 'id');
     $('#rt-pw').onclick = () => renderRecover(app, 'pw');
     $('#r-back').onclick = () => renderLogin(app, 'login');

@@ -19,9 +19,14 @@ All learning content (C chapters, algorithm problems, OOP lessons) SHALL be avai
 ### Requirement: No missing translations
 Builds SHALL fail when any translatable field is missing, an array length differs from the Korean original, or Korean text remains in a translation that does not appear in that item's own code, tests or expected output.
 
-### Requirement: Examples follow the chosen brace style (2026-11-12)
-Concept examples, chapter quiz code and model solutions in brace languages SHALL be shown in the learner's code style for that language (Allman by default, K&R when chosen). Code boxes in community posts and comments (``` with no tag, c, cpp, java) SHALL follow the same style. Python code and OOP lessons (already Allman) SHALL be shown as written.
+### Requirement: Examples use each language's convention (2026-11-13)
+Concept examples, chapter quiz code and model solutions SHALL always be shown in the usual style of their language — C and C++ Allman, Java K&R (Oracle Code Conventions · Google Java Style), Python PEP 8 — whatever the learner picked in the editor. The Allman/K&R toggle SHALL affect only the editor. Code boxes in community posts and comments SHALL be shown exactly as the author wrote them. OOP lessons are C# and SHALL be shown as written (Allman, the C# convention).
 
 #### Scenario: Default learner opens chapter 5
 - **WHEN** a learner who never changed the style opens the chapter 5 concept
 - **THEN** the example shows `{` on its own line after `if (s >= 90)`
+
+#### Scenario: Learner switched the editor to K&R
+- **GIVEN** a learner who chose K&R for C in the problem editor
+- **WHEN** they open a chapter concept, a quiz with code, or a model solution
+- **THEN** the C code is still shown in Allman, and only their editor uses K&R

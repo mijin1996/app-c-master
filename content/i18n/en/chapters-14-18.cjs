@@ -192,7 +192,7 @@ module.exports = {
             'Read with fscanf(fp, "%d", &x) and write with fprintf(fp, "%d\\n", x). They work like printf/scanf with a file pointer added at the front.',
             'fscanf returns EOF(-1) when there is nothing more to read. Read to the end with while (fscanf(...) != EOF). When done, fclose(fp).',
         ],
-        example: '#include <stdio.h>\n\nint main() {\n    FILE *in = fopen("input.txt", "r");\n    FILE *out = fopen("output.txt", "w");\n    if (in == NULL) {\n        printf("file not found\\n");\n        return 0;\n    }\n    int x, sum = 0;\n    while (fscanf(in, "%d", &x) != EOF) {\n        sum += x;\n    }\n    fprintf(out, "%d\\n", sum);\n    fclose(in);\n    fclose(out);\n    return 0;\n}',
+        example: '#include <stdio.h>\n\nint main()\n{\n    FILE *in = fopen("input.txt", "r");\n    FILE *out = fopen("output.txt", "w");\n    if (in == NULL)\n    {\n        printf("file not found\\n");\n        return 0;\n    }\n    int x, sum = 0;\n    while (fscanf(in, "%d", &x) != EOF)\n    {\n        sum += x;\n    }\n    fprintf(out, "%d\\n", sum);\n    fclose(in);\n    fclose(out);\n    return 0;\n}',
         problems: {
             1069: {
                 title: 'Sum of the numbers in a file',

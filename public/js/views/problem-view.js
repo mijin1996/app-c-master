@@ -167,7 +167,7 @@ function renderHints(ctx) {
     if (opened > problem.hints.length) {
         const lang = ctx.language ?? LanguageId.C;
         const raw = problem.solutions?.[lang] ?? problem.solution;
-        const answer = app.progress.styleSnippet(raw, problem.solutions?.[lang] ? lang : LanguageId.C);
+        const answer = app.progress.exampleOf(raw, problem.solutions?.[lang] ? lang : LanguageId.C);
         const shown = problem.solutions?.[lang] ? languageOf(lang).label : languageOf(LanguageId.C).label;
         html += '<div><div class="muted label">' + esc(t('prob.solutionLabel', { lang: shown })) + '</div><pre class="codeblock">' + highlight(answer) + '</pre></div>';
     } else if (opened < problem.hints.length) {

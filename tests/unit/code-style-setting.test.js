@@ -88,17 +88,21 @@ test('손대지 않은 처음 틀이 예전 K&R 모양으로 저장돼 있으면
     assert.equal(code, service.templateOf('c'));
 });
 
-test('styleSnippet: 설명 · 퀴즈 예시 코드는 C 스타일로, Python 은 그대로', async () => {
-    // Given
-    const allman = await serviceWith();
-    const knr = await serviceWith({ settings: { codeStyles: { c: 'knr' } } });
-    const sample = 'int main() {\n    if (1) {\n        return 0;\n    }\n}';
+test('exampleOf: 설명 · 퀴즈 · 모범 답안은 토글과 상관없이 그 언어 관례 스타일로', async () => {
+    // Given: 에디터에서 C 는 K&R, Java 는 Allman 을 고른 학습자
+    const picked = await serviceWith({ settings: { codeStyles: { c: 'knr', java: 'allman' } } });
+    const knrC = 'int main() {\n    if (1) {\n        return 0;\n    }\n}';
+    const allmanC = 'int main()\n{\n    if (1)\n    {\n        return 0;\n    }\n}';
+    const allmanJava = 'class A\n{\n    void f()\n    {\n    }\n}';
 
-    // When / Then
-    assert.equal(allman.styleSnippet(sample), 'int main()\n{\n    if (1)\n    {\n        return 0;\n    }\n}');
-    assert.equal(knr.styleSnippet(sample), sample);
-    assert.equal(allman.styleSnippet('d = {1: 2}', 'python'), 'd = {1: 2}');
-    assert.equal(allman.styleSnippet(''), '');
+    // When / Then: C 는 Allman, Java 는 K&R, Python 은 그대로
+    assert.equal(picked.exampleOf(knrC), allmanC);
+    assert.equal(picked.exampleOf(knrC, 'cpp'), allmanC);
+    assert.equal(picked.exampleOf(allmanJava, 'java'), 'class A {\n    void f() {\n    }\n}');
+    assert.equal(picked.exampleOf('d = {1: 2}', 'python'), 'd = {1: 2}');
+    assert.equal(picked.exampleOf(''), '');
+    // 에디터 스타일 기억은 그대로
+    assert.equal(picked.styleOf('c'), 'knr');
 });
 
 test('applyCodeStyle: 그 언어 스타일만 바꿔 기억한다 (다른 언어는 그대로)', async () => {

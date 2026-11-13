@@ -4,7 +4,7 @@
 Algorithm problems SHALL be solvable in C and Python in the browser. C++ and Java SHALL appear as paid languages that stay disabled until PAID_LANGUAGES_ENABLED and JUDGE0_URL are set. Chapter problems SHALL stay C only.
 
 ### Requirement: Code style per language (2026-11-12)
-Each language SHALL have its usual style: C and C++ Allman (site default), Java K&R, Python PEP 8. The Allman/K&R toggle SHALL change only the current brace language and be remembered per language; Python SHALL always use PEP 8 and show no toggle. An old single `codeStyle` setting SHALL carry over to C and C++.
+Each language SHALL have its usual style: C and C++ Allman (site default), Java K&R, Python PEP 8. The Allman/K&R toggle SHALL change only the current brace language and be remembered per language; Python SHALL always use PEP 8 and show no toggle. An old single `codeStyle` setting SHALL carry over to C and C++. The toggle SHALL change only the editor; examples and model solutions always use the language's usual style (see i18n spec, 2026-11-13).
 
 #### Scenario: Pressing Enter in the editor
 - GIVEN Allman and the line `int main() {`

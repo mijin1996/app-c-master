@@ -192,7 +192,7 @@ module.exports = {
             '用 fscanf(fp, "%d", &x) 读，用 fprintf(fp, "%d\\n", x) 写。和 printf/scanf 一样，只是前面多了文件指针。',
             'fscanf 没有东西可读时返回 EOF(-1)。用 while (fscanf(...) != EOF) 读到最后。用完后 fclose(fp)。',
         ],
-        example: '#include <stdio.h>\n\nint main() {\n    FILE *in = fopen("input.txt", "r");\n    FILE *out = fopen("output.txt", "w");\n    if (in == NULL) {\n        printf("没有文件\\n");\n        return 0;\n    }\n    int x, sum = 0;\n    while (fscanf(in, "%d", &x) != EOF) {\n        sum += x;\n    }\n    fprintf(out, "%d\\n", sum);\n    fclose(in);\n    fclose(out);\n    return 0;\n}',
+        example: '#include <stdio.h>\n\nint main()\n{\n    FILE *in = fopen("input.txt", "r");\n    FILE *out = fopen("output.txt", "w");\n    if (in == NULL)\n    {\n        printf("没有文件\\n");\n        return 0;\n    }\n    int x, sum = 0;\n    while (fscanf(in, "%d", &x) != EOF)\n    {\n        sum += x;\n    }\n    fprintf(out, "%d\\n", sum);\n    fclose(in);\n    fclose(out);\n    return 0;\n}',
         problems: {
             1069: {
                 title: '文件里数字的和',

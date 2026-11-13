@@ -15,6 +15,9 @@ The top bar SHALL show only the current time as HH:MM in 24-hour format (no sunr
 - **WHEN** a learner in Seoul at 04:54 picks United States (New York)
 - **THEN** the clock shows 14:54
 
+### Requirement: Background brightness before login (2026-11-13)
+The login and account-recovery screens SHALL show a background switch (🌗 Auto · ☀️ Day · 🌙 Night) next to the language switch. Before login the choice SHALL be remembered in this browser; after login the "Background" setting saved with progress SHALL win. Logging out SHALL keep the background the learner was using.
+
 ### Requirement: One look for every toggle (2026-11-12)
 Every choice list (language, country, background, problem filters, code language, Allman/K&R, community form choices) SHALL open as a button with white text and, on press, a card window that looks like the install guide: a panel with a title and ✕, one card per option, the current option highlighted, and cards stacking as they scroll when there are five or more. Arrow keys, Home/End and Esc SHALL work. The Allman/K&R picker SHALL show only the two option names: no visible "code style" label or title and no descriptions (the name stays for screen readers). The language toggle SHALL have no globe icon.
 

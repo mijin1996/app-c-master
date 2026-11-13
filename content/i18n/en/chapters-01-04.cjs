@@ -147,7 +147,7 @@ module.exports = {
             'Writing (type)value is called type conversion (casting). (int)3.99 drops the fractional part and becomes 3.',
             'Debugging means finding bugs (errors). Printing intermediate values with printf makes it easy to see where things go wrong.',
         ],
-        example: '#include <stdio.h>\n\nint main() {\n    int a = 7, b = 2;\n    // compare integer division and real division\n    printf("%d\\n", a / b);\n    printf("%.1f\\n", (double)a / b);\n    printf("%d\\n", (int)3.99);  /* drops the decimal part */\n    return 0;\n}',
+        example: '#include <stdio.h>\n\nint main()\n{\n    int a = 7, b = 2;\n    // compare integer division and real division\n    printf("%d\\n", a / b);\n    printf("%.1f\\n", (double)a / b);\n    printf("%d\\n", (int)3.99);  /* drops the decimal part */\n    return 0;\n}',
         problems: {
             1013: {
                 title: 'Average of three subjects',

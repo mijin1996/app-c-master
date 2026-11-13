@@ -147,7 +147,7 @@ module.exports = {
             '写成 (类型)值 叫做类型转换（强制转换）。(int)3.99 去掉小数部分变成 3。',
             '调试就是找出 bug（错误）。用 printf 输出中间的值，就容易看出哪里出了问题。',
         ],
-        example: '#include <stdio.h>\n\nint main() {\n    int a = 7, b = 2;\n    // 比较整数除法和实数除法\n    printf("%d\\n", a / b);\n    printf("%.1f\\n", (double)a / b);\n    printf("%d\\n", (int)3.99);  /* 去掉小数部分 */\n    return 0;\n}',
+        example: '#include <stdio.h>\n\nint main()\n{\n    int a = 7, b = 2;\n    // 比较整数除法和实数除法\n    printf("%d\\n", a / b);\n    printf("%.1f\\n", (double)a / b);\n    printf("%d\\n", (int)3.99);  /* 去掉小数部分 */\n    return 0;\n}',
         problems: {
             1013: {
                 title: '三科平均分',

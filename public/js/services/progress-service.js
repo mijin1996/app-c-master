@@ -5,7 +5,7 @@ import { AppError } from '../core/app-error.js';
 import { OOP_LESSONS } from '../domain/oop-curriculum.js';
 import { oopGainedXp, OOP_QUIZ_SIZE } from '../domain/oop-rules.js';
 import { practiceKey, checkPractice, PRACTICE_XP } from '../domain/oop-practice-rules.js';
-import { formatBraces, codeStyleFor } from '../domain/brace-style.js';
+import { formatBraces, codeStyleFor, LANGUAGE_CODE_STYLES, DEFAULT_CODE_STYLE } from '../domain/brace-style.js';
 import { progressFromDto } from '../mappers/progress-mapper.js';
 import { LanguageId, languageOf, codeKey } from '../domain/languages.js';
 import {
@@ -294,9 +294,12 @@ export class ProgressService {
         return formatBraces(template, this.styleOf(languageId));
     }
 
-    /** 설명 · 퀴즈 · 모범 답안 코드도 그 언어의 스타일로 (한 사이트 안에서 모양이 같도록) */
-    styleSnippet(code, languageId = LanguageId.C) {
-        return code ? formatBraces(code, this.styleOf(languageId)) : '';
+    /**
+     * 설명 · 퀴즈 · 모범 답안 코드는 에디터 토글과 상관없이 그 언어의 관례 스타일로 보여 준다
+     * (C · C++ Allman, Java K&R, Python PEP 8). 학습자가 고른 스타일은 에디터에만 쓴다.
+     */
+    exampleOf(code, languageId = LanguageId.C) {
+        return code ? formatBraces(code, LANGUAGE_CODE_STYLES[languageId] ?? DEFAULT_CODE_STYLE) : '';
     }
 
     /** 코드를 고른 스타일로 바꿔 돌려주고, 그 언어의 스타일로 기억한다 (저장은 부르는 쪽이) */

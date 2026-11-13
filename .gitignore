@@ -5,6 +5,7 @@ node_modules/
 *.log
 .DS_Store
 Thumbs.db
+Claude outputs/
 
 # 내 컴퓨터 전용 wrangler 설정 (예시: wrangler.example.toml)
 wrangler.toml
